@@ -1,0 +1,13 @@
+{
+  "type": "number",
+  "title": { "en": "Basal calories today", "de": "Grundumsatz heute", "nl": "Basaal calorieën vandaag" },
+  "units": { "en": "kcal" },
+  "decimals": 0,
+  "min": 0,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": true,
+  "chartType": "stepLine",
+  "icon": "/assets/capabilities/calories.svg"
+}

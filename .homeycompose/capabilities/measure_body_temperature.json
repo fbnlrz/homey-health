@@ -1,0 +1,13 @@
+{
+  "type": "number",
+  "title": { "en": "Body temperature", "de": "Körpertemperatur", "nl": "Lichaamstemperatuur" },
+  "units": { "en": "°C" },
+  "decimals": 1,
+  "min": 30,
+  "max": 45,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": true,
+  "icon": "/assets/capabilities/gauge.svg"
+}

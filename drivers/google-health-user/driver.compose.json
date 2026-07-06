@@ -22,6 +22,15 @@
     "measure_respiratory_rate",
     "measure_sleep_hours",
     "measure_hydration",
+    "measure_calorie_intake",
+    "measure_carbs",
+    "measure_protein",
+    "measure_fat",
+    "measure_basal_calories",
+    "measure_glucose",
+    "measure_body_temperature",
+    "measure_altitude",
+    "measure_sedentary_minutes",
     "alarm_asleep"
   ],
   "platforms": [

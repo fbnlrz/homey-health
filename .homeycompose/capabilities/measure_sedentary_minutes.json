@@ -1,0 +1,13 @@
+{
+  "type": "number",
+  "title": { "en": "Sedentary minutes today", "de": "Sitzende Minuten heute", "nl": "Zittende minuten vandaag" },
+  "units": { "en": "min" },
+  "decimals": 0,
+  "min": 0,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": true,
+  "chartType": "stepLine",
+  "icon": "/assets/capabilities/timer.svg"
+}

@@ -108,6 +108,9 @@ class GoogleHealthDevice extends Homey.Device {
       if (this.getSetting('sync_nutrition') !== false) {
         await this._syncNutrition(today);
       }
+      if (this.driver.getOAuthConfig().allowCardiac) {
+        await this._syncCardiac();
+      }
 
       await this.setAvailable().catch(this.error);
     } catch (err) {
@@ -195,6 +198,8 @@ class GoogleHealthDevice extends Homey.Device {
       'measure_distance', 'measure_calories',
       'measure_active_calories', 'measure_floors',
       'measure_active_zone_minutes', 'measure_hydration',
+      'measure_calorie_intake', 'measure_carbs', 'measure_protein',
+      'measure_fat', 'measure_basal_calories', 'measure_sedentary_minutes',
     ];
     for (const capability of dailyCapabilities) {
       await this._setNumber(capability, 0);
@@ -214,6 +219,8 @@ class GoogleHealthDevice extends Homey.Device {
       { type: 'active-energy-burned', read: p => GoogleHealthApi.numberField(p, 'kcalSum'), apply: v => this._setNumber('measure_active_calories', Math.round(v)) },
       { type: 'floors', read: p => GoogleHealthApi.numberField(p, 'countSum'), apply: v => this._setNumber('measure_floors', v) },
       { type: 'active-zone-minutes', read: p => GoogleHealthApi.firstNumber(p, ['activeZoneMinutesSum', 'activeZoneMinutes', 'minutesSum']), apply: v => this._setNumber('measure_active_zone_minutes', Math.round(v)) },
+      { type: 'basal-energy-burned', read: p => GoogleHealthApi.deepNumber(p, ['kcalSum', 'kcal', 'basalEnergyBurnedKcalSum']), apply: v => this._setNumber('measure_basal_calories', Math.round(v)) },
+      { type: 'sedentary-period', read: p => GoogleHealthApi.deepNumber(p, ['minutesSum', 'sedentaryMinutesSum', 'minutes', 'durationMinutes']), apply: v => this._setNumber('measure_sedentary_minutes', Math.round(v)) },
     ];
 
     for (const { type, read, apply } of rollups) {
@@ -462,9 +469,87 @@ class GoogleHealthDevice extends Homey.Device {
       const rate = GoogleHealthApi.firstNumber(points[0], ['breathsPerMinute', 'respiratoryRate', 'value']);
       if (rate !== null) await this._setNumber('measure_respiratory_rate', Math.round(rate * 10) / 10);
     });
+
+    await this._guarded('blood-glucose', async () => {
+      const points = await this.api.list('blood-glucose', { pageSize: 1 });
+      if (!points.length) return;
+      const mgdl = GoogleHealthApi.deepNumber(points[0], ['bloodGlucoseMgPerDl', 'mgPerDl', 'milligramsPerDeciliter', 'bloodGlucoseLevel', 'level', 'value']);
+      if (mgdl === null) {
+        this.log('blood-glucose: unrecognized fields:', JSON.stringify(points[0]).slice(0, 300));
+        return;
+      }
+      const values = GoogleHealthApi.valueObject(points[0]) || {};
+      const key = points[0].name || (values.sampleTime || {}).physicalTime;
+      const changed = key && key !== this.getStoreValue('last_glucose_key');
+      await this._setNumber('measure_glucose', Math.round(mgdl));
+      if (changed) {
+        await this.setStoreValue('last_glucose_key', key).catch(this.error);
+        this.driver.newGlucoseTrigger
+          .trigger(this, { glucose: Math.round(mgdl) })
+          .catch(this.error);
+      }
+    });
+
+    await this._guarded('core-body-temperature', async () => {
+      const points = await this.api.list('core-body-temperature', { pageSize: 1 });
+      if (!points.length) return;
+      const celsius = GoogleHealthApi.deepNumber(points[0], ['temperatureCelsius', 'celsius', 'bodyTemperatureCelsius', 'value']);
+      if (celsius === null) this.log('core-body-temperature: unrecognized fields:', JSON.stringify(points[0]).slice(0, 300));
+      else await this._setNumber('measure_body_temperature', Math.round(celsius * 10) / 10);
+    });
+
+    await this._guarded('altitude', async () => {
+      const points = await this.api.list('altitude', { pageSize: 1 });
+      if (!points.length) return;
+      const meters = GoogleHealthApi.deepNumber(points[0], ['altitudeMeters', 'meters', 'altitude', 'value']);
+      if (meters !== null) await this._setNumber('measure_altitude', Math.round(meters));
+    });
   }
 
-  // ── Nutrition: water intake today ─────────────────────────────────
+  // ── Cardiac: ECG recordings + irregular-rhythm notifications ──────
+  // Opt-in (needs the ecg.readonly / irn.readonly scopes). List-only types;
+  // each new entry fires a flow trigger.
+
+  async _syncCardiac() {
+    await this._guarded('electrocardiogram', async () => {
+      const points = await this.api.list('electrocardiogram', { pageSize: 1 });
+      if (!points.length) return;
+      const values = GoogleHealthApi.valueObject(points[0]) || {};
+      const key = points[0].name
+        || (values.interval ? values.interval.startTime : null);
+      if (!key || key === this.getStoreValue('last_ecg_key')) return;
+      await this.setStoreValue('last_ecg_key', key).catch(this.error);
+      if (this.getStoreValue('ecg_seen') !== true) {
+        // Don't fire for the pre-existing newest recording on first enable
+        await this.setStoreValue('ecg_seen', true).catch(this.error);
+        return;
+      }
+      const classification = values.resultClassification
+        || values.classification || 'UNKNOWN';
+      this.driver.ecgRecordedTrigger
+        .trigger(this, { classification: String(classification) })
+        .catch(this.error);
+    });
+
+    await this._guarded('irregular-rhythm-notification', async () => {
+      const points = await this.api.list('irregular-rhythm-notification', { pageSize: 1 });
+      if (!points.length) return;
+      const values = GoogleHealthApi.valueObject(points[0]) || {};
+      const key = points[0].name
+        || (values.interval ? values.interval.startTime : null);
+      if (!key || key === this.getStoreValue('last_irn_key')) return;
+      await this.setStoreValue('last_irn_key', key).catch(this.error);
+      if (this.getStoreValue('irn_seen') !== true) {
+        await this.setStoreValue('irn_seen', true).catch(this.error);
+        return;
+      }
+      this.driver.irregularRhythmTrigger
+        .trigger(this, {})
+        .catch(this.error);
+    });
+  }
+
+  // ── Nutrition: water + food intake today ──────────────────────────
 
   async _syncNutrition(today) {
     await this._guarded('hydration-log', async () => {
@@ -473,6 +558,28 @@ class GoogleHealthDevice extends Homey.Device {
       if (!points.length) return;
       const ml = GoogleHealthApi.firstNumber(points[0], ['millilitersSum', 'milliliters']);
       if (ml !== null) await this._setNumber('measure_hydration', Math.round(ml));
+    });
+
+    await this._guarded('nutrition-log', async () => {
+      const points = await this.api.dailyRollup('nutrition-log', today, today);
+      if (this._todayLocalDate() !== today) return;
+      if (!points.length) return;
+      const point = points[0];
+      const nutrients = [
+        ['measure_calorie_intake', ['energyKcalSum', 'energyKcal', 'kcalSum', 'caloriesKcal', 'energy'], 1],
+        ['measure_carbs', ['carbohydratesGramsSum', 'carbohydratesGrams', 'carbsGramsSum', 'carbohydrates', 'carbs'], 1],
+        ['measure_protein', ['proteinGramsSum', 'proteinGrams', 'protein'], 1],
+        ['measure_fat', ['totalFatGramsSum', 'fatGramsSum', 'totalFatGrams', 'fatGrams', 'fat'], 1],
+      ];
+      let anyFound = false;
+      for (const [capability, candidates, round] of nutrients) {
+        const value = GoogleHealthApi.deepNumber(point, candidates, 3);
+        if (value !== null) {
+          anyFound = true;
+          await this._setNumber(capability, Math.round(value / round) * round);
+        }
+      }
+      if (!anyFound) this.log('nutrition-log: unrecognized fields:', JSON.stringify(point).slice(0, 400));
     });
   }
 
@@ -610,6 +717,7 @@ class GoogleHealthDevice extends Homey.Device {
         return mm === null ? null : Math.round(mm / 10000) / 100;
       }],
       ['active_zone_minutes', 'active-zone-minutes', p => GoogleHealthApi.firstNumber(p, ['activeZoneMinutesSum', 'activeZoneMinutes', 'minutesSum'])],
+      ['calorie_intake', 'nutrition-log', p => GoogleHealthApi.deepNumber(p, ['energyKcalSum', 'energyKcal', 'kcalSum', 'caloriesKcal', 'energy'], 3)],
     ];
     for (const [key, type, read] of rollups) {
       await attempt(key, async () => {
@@ -667,6 +775,34 @@ class GoogleHealthDevice extends Homey.Device {
         .filter(e => e.date && e.value !== null)
         .sort((a, b) => a.date.localeCompare(b.date));
     });
+
+    // Blood glucose + core body temperature samples → daily latest value
+    const sampleSeries = [
+      ['glucose_mgdl', 'blood-glucose', 'blood_glucose',
+        p => GoogleHealthApi.deepNumber(p, ['bloodGlucoseMgPerDl', 'mgPerDl', 'milligramsPerDeciliter', 'bloodGlucoseLevel', 'level', 'value']), 0],
+      ['body_temperature', 'core-body-temperature', 'core_body_temperature',
+        p => GoogleHealthApi.deepNumber(p, ['temperatureCelsius', 'celsius', 'bodyTemperatureCelsius', 'value']), 1],
+    ];
+    for (const [key, type, filterName, read, decimals] of sampleSeries) {
+      await attempt(key, async () => {
+        const points = await this.api.listAll(type, {
+          filter: `${filterName}.sample_time.physical_time >= "${from}T00:00:00Z"`,
+          pageSize: 100,
+        });
+        return points
+          .map(p => {
+            const values = GoogleHealthApi.valueObject(p) || {};
+            const time = values.sampleTime ? values.sampleTime.physicalTime : null;
+            const raw = read(p);
+            return {
+              date: time ? this._localDateOf(time) : null,
+              value: raw === null ? null : Math.round(raw * (10 ** decimals)) / (10 ** decimals),
+            };
+          })
+          .filter(e => e.date && e.value !== null)
+          .sort((a, b) => a.date.localeCompare(b.date));
+      });
+    }
 
     // Latest height (cm) — for the BMI calculation in the report
     await attempt('height_cm', async () => {

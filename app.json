@@ -453,6 +453,85 @@
             "filter": "driver_id=google-health-user"
           }
         ]
+      },
+      {
+        "id": "new_glucose_measurement",
+        "title": {
+          "en": "A new blood glucose reading arrived",
+          "de": "Ein neuer Blutzuckerwert ist eingetroffen",
+          "nl": "Er is een nieuwe bloedglucosemeting binnengekomen"
+        },
+        "tokens": [
+          {
+            "name": "glucose",
+            "type": "number",
+            "title": {
+              "en": "Blood glucose (mg/dL)",
+              "de": "Blutzucker (mg/dL)",
+              "nl": "Bloedglucose (mg/dL)"
+            },
+            "example": 98
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=google-health-user"
+          }
+        ]
+      },
+      {
+        "id": "ecg_recorded",
+        "title": {
+          "en": "A new ECG was recorded",
+          "de": "Ein neues EKG wurde aufgezeichnet",
+          "nl": "Er is een nieuw ecg opgenomen"
+        },
+        "hint": {
+          "en": "Requires ECG access — enable it in the app settings, then run 'Repair' on the device.",
+          "de": "Erfordert EKG-Zugriff — in den App-Einstellungen aktivieren und danach das Gerät 'Reparieren'.",
+          "nl": "Vereist ecg-toegang — schakel dit in bij de app-instellingen en voer daarna 'Repareren' uit op het apparaat."
+        },
+        "tokens": [
+          {
+            "name": "classification",
+            "type": "string",
+            "title": {
+              "en": "Result",
+              "de": "Ergebnis",
+              "nl": "Resultaat"
+            },
+            "example": "SINUS_RHYTHM"
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=google-health-user"
+          }
+        ]
+      },
+      {
+        "id": "irregular_rhythm_detected",
+        "title": {
+          "en": "An irregular heart rhythm was detected",
+          "de": "Ein unregelmäßiger Herzrhythmus wurde erkannt",
+          "nl": "Er is een onregelmatig hartritme gedetecteerd"
+        },
+        "hint": {
+          "en": "Requires irregular-rhythm access — enable it in the app settings, then run 'Repair' on the device.",
+          "de": "Erfordert Zugriff auf Rhythmus-Warnungen — in den App-Einstellungen aktivieren und danach das Gerät 'Reparieren'.",
+          "nl": "Vereist toegang tot ritmemeldingen — schakel dit in bij de app-instellingen en voer daarna 'Repareren' uit op het apparaat."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=google-health-user"
+          }
+        ]
       }
     ],
     "conditions": [
@@ -870,6 +949,15 @@
         "measure_respiratory_rate",
         "measure_sleep_hours",
         "measure_hydration",
+        "measure_calorie_intake",
+        "measure_carbs",
+        "measure_protein",
+        "measure_fat",
+        "measure_basal_calories",
+        "measure_glucose",
+        "measure_body_temperature",
+        "measure_altitude",
+        "measure_sedentary_minutes",
         "alarm_asleep"
       ],
       "platforms": [
@@ -1088,6 +1176,42 @@
       "chartType": "stepLine",
       "icon": "/assets/capabilities/timer.svg"
     },
+    "measure_altitude": {
+      "type": "number",
+      "title": {
+        "en": "Altitude",
+        "de": "Höhe",
+        "nl": "Hoogte"
+      },
+      "units": {
+        "en": "m"
+      },
+      "decimals": 0,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "icon": "/assets/capabilities/distance.svg"
+    },
+    "measure_basal_calories": {
+      "type": "number",
+      "title": {
+        "en": "Basal calories today",
+        "de": "Grundumsatz heute",
+        "nl": "Basaal calorieën vandaag"
+      },
+      "units": {
+        "en": "kcal"
+      },
+      "decimals": 0,
+      "min": 0,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "chartType": "stepLine",
+      "icon": "/assets/capabilities/calories.svg"
+    },
     "measure_body_fat": {
       "type": "number",
       "title": {
@@ -1108,6 +1232,44 @@
       "insights": true,
       "icon": "/assets/capabilities/weight.svg"
     },
+    "measure_body_temperature": {
+      "type": "number",
+      "title": {
+        "en": "Body temperature",
+        "de": "Körpertemperatur",
+        "nl": "Lichaamstemperatuur"
+      },
+      "units": {
+        "en": "°C"
+      },
+      "decimals": 1,
+      "min": 30,
+      "max": 45,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "icon": "/assets/capabilities/gauge.svg"
+    },
+    "measure_calorie_intake": {
+      "type": "number",
+      "title": {
+        "en": "Calorie intake today",
+        "de": "Kalorienaufnahme heute",
+        "nl": "Calorie-inname vandaag"
+      },
+      "units": {
+        "en": "kcal"
+      },
+      "decimals": 0,
+      "min": 0,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "chartType": "stepLine",
+      "icon": "/assets/capabilities/calories.svg"
+    },
     "measure_calories": {
       "type": "number",
       "title": {
@@ -1118,6 +1280,25 @@
       "units": {
         "en": "kcal",
         "nl": "kcal"
+      },
+      "decimals": 0,
+      "min": 0,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "chartType": "stepLine",
+      "icon": "/assets/capabilities/calories.svg"
+    },
+    "measure_carbs": {
+      "type": "number",
+      "title": {
+        "en": "Carbohydrates today",
+        "de": "Kohlenhydrate heute",
+        "nl": "Koolhydraten vandaag"
+      },
+      "units": {
+        "en": "g"
       },
       "decimals": 0,
       "min": 0,
@@ -1148,6 +1329,25 @@
       "chartType": "stepLine",
       "icon": "/assets/capabilities/distance.svg"
     },
+    "measure_fat": {
+      "type": "number",
+      "title": {
+        "en": "Fat today",
+        "de": "Fett heute",
+        "nl": "Vet vandaag"
+      },
+      "units": {
+        "en": "g"
+      },
+      "decimals": 0,
+      "min": 0,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "chartType": "stepLine",
+      "icon": "/assets/capabilities/calories.svg"
+    },
     "measure_floors": {
       "type": "number",
       "title": {
@@ -1168,6 +1368,25 @@
       "insights": true,
       "chartType": "stepLine",
       "icon": "/assets/capabilities/floors.svg"
+    },
+    "measure_glucose": {
+      "type": "number",
+      "title": {
+        "en": "Blood glucose",
+        "de": "Blutzucker",
+        "nl": "Bloedglucose"
+      },
+      "units": {
+        "en": "mg/dL"
+      },
+      "decimals": 0,
+      "min": 0,
+      "max": 1000,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "icon": "/assets/capabilities/spo2.svg"
     },
     "measure_heart_rate": {
       "type": "number",
@@ -1228,6 +1447,25 @@
       "chartType": "stepLine",
       "icon": "/assets/capabilities/spo2.svg"
     },
+    "measure_protein": {
+      "type": "number",
+      "title": {
+        "en": "Protein today",
+        "de": "Eiweiß heute",
+        "nl": "Eiwit vandaag"
+      },
+      "units": {
+        "en": "g"
+      },
+      "decimals": 0,
+      "min": 0,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "chartType": "stepLine",
+      "icon": "/assets/capabilities/calories.svg"
+    },
     "measure_respiratory_rate": {
       "type": "number",
       "title": {
@@ -1268,6 +1506,25 @@
       "uiComponent": "sensor",
       "insights": true,
       "icon": "/assets/capabilities/heart.svg"
+    },
+    "measure_sedentary_minutes": {
+      "type": "number",
+      "title": {
+        "en": "Sedentary minutes today",
+        "de": "Sitzende Minuten heute",
+        "nl": "Zittende minuten vandaag"
+      },
+      "units": {
+        "en": "min"
+      },
+      "decimals": 0,
+      "min": 0,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "chartType": "stepLine",
+      "icon": "/assets/capabilities/timer.svg"
     },
     "measure_sleep_hours": {
       "type": "number",

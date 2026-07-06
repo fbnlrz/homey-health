@@ -22,6 +22,8 @@
     "client_secret": "Client-Secret",
     "enable_write": "Schreiben in Google Health erlauben (nötig für die Flow-Karte 'Gewicht protokollieren')",
     "enable_write_hint": "Nach einer Änderung bei bestehenden Geräten 'Reparieren' ausführen (oder neu koppeln), um die neue Berechtigung zu übernehmen.",
+    "enable_cardiac": "EKG- und Herzrhythmus-Daten aktivieren (zusätzliche Google-Berechtigungen)",
+    "enable_cardiac_hint": "Fügt die EKG- und Rhythmus-Scopes für die passenden Flow-Karten hinzu. Nach einer Änderung das Gerät 'Reparieren' und die neuen Berechtigungen auf dem Google-Bildschirm anhaken.",
     "save": "Speichern",
     "saved": "Gespeichert!",
     "report": {
@@ -64,6 +66,9 @@
       "col_sleep": "Schlaf h",
       "col_deep": "Tief min",
       "col_weight": "Gewicht kg",
+      "col_kcal_in": "Aufnahme kcal",
+      "col_glucose": "Glukose",
+      "col_temp": "Temp °C",
       "avg_steps": "Ø Schritte/Tag",
       "avg_sleep": "Ø Schlaf",
       "avg_rhr": "Ø Ruhepuls",
