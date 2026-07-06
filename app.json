@@ -292,12 +292,19 @@
         "measure_steps",
         "measure_distance",
         "measure_calories",
+        "measure_active_calories",
         "measure_floors",
+        "measure_active_zone_minutes",
         "measure_heart_rate",
         "measure_resting_heart_rate",
+        "measure_hrv",
+        "measure_vo2_max",
         "measure_weight",
+        "measure_body_fat",
         "measure_spo2",
-        "measure_sleep_hours"
+        "measure_respiratory_rate",
+        "measure_sleep_hours",
+        "measure_hydration"
       ],
       "platforms": [
         "local",
@@ -424,6 +431,15 @@
                 "de": "Schlaf"
               },
               "value": true
+            },
+            {
+              "id": "sync_nutrition",
+              "type": "checkbox",
+              "label": {
+                "en": "Nutrition (water intake)",
+                "de": "Ernährung (Wasseraufnahme)"
+              },
+              "value": true
             }
           ]
         }
@@ -431,6 +447,60 @@
     }
   ],
   "capabilities": {
+    "measure_active_calories": {
+      "type": "number",
+      "title": {
+        "en": "Active calories today",
+        "de": "Aktivkalorien heute"
+      },
+      "units": {
+        "en": "kcal"
+      },
+      "decimals": 0,
+      "min": 0,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "chartType": "stepLine",
+      "icon": "/assets/capabilities/calories.svg"
+    },
+    "measure_active_zone_minutes": {
+      "type": "number",
+      "title": {
+        "en": "Active zone minutes today",
+        "de": "Aktivzonen-Minuten heute"
+      },
+      "units": {
+        "en": "min"
+      },
+      "decimals": 0,
+      "min": 0,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "chartType": "stepLine",
+      "icon": "/assets/capabilities/timer.svg"
+    },
+    "measure_body_fat": {
+      "type": "number",
+      "title": {
+        "en": "Body fat",
+        "de": "Körperfett"
+      },
+      "units": {
+        "en": "%"
+      },
+      "decimals": 1,
+      "min": 0,
+      "max": 100,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "icon": "/assets/capabilities/weight.svg"
+    },
     "measure_calories": {
       "type": "number",
       "title": {
@@ -504,6 +574,60 @@
       "insights": true,
       "icon": "/assets/capabilities/heart.svg"
     },
+    "measure_hrv": {
+      "type": "number",
+      "title": {
+        "en": "Heart rate variability",
+        "de": "Herzratenvariabilität"
+      },
+      "units": {
+        "en": "ms"
+      },
+      "decimals": 0,
+      "min": 0,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "icon": "/assets/capabilities/heart.svg"
+    },
+    "measure_hydration": {
+      "type": "number",
+      "title": {
+        "en": "Water intake today",
+        "de": "Wasseraufnahme heute"
+      },
+      "units": {
+        "en": "ml"
+      },
+      "decimals": 0,
+      "min": 0,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "chartType": "stepLine",
+      "icon": "/assets/capabilities/spo2.svg"
+    },
+    "measure_respiratory_rate": {
+      "type": "number",
+      "title": {
+        "en": "Respiratory rate",
+        "de": "Atemfrequenz"
+      },
+      "units": {
+        "en": "brpm",
+        "de": "AZ/min"
+      },
+      "decimals": 1,
+      "min": 0,
+      "max": 60,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "icon": "/assets/capabilities/breath.svg"
+    },
     "measure_resting_heart_rate": {
       "type": "number",
       "title": {
@@ -576,6 +700,24 @@
       "insights": true,
       "chartType": "stepLine",
       "icon": "/assets/capabilities/steps.svg"
+    },
+    "measure_vo2_max": {
+      "type": "number",
+      "title": {
+        "en": "VO2 max",
+        "de": "VO2 max"
+      },
+      "units": {
+        "en": "ml/kg/min"
+      },
+      "decimals": 1,
+      "min": 0,
+      "max": 100,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "icon": "/assets/capabilities/gauge.svg"
     },
     "measure_weight": {
       "type": "number",

@@ -87,6 +87,15 @@
           "de": "Schlaf"
         },
         "value": true
+      },
+      {
+        "id": "sync_nutrition",
+        "type": "checkbox",
+        "label": {
+          "en": "Nutrition (water intake)",
+          "de": "Ernährung (Wasseraufnahme)"
+        },
+        "value": true
       }
     ]
   }

@@ -72,6 +72,7 @@ class GoogleHealthDevice extends Homey.Device {
 
     try {
       const today = this._todayLocalDate();
+      await this._resetDailyCountersIfNewDay(today);
 
       if (this.getSetting('sync_activity') !== false) {
         await this._syncActivity(today);
@@ -84,6 +85,9 @@ class GoogleHealthDevice extends Homey.Device {
       }
       if (this.getSetting('sync_sleep') !== false) {
         await this._syncSleep();
+      }
+      if (this.getSetting('sync_nutrition') !== false) {
+        await this._syncNutrition(today);
       }
 
       await this.setAvailable().catch(this.error);
@@ -122,27 +126,44 @@ class GoogleHealthDevice extends Homey.Device {
     }
   }
 
+  // ── Daily counters: restart at 0 when the local day changes ──────
+
+  async _resetDailyCountersIfNewDay(today) {
+    const lastDate = this.getStoreValue('daily_date');
+    if (lastDate === today) return;
+    await this.setStoreValue('daily_date', today).catch(this.error);
+    if (!lastDate) return; // first sync ever — nothing to reset
+
+    // "No data yet today" is rendered as 0-so-far; real values arrive with
+    // the next rollup that has data (a missing rollup day means "not synced",
+    // so we never overwrite a fresh value with 0 later in the day).
+    const dailyCapabilities = [
+      'measure_steps', 'measure_distance', 'measure_calories',
+      'measure_active_calories', 'measure_floors',
+      'measure_active_zone_minutes', 'measure_hydration',
+    ];
+    for (const capability of dailyCapabilities) {
+      await this._setNumber(capability, 0);
+    }
+  }
+
   // ── Activity: daily rollups for today ────────────────────────────
 
   async _syncActivity(today) {
     const rollups = [
-      { type: 'steps', field: 'countSum', apply: v => this._setSteps(today, v) },
-      { type: 'distance', field: 'millimetersSum', apply: v => this._setNumber('measure_distance', Math.round(v / 10000) / 100) },
-      { type: 'total-calories', field: 'kcalSum', apply: v => this._setNumber('measure_calories', Math.round(v)) },
-      { type: 'floors', field: 'countSum', apply: v => this._setNumber('measure_floors', v) },
+      { type: 'steps', read: p => GoogleHealthApi.numberField(p, 'countSum'), apply: v => this._setSteps(today, v) },
+      { type: 'distance', read: p => GoogleHealthApi.numberField(p, 'millimetersSum'), apply: v => this._setNumber('measure_distance', Math.round(v / 10000) / 100) },
+      { type: 'total-calories', read: p => GoogleHealthApi.numberField(p, 'kcalSum'), apply: v => this._setNumber('measure_calories', Math.round(v)) },
+      { type: 'active-energy-burned', read: p => GoogleHealthApi.numberField(p, 'kcalSum'), apply: v => this._setNumber('measure_active_calories', Math.round(v)) },
+      { type: 'floors', read: p => GoogleHealthApi.numberField(p, 'countSum'), apply: v => this._setNumber('measure_floors', v) },
+      { type: 'active-zone-minutes', read: p => GoogleHealthApi.firstNumber(p, ['activeZoneMinutesSum', 'activeZoneMinutes', 'minutesSum']), apply: v => this._setNumber('measure_active_zone_minutes', Math.round(v)) },
     ];
 
-    for (const { type, field, apply } of rollups) {
+    for (const { type, read, apply } of rollups) {
       await this._guarded(type, async () => {
         const points = await this.api.dailyRollup(type, today, today);
-        const value = points.length ? GoogleHealthApi.numberField(points[0], field) : null;
-        if (value !== null) {
-          await apply(value);
-        } else {
-          // No data for today (yet). A daily counter should restart at 0 on a
-          // new day rather than keep showing yesterday's total.
-          await this._resetDailyIfNewDay(type, today);
-        }
+        const value = points.length ? read(points[0]) : null;
+        if (value !== null) await apply(value);
       });
     }
   }
@@ -150,7 +171,6 @@ class GoogleHealthDevice extends Homey.Device {
   async _setSteps(today, steps) {
     const previous = this.getCapabilityValue('measure_steps');
     await this._setNumber('measure_steps', steps);
-    await this.setStoreValue('steps_date', today).catch(this.error);
 
     if (previous !== steps) {
       this.driver.stepsUpdatedTrigger
@@ -165,15 +185,6 @@ class GoogleHealthDevice extends Homey.Device {
       this.driver.stepGoalReachedTrigger
         .trigger(this, { steps, goal })
         .catch(this.error);
-    }
-  }
-
-  async _resetDailyIfNewDay(type, today) {
-    if (type !== 'steps') return;
-    const lastDate = this.getStoreValue('steps_date');
-    if (lastDate && lastDate !== today) {
-      await this._setNumber('measure_steps', 0);
-      await this.setStoreValue('steps_date', today).catch(this.error);
     }
   }
 
@@ -203,6 +214,20 @@ class GoogleHealthDevice extends Homey.Device {
       const bpm = GoogleHealthApi.numberField(points[0], 'beatsPerMinute');
       if (bpm !== null) await this._setNumber('measure_resting_heart_rate', bpm);
     });
+
+    await this._guarded('daily-heart-rate-variability', async () => {
+      const points = await this.api.list('daily-heart-rate-variability', { pageSize: 1 });
+      if (!points.length) return;
+      const ms = GoogleHealthApi.firstNumber(points[0], ['rmssd', 'rmssdMilliseconds', 'dailyRmssd']);
+      if (ms !== null) await this._setNumber('measure_hrv', Math.round(ms));
+    });
+
+    await this._guarded('daily-vo2-max', async () => {
+      const points = await this.api.list('daily-vo2-max', { pageSize: 1 });
+      if (!points.length) return;
+      const vo2 = GoogleHealthApi.firstNumber(points[0], ['vo2Max', 'value']);
+      if (vo2 !== null) await this._setNumber('measure_vo2_max', Math.round(vo2 * 10) / 10);
+    });
   }
 
   // ── Body: latest weight + latest SpO2 ─────────────────────────────
@@ -231,6 +256,31 @@ class GoogleHealthDevice extends Homey.Device {
       if (!points.length) return;
       const pct = GoogleHealthApi.numberField(points[0], 'percentage');
       if (pct !== null) await this._setNumber('measure_spo2', Math.round(pct));
+    });
+
+    await this._guarded('body-fat', async () => {
+      const points = await this.api.list('body-fat', { pageSize: 1 });
+      if (!points.length) return;
+      const pct = GoogleHealthApi.numberField(points[0], 'percentage');
+      if (pct !== null) await this._setNumber('measure_body_fat', Math.round(pct * 10) / 10);
+    });
+
+    await this._guarded('daily-respiratory-rate', async () => {
+      const points = await this.api.list('daily-respiratory-rate', { pageSize: 1 });
+      if (!points.length) return;
+      const rate = GoogleHealthApi.firstNumber(points[0], ['breathsPerMinute', 'respiratoryRate', 'value']);
+      if (rate !== null) await this._setNumber('measure_respiratory_rate', Math.round(rate * 10) / 10);
+    });
+  }
+
+  // ── Nutrition: water intake today ─────────────────────────────────
+
+  async _syncNutrition(today) {
+    await this._guarded('hydration-log', async () => {
+      const points = await this.api.dailyRollup('hydration-log', today, today);
+      if (!points.length) return;
+      const ml = GoogleHealthApi.firstNumber(points[0], ['millilitersSum', 'milliliters']);
+      if (ml !== null) await this._setNumber('measure_hydration', Math.round(ml));
     });
   }
 

@@ -1,0 +1,18 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Active zone minutes today",
+    "de": "Aktivzonen-Minuten heute"
+  },
+  "units": {
+    "en": "min"
+  },
+  "decimals": 0,
+  "min": 0,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": true,
+  "chartType": "stepLine",
+  "icon": "/assets/capabilities/timer.svg"
+}
