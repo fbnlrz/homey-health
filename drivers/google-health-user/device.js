@@ -114,6 +114,7 @@ class GoogleHealthDevice extends Homey.Device {
         await this._syncCardiac();
       }
 
+      await this._recordHistory();
       await this.setAvailable().catch(this.error);
     } catch (err) {
       this.error('Sync failed:', err.message || err);
@@ -122,6 +123,10 @@ class GoogleHealthDevice extends Homey.Device {
       }
       throw err;
     }
+  }
+
+  static get HISTORY_MAX() {
+    return 48;
   }
 
   static get AUTH_ERROR_CODES() {
@@ -186,6 +191,36 @@ class GoogleHealthDevice extends Homey.Device {
       this.log(`[diag] ${type}: got ${points.length} point(s) but no recognized value field. Raw:`,
         JSON.stringify(points[0]).slice(0, 800));
     }
+  }
+
+  /**
+   * Rolling history buffer for widget sparklines. The App SDK can write but
+   * not read Insights, so we keep a small capped per-capability series in the
+   * device store, sampled once per sync. It fills in over time (one point per
+   * poll) rather than being backfilled.
+   */
+  async _recordHistory() {
+    const history = this.getStoreValue('history') || {};
+    const now = Math.round(Date.now() / 1000);
+    let changed = false;
+    for (const capability of this.driver.manifest.capabilities) {
+      if (capability === 'alarm_asleep') continue;
+      const value = this.getCapabilityValue(capability);
+      if (typeof value !== 'number') continue;
+      let series = history[capability] || [];
+      const last = series[series.length - 1];
+      if (last && now - last[0] < 120) {
+        last[1] = value; // same sampling window — keep the freshest value
+      } else {
+        series.push([now, value]);
+        if (series.length > GoogleHealthDevice.HISTORY_MAX) {
+          series = series.slice(series.length - GoogleHealthDevice.HISTORY_MAX);
+        }
+      }
+      history[capability] = series;
+      changed = true;
+    }
+    if (changed) await this.setStoreValue('history', history).catch(this.error);
   }
 
   /** One warning slot — compose it from the current problem sets. */

@@ -140,6 +140,22 @@ class GoogleHealthApp extends Homey.App {
     };
   }
 
+  /** Downsample a numeric series to at most `max` evenly-spaced points. */
+  static _downsample(values, max) {
+    if (!Array.isArray(values) || values.length <= max) return values || [];
+    const out = [];
+    for (let i = 0; i < max; i++) {
+      out.push(values[Math.round((i / (max - 1)) * (values.length - 1))]);
+    }
+    return out;
+  }
+
+  _metricHistory(device, capabilityId) {
+    const series = (device.getStoreValue('history') || {})[capabilityId] || [];
+    const values = series.map(p => p[1]).filter(n => typeof n === 'number');
+    return GoogleHealthApp._downsample(values, 32);
+  }
+
   /** Single-metric payload for the Health tile widget. */
   getWidgetMetric(deviceRef, capabilityId) {
     const device = this._resolveWidgetDevice(deviceRef);
@@ -151,6 +167,7 @@ class GoogleHealthApp extends Homey.App {
       deviceName: device.getName(),
       ...this._metricMeta(cap),
       value: typeof value === 'number' ? value : null,
+      history: this._metricHistory(device, cap),
     };
   }
 
