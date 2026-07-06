@@ -668,6 +668,14 @@ class GoogleHealthDevice extends Homey.Device {
         .sort((a, b) => a.date.localeCompare(b.date));
     });
 
+    // Latest height (cm) — for the BMI calculation in the report
+    await attempt('height_cm', async () => {
+      const points = await this.api.list('height', { pageSize: 1 });
+      if (!points.length) return null;
+      const mm = GoogleHealthApi.numberField(points[0], 'heightMillimeters');
+      return mm === null ? null : Math.round(mm / 10);
+    });
+
     // Sleep sessions (non-nap) → [{date, hours, minutesAwake, deepMinutes}]
     await attempt('sleep', async () => {
       const points = await this.api.listAll('sleep', {

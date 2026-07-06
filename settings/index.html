@@ -81,6 +81,32 @@
     <p data-i18n="settings.report.intro"></p>
 
     <div class="field row">
+      <label for="report_name" data-i18n="settings.report.patient_name">Name</label>
+      <input id="report_name" type="text" autocomplete="off" />
+    </div>
+
+    <div class="field row">
+      <label for="report_birthdate" data-i18n="settings.report.birthdate">Date of birth</label>
+      <input id="report_birthdate" type="date" />
+    </div>
+
+    <div class="field row">
+      <label for="report_gender" data-i18n="settings.report.gender">Gender</label>
+      <select id="report_gender">
+        <option value="" selected data-i18n="settings.report.gender_none">Prefer not to say</option>
+        <option value="f" data-i18n="settings.report.gender_f">Female</option>
+        <option value="m" data-i18n="settings.report.gender_m">Male</option>
+        <option value="x" data-i18n="settings.report.gender_x">Non-binary</option>
+      </select>
+    </div>
+
+    <div class="field row">
+      <label for="report_height" data-i18n="settings.report.height">Height (cm)</label>
+      <input id="report_height" type="number" min="50" max="250" />
+      <p><small data-i18n="settings.report.height_hint"></small></p>
+    </div>
+
+    <div class="field row">
       <label for="report_device" data-i18n="settings.report.device">Device</label>
       <select id="report_device"></select>
     </div>
@@ -140,6 +166,19 @@
       var reportBtn = document.getElementById('report_generate');
       var reportStatus = document.getElementById('report_status');
 
+      // Patient details: persisted app settings, prefilled on load
+      var patientFields = [
+        ['report_name', document.getElementById('report_name')],
+        ['report_birthdate', document.getElementById('report_birthdate')],
+        ['report_gender', document.getElementById('report_gender')],
+        ['report_height', document.getElementById('report_height')],
+      ];
+      patientFields.forEach(function (f) {
+        Homey.get(f[0], function (err, value) {
+          if (!err && value !== null && value !== undefined) f[1].value = value;
+        });
+      });
+
       Homey.api('GET', '/devices', function (err, devices) {
         if (err || !devices || !devices.length) {
           reportBtn.disabled = true;
@@ -157,6 +196,11 @@
       reportBtn.addEventListener('click', function () {
         reportBtn.disabled = true;
         reportStatus.textContent = Homey.__('settings.report.generating');
+
+        // Remember the patient details for the next report
+        patientFields.forEach(function (f) {
+          Homey.set(f[0], f[1].value, function () {});
+        });
 
         // The window must be opened synchronously inside the click gesture —
         // opening it later in the API callback gets blocked as a popup
@@ -217,6 +261,10 @@
         + '.rpt .tile{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px}'
         + '.rpt .tile .k{font-size:10.5px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}'
         + '.rpt .tile .v{font-size:22px;font-weight:650;margin-top:4px}'
+        + '.rpt .tile .s{font-size:10.5px;color:var(--ink2);margin-top:2px}'
+        + '.rpt .patient{font-size:13px;color:var(--ink2);margin-top:12px;padding:10px 14px;'
+        + 'background:var(--surface);border:1px solid var(--border);border-radius:12px}'
+        + '.rpt .patient b{color:var(--ink);font-weight:600}'
         + '.rpt .charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px}'
         + '.rpt .chart{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px 8px}'
         + '.rpt .chart .t{font-size:12.5px;font-weight:600;margin-bottom:6px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}'
@@ -329,14 +377,62 @@
         if (s.weight_kg && s.weight_kg.length >= 2) {
           weightDelta = s.weight_kg[s.weight_kg.length - 1].value - s.weight_kg[0].value;
         }
-        var tiles = [
+
+        // Patient details + BMI (latest weight and height, field overrides API)
+        function esc(text) {
+          return String(text).replace(/[<>&"]/g, function (ch) {
+            return { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[ch];
+          });
+        }
+        var pName = (document.getElementById('report_name') || {}).value || '';
+        var pBirth = (document.getElementById('report_birthdate') || {}).value || '';
+        var pGender = (document.getElementById('report_gender') || {}).value || '';
+        var heightCm = Number((document.getElementById('report_height') || {}).value)
+          || Number(s.height_cm) || 0;
+
+        var age = null;
+        if (pBirth) {
+          var birth = new Date(pBirth + 'T00:00:00');
+          if (!isNaN(birth)) {
+            var now = new Date();
+            age = now.getFullYear() - birth.getFullYear();
+            if (now.getMonth() < birth.getMonth()
+              || (now.getMonth() === birth.getMonth() && now.getDate() < birth.getDate())) age--;
+          }
+        }
+
+        var lastWeight = (s.weight_kg && s.weight_kg.length)
+          ? s.weight_kg[s.weight_kg.length - 1].value : null;
+        var bmi = null;
+        if (typeof lastWeight === 'number' && heightCm >= 50) {
+          bmi = lastWeight / Math.pow(heightCm / 100, 2);
+        }
+        function bmiCategory(v) {
+          if (v < 18.5) return T('bmi_under');
+          if (v < 25) return T('bmi_normal');
+          if (v < 30) return T('bmi_over');
+          return T('bmi_obese');
+        }
+
+        var patientParts = [];
+        if (pName) patientParts.push('<b>' + esc(pName) + '</b>');
+        if (pBirth) patientParts.push(T('born') + ' ' + esc(pBirth) + (age !== null ? ' (' + age + ' ' + T('years') + ')' : ''));
+        if (pGender) patientParts.push(T('gender_' + pGender));
+        if (heightCm) patientParts.push(heightCm + ' cm');
+        var patientBlock = patientParts.length
+          ? '<div class="patient">' + patientParts.join(' &nbsp;·&nbsp; ') + '</div>' : '';
+
+        var tileData = [
           [T('avg_steps'), fmt(mean(s.steps), 0)],
           [T('avg_sleep'), fmt(mean(s.sleep, 'hours'), 1) + ' h'],
           [T('avg_rhr'), fmt(mean(s.resting_heart_rate), 0) + ' bpm'],
           [T('avg_spo2'), fmt(mean(s.spo2_pct), 0) + ' %'],
           [T('weight_change'), (weightDelta === null ? '–' : (weightDelta > 0 ? '+' : '') + fmt(weightDelta, 1) + ' kg')],
-        ].map(function (c) {
-          return '<div class="tile"><div class="k">' + c[0] + '</div><div class="v">' + c[1] + '</div></div>';
+        ];
+        if (bmi !== null) tileData.push(['BMI', fmt(bmi, 1), bmiCategory(bmi)]);
+        var tiles = tileData.map(function (c) {
+          return '<div class="tile"><div class="k">' + c[0] + '</div><div class="v">' + c[1] + '</div>'
+            + (c[2] ? '<div class="s">' + c[2] + '</div>' : '') + '</div>';
         }).join('');
 
         var charts = [
@@ -354,6 +450,7 @@
           + '<div class="meta">' + report.meta.deviceName + ' · '
           + report.meta.from + ' – ' + report.meta.to + ' (' + report.meta.days + ' ' + T('days') + ') · '
           + T('generated') + ' ' + new Date(report.meta.generatedAt).toLocaleString() + '</div>'
+          + patientBlock
           + '<div class="tiles">' + tiles + '</div>'
           + '<div class="charts">' + charts + '</div>'
           + '<h2>' + T('daily_values') + '</h2>'
