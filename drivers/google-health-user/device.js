@@ -53,6 +53,9 @@ class GoogleHealthDevice extends Homey.Device {
 
   /** Called from the repair flow with freshly exchanged tokens. */
   async onTokensRepaired(tokens) {
+    // Neutralize the old client first: a refresh that is mid-flight on the
+    // old token lineage must not overwrite the repaired tokens in the store
+    if (this.api) this.api.onTokensUpdated = async () => {};
     await this.setStoreValue('tokens', tokens);
     this._scopeDenied.clear();
     await this.unsetWarning().catch(this.error);
@@ -288,10 +291,16 @@ class GoogleHealthDevice extends Homey.Device {
 
   async _syncSleep() {
     await this._guarded('sleep', async () => {
-      const points = await this.api.list('sleep', { pageSize: 1 });
-      if (!points.length) return;
+      // Fetch a few sessions and use the newest non-nap one, so an afternoon
+      // nap doesn't overwrite "Sleep last night" (nap flag: sleep.metadata.nap)
+      const points = await this.api.list('sleep', { pageSize: 5 });
+      const night = points.find(p => {
+        const s = p.sleep || GoogleHealthApi.valueObject(p);
+        return s && !(s.metadata && s.metadata.nap);
+      });
+      if (!night) return;
 
-      const sleep = points[0].sleep || GoogleHealthApi.valueObject(points[0]);
+      const sleep = night.sleep || GoogleHealthApi.valueObject(night);
       if (!sleep || !sleep.summary) return;
 
       const minutesAsleep = Number(sleep.summary.minutesAsleep);
@@ -299,7 +308,7 @@ class GoogleHealthDevice extends Homey.Device {
       if (!Number.isFinite(minutesAsleep)) return;
 
       const hours = Math.round((minutesAsleep / 60) * 10) / 10;
-      const key = points[0].name
+      const key = night.name
         || (sleep.interval ? sleep.interval.endTime : null);
       const changed = key && key !== this.getStoreValue('last_sleep_key');
 
@@ -354,11 +363,22 @@ class GoogleHealthDevice extends Homey.Device {
   }
 
   _utcOffsetSeconds() {
+    // Derive the offset from Intl's longOffset ("GMT+02:00") — deterministic,
+    // unlike round-tripping toLocaleString output through Date parsing
     const timezone = this.homey.clock.getTimezone();
-    const now = new Date();
-    const local = new Date(now.toLocaleString('en-US', { timeZone: timezone }));
-    const utc = new Date(now.toLocaleString('en-US', { timeZone: 'UTC' }));
-    return Math.round((local - utc) / 1000);
+    try {
+      const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone: timezone, timeZoneName: 'longOffset',
+      }).formatToParts(new Date());
+      const name = (parts.find(p => p.type === 'timeZoneName') || {}).value || 'GMT';
+      const match = name.match(/GMT([+-])(\d{2}):(\d{2})/);
+      if (!match) return 0; // plain "GMT" = UTC
+      const sign = match[1] === '-' ? -1 : 1;
+      return sign * ((Number(match[2]) * 3600) + (Number(match[3]) * 60));
+    } catch (err) {
+      this.error('Could not determine UTC offset:', err.message);
+      return 0;
+    }
   }
 
   async onSettings({ changedKeys }) {
