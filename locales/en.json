@@ -19,7 +19,7 @@
     "client_id": "Client ID",
     "client_secret": "Client Secret",
     "enable_write": "Allow writing to Google Health (needed for the 'Log weight' Flow card)",
-    "enable_write_hint": "Changing this only affects devices paired afterwards. Re-pair existing devices to apply.",
+    "enable_write_hint": "After changing this, run 'Repair' on existing devices (or pair a new one) to apply the new permission.",
     "save": "Save",
     "saved": "Saved!"
   }

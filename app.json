@@ -258,8 +258,8 @@
           "de": "Gewicht [[weight]] kg in Google Health protokollieren"
         },
         "hint": {
-          "en": "Requires write access — enable it in the app settings before pairing.",
-          "de": "Erfordert Schreibzugriff — vor dem Koppeln in den App-Einstellungen aktivieren."
+          "en": "Requires write access — enable it in the app settings, then run 'Repair' on the device.",
+          "de": "Erfordert Schreibzugriff — in den App-Einstellungen aktivieren und danach das Gerät 'Reparieren'."
         },
         "args": [
           {
@@ -400,8 +400,8 @@
               "id": "sync_activity",
               "type": "checkbox",
               "label": {
-                "en": "Activity (steps, distance, calories, floors)",
-                "de": "Aktivität (Schritte, Distanz, Kalorien, Etagen)"
+                "en": "Activity (steps, distance, calories, active calories, floors, active zone minutes)",
+                "de": "Aktivität (Schritte, Distanz, Kalorien, Aktivkalorien, Etagen, Aktivzonen-Minuten)"
               },
               "value": true
             },
@@ -409,8 +409,8 @@
               "id": "sync_heart",
               "type": "checkbox",
               "label": {
-                "en": "Heart (heart rate, resting heart rate)",
-                "de": "Herz (Herzfrequenz, Ruhepuls)"
+                "en": "Heart (heart rate, resting heart rate, HRV, VO2 max)",
+                "de": "Herz (Herzfrequenz, Ruhepuls, HRV, VO2 max)"
               },
               "value": true
             },
@@ -418,8 +418,8 @@
               "id": "sync_body",
               "type": "checkbox",
               "label": {
-                "en": "Body (weight, blood oxygen)",
-                "de": "Körper (Gewicht, Blutsauerstoff)"
+                "en": "Body (weight, body fat, blood oxygen, respiratory rate)",
+                "de": "Körper (Gewicht, Körperfett, Blutsauerstoff, Atemfrequenz)"
               },
               "value": true
             },

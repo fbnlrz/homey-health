@@ -13,12 +13,19 @@ Basiert auf den API-Erkenntnissen aus der [google-health-cli](https://github.com
 | Schritte heute | `steps` daily-rollup (`countSum`) |
 | Distanz heute (km) | `distance` daily-rollup (`millimetersSum`) |
 | Kalorien heute (kcal) | `total-calories` daily-rollup (`kcalSum`) |
+| Aktivkalorien heute (kcal) | `active-energy-burned` daily-rollup (`kcalSum`) |
 | Etagen heute | `floors` daily-rollup (`countSum`) |
+| Aktivzonen-Minuten heute | `active-zone-minutes` daily-rollup |
 | Herzfrequenz (letzte Messung) | `heart-rate` list |
 | Ruhepuls | `daily-resting-heart-rate` list |
+| Herzratenvariabilität (ms) | `daily-heart-rate-variability` list |
+| VO2 max | `daily-vo2-max` list |
 | Gewicht (kg) | `weight` list |
+| Körperfett (%) | `body-fat` list |
 | Blutsauerstoff SpO2 (%) | `oxygen-saturation` list |
-| Schlaf letzte Nacht (h) | `sleep` list (`minutesAsleep`) |
+| Atemfrequenz | `daily-respiratory-rate` list |
+| Schlaf letzte Nacht (h) | `sleep` list (`minutesAsleep`, Naps ausgenommen) |
+| Wasseraufnahme heute (ml) | `hydration-log` daily-rollup |
 
 **Flow-Karten**
 
@@ -44,10 +51,11 @@ Die Google Health API wird pro Google-Cloud-Projekt freigeschaltet, deshalb brau
 
 ## Hinweise zum Verhalten
 
-- **Abrufintervall**: Standard 15 Minuten, einstellbar ab 5 Minuten (Geräteeinstellungen). Datengruppen (Aktivität/Herz/Körper/Schlaf) lassen sich einzeln abschalten.
+- **Abrufintervall**: Standard 15 Minuten, einstellbar ab 5 Minuten (Geräteeinstellungen). Datengruppen (Aktivität/Herz/Körper/Schlaf/Ernährung) lassen sich einzeln abschalten.
 - **Fehlende Tage ≠ 0**: Liefert die API für heute (noch) keine Aktivitätsdaten, behält die App den letzten Wert; nur beim Tageswechsel wird der Schrittzähler auf 0 gesetzt. Ein `countSum: "0"` der API ist dagegen eine echte Null.
 - **Zahlenformate**: `int64`-Felder kommen als Strings (protobuf-JSON) und werden defensiv nach `Number` konvertiert.
-- **Schreiben** (Gewicht) nutzt den Scope `googlehealth.health_metrics_and_measurements` (read/write) und wird nur angefragt, wenn in den App-Einstellungen aktiviert. Scope-Änderungen wirken erst beim (Neu-)Koppeln.
+- **Schreiben** (Gewicht) nutzt zusätzlich den Scope `googlehealth.health_metrics_and_measurements` (read/write) und wird nur angefragt, wenn in den App-Einstellungen aktiviert. Nach einer Scope-Änderung genügt „Reparieren" am Gerät.
+- **Google-Login**: Beim Zustimmungsbildschirm **alle Häkchen setzen** — Google lässt die granularen Berechtigungen standardmäßig leer; fehlende Berechtigungen zeigt das Gerät als Warnung an.
 
 ## Entwicklung
 

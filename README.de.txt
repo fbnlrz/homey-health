@@ -1,4 +1,4 @@
-Hol deine Google-Health-Daten auf Homey: Schritte, Distanz, Kalorien, Etagen, Herzfrequenz, Ruhepuls, Gewicht, Blutsauerstoff (SpO2) und Schlaf.
+Hol deine Google-Health-Daten auf Homey: Schritte, Distanz, Kalorien, Aktivkalorien, Etagen, Aktivzonen-Minuten, Herzfrequenz, Ruhepuls, Herzratenvariabilität (HRV), VO2 max, Gewicht, Körperfett, Blutsauerstoff (SpO2), Atemfrequenz, Schlaf und Wasseraufnahme — alles mit Insights-Verlauf.
 
 Füge dein Google-Konto als Gerät hinzu und nutze die Werte in Flows: Lass dich benachrichtigen, wenn du dein tägliches Schrittziel erreichst, eine neue Gewichtsmessung eintrifft oder neue Schlafdaten verfügbar sind. Mit Bedingungen prüfst du Schritte oder Ruhepuls, und eine Aktion kann dein Gewicht zurück in Google Health schreiben.
 

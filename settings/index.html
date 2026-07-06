@@ -82,16 +82,18 @@
       });
 
       saveEl.addEventListener('click', function () {
-        Homey.set('client_id', clientIdEl.value.trim(), function (err) {
-          if (err) return Homey.alert(err);
-        });
-        Homey.set('client_secret', clientSecretEl.value.trim(), function (err) {
-          if (err) return Homey.alert(err);
-        });
-        Homey.set('enable_write', enableWriteEl.checked, function (err) {
-          if (err) return Homey.alert(err);
-          Homey.alert(Homey.__('settings.saved'));
-        });
+        var values = [
+          ['client_id', clientIdEl.value.trim()],
+          ['client_secret', clientSecretEl.value.trim()],
+          ['enable_write', enableWriteEl.checked],
+        ];
+        var index = 0;
+        (function next(err) {
+          if (err) return Homey.alert(err.message || String(err));
+          if (index >= values.length) return Homey.alert(Homey.__('settings.saved'));
+          var pair = values[index++];
+          Homey.set(pair[0], pair[1], next);
+        })();
       });
 
       Homey.ready();

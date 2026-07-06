@@ -1,4 +1,4 @@
-Bring your Google Health data to Homey: steps, distance, calories, floors, heart rate, resting heart rate, weight, blood oxygen (SpO2) and sleep.
+Bring your Google Health data to Homey: steps, distance, calories, active calories, floors, active zone minutes, heart rate, resting heart rate, heart rate variability (HRV), VO2 max, weight, body fat, blood oxygen (SpO2), respiratory rate, sleep and water intake — all with Insights history.
 
 Add your Google account as a device and use its values in Flows: get notified when you reach your daily step goal, when a new weight measurement arrives or when new sleep data is available. Conditions let you check your steps or resting heart rate, and an action can log your weight back to Google Health.
 

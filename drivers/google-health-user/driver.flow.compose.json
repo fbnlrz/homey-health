@@ -173,8 +173,8 @@
         "de": "Gewicht [[weight]] kg in Google Health protokollieren"
       },
       "hint": {
-        "en": "Requires write access — enable it in the app settings before pairing.",
-        "de": "Erfordert Schreibzugriff — vor dem Koppeln in den App-Einstellungen aktivieren."
+        "en": "Requires write access — enable it in the app settings, then run 'Repair' on the device.",
+        "de": "Erfordert Schreibzugriff — in den App-Einstellungen aktivieren und danach das Gerät 'Reparieren'."
       },
       "args": [
         {

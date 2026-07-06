@@ -19,7 +19,7 @@
     "client_id": "Client-ID",
     "client_secret": "Client-Secret",
     "enable_write": "Schreiben in Google Health erlauben (nötig für die Flow-Karte 'Gewicht protokollieren')",
-    "enable_write_hint": "Eine Änderung wirkt nur auf danach gekoppelte Geräte. Bestehende Geräte neu koppeln, um sie zu übernehmen.",
+    "enable_write_hint": "Nach einer Änderung bei bestehenden Geräten 'Reparieren' ausführen (oder neu koppeln), um die neue Berechtigung zu übernehmen.",
     "save": "Speichern",
     "saved": "Gespeichert!"
   }
