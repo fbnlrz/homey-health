@@ -1,14 +1,22 @@
 {
+  "0.1.4": {
+    "en": "Added Dutch translation (app, flow cards and store description).",
+    "de": "Niederländische Übersetzung ergänzt (App, Flow-Karten und Store-Beschreibung).",
+    "nl": "Nederlandse vertaling toegevoegd (app, Flow-kaarten en storebeschrijving)."
+  },
   "0.1.3": {
     "en": "Fixed the app icon (now renders correctly in the App Store).",
-    "de": "App-Icon korrigiert (wird jetzt im App Store richtig angezeigt)."
+    "de": "App-Icon korrigiert (wird jetzt im App Store richtig angezeigt).",
+    "nl": "App-pictogram gerepareerd (wordt nu correct weergegeven in de App Store)."
   },
   "0.1.1": {
     "en": "Linked the community forum topic and switched to Homey Pro only.",
-    "de": "Community-Forum-Topic verknüpft und auf Homey Pro beschränkt."
+    "de": "Community-Forum-Topic verknüpft und auf Homey Pro beschränkt.",
+    "nl": "Community-forumtopic gekoppeld en beperkt tot Homey Pro."
   },
   "0.1.0": {
     "en": "Initial test release: 16 health sensors with Insights, OAuth login with your own Google Cloud project, and flow cards for steps, sleep, workouts, heart rate and more.",
-    "de": "Erste Testversion: 16 Gesundheits-Sensoren mit Insights, OAuth-Login mit eigenem Google-Cloud-Projekt und Flow-Karten für Schritte, Schlaf, Training, Herzfrequenz und mehr."
+    "de": "Erste Testversion: 16 Gesundheits-Sensoren mit Insights, OAuth-Login mit eigenem Google-Cloud-Projekt und Flow-Karten für Schritte, Schlaf, Training, Herzfrequenz und mehr.",
+    "nl": "Eerste testversie: 16 gezondheidssensoren met Insights, OAuth-login met je eigen Google Cloud-project en Flow-kaarten voor stappen, slaap, training, hartslag en meer."
   }
 }

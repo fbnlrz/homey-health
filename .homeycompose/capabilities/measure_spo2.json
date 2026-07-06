@@ -2,10 +2,12 @@
   "type": "number",
   "title": {
     "en": "Blood oxygen (SpO2)",
-    "de": "Blutsauerstoff (SpO2)"
+    "de": "Blutsauerstoff (SpO2)",
+    "nl": "Zuurstofsaturatie (SpO2)"
   },
   "units": {
-    "en": "%"
+    "en": "%",
+    "nl": "%"
   },
   "decimals": 0,
   "min": 0,

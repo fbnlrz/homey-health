@@ -2,10 +2,12 @@
   "type": "number",
   "title": {
     "en": "VO2 max",
-    "de": "VO2 max"
+    "de": "VO2 max",
+    "nl": "VO2 max"
   },
   "units": {
-    "en": "ml/kg/min"
+    "en": "ml/kg/min",
+    "nl": "ml/kg/min"
   },
   "decimals": 1,
   "min": 0,

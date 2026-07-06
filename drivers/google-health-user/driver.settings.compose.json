@@ -3,7 +3,8 @@
     "type": "group",
     "label": {
       "en": "Synchronization",
-      "de": "Synchronisierung"
+      "de": "Synchronisierung",
+      "nl": "Synchronisatie"
     },
     "children": [
       {
@@ -11,17 +12,20 @@
         "type": "number",
         "label": {
           "en": "Update interval",
-          "de": "Aktualisierungsintervall"
+          "de": "Aktualisierungsintervall",
+          "nl": "Update-interval"
         },
         "hint": {
           "en": "How often Homey fetches new data from Google Health.",
-          "de": "Wie oft Homey neue Daten von Google Health abruft."
+          "de": "Wie oft Homey neue Daten von Google Health abruft.",
+          "nl": "Hoe vaak Homey nieuwe gegevens van Google Health ophaalt."
         },
         "value": 15,
         "min": 5,
         "max": 1440,
         "units": {
-          "en": "min"
+          "en": "min",
+          "nl": "min"
         }
       },
       {
@@ -29,18 +33,21 @@
         "type": "number",
         "label": {
           "en": "Daily step goal",
-          "de": "Tägliches Schrittziel"
+          "de": "Tägliches Schrittziel",
+          "nl": "Dagelijks stappendoel"
         },
         "hint": {
           "en": "Used by the 'Daily step goal reached' Flow trigger.",
-          "de": "Wird vom Flow-Auslöser 'Tägliches Schrittziel erreicht' verwendet."
+          "de": "Wird vom Flow-Auslöser 'Tägliches Schrittziel erreicht' verwendet.",
+          "nl": "Gebruikt door de Flow-trigger 'Het dagelijkse stappendoel is bereikt'."
         },
         "value": 10000,
         "min": 1,
         "max": 200000,
         "units": {
           "en": "steps",
-          "de": "Schritte"
+          "de": "Schritte",
+          "nl": "stappen"
         }
       }
     ]
@@ -49,7 +56,8 @@
     "type": "group",
     "label": {
       "en": "Data to synchronize",
-      "de": "Zu synchronisierende Daten"
+      "de": "Zu synchronisierende Daten",
+      "nl": "Te synchroniseren gegevens"
     },
     "children": [
       {
@@ -57,7 +65,8 @@
         "type": "checkbox",
         "label": {
           "en": "Activity (steps, distance, calories, active calories, floors, active zone minutes)",
-          "de": "Aktivität (Schritte, Distanz, Kalorien, Aktivkalorien, Etagen, Aktivzonen-Minuten)"
+          "de": "Aktivität (Schritte, Distanz, Kalorien, Aktivkalorien, Etagen, Aktivzonen-Minuten)",
+          "nl": "Activiteit (stappen, afstand, calorieën, actieve calorieën, verdiepingen, actieve zone-minuten)"
         },
         "value": true
       },
@@ -66,7 +75,8 @@
         "type": "checkbox",
         "label": {
           "en": "Heart (heart rate, resting heart rate, HRV, VO2 max)",
-          "de": "Herz (Herzfrequenz, Ruhepuls, HRV, VO2 max)"
+          "de": "Herz (Herzfrequenz, Ruhepuls, HRV, VO2 max)",
+          "nl": "Hart (hartslag, rusthartslag, HRV, VO2 max)"
         },
         "value": true
       },
@@ -75,7 +85,8 @@
         "type": "checkbox",
         "label": {
           "en": "Body (weight, body fat, blood oxygen, respiratory rate)",
-          "de": "Körper (Gewicht, Körperfett, Blutsauerstoff, Atemfrequenz)"
+          "de": "Körper (Gewicht, Körperfett, Blutsauerstoff, Atemfrequenz)",
+          "nl": "Lichaam (gewicht, lichaamsvet, zuurstofsaturatie, ademhalingsfrequentie)"
         },
         "value": true
       },
@@ -84,7 +95,8 @@
         "type": "checkbox",
         "label": {
           "en": "Sleep",
-          "de": "Schlaf"
+          "de": "Schlaf",
+          "nl": "Slaap"
         },
         "value": true
       },
@@ -93,7 +105,8 @@
         "type": "checkbox",
         "label": {
           "en": "Nutrition (water intake)",
-          "de": "Ernährung (Wasseraufnahme)"
+          "de": "Ernährung (Wasseraufnahme)",
+          "nl": "Voeding (waterinname)"
         },
         "value": true
       }

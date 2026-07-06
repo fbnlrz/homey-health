@@ -4,7 +4,8 @@
       "id": "steps_updated",
       "title": {
         "en": "The step count changed",
-        "de": "Die Schrittzahl hat sich geändert"
+        "de": "Die Schrittzahl hat sich geändert",
+        "nl": "Het aantal stappen is veranderd"
       },
       "tokens": [
         {
@@ -12,7 +13,8 @@
           "type": "number",
           "title": {
             "en": "Steps",
-            "de": "Schritte"
+            "de": "Schritte",
+            "nl": "Stappen"
           },
           "example": 8500
         }
@@ -22,7 +24,8 @@
       "id": "step_goal_reached",
       "title": {
         "en": "The daily step goal was reached",
-        "de": "Das tägliche Schrittziel wurde erreicht"
+        "de": "Das tägliche Schrittziel wurde erreicht",
+        "nl": "Het dagelijkse stappendoel is bereikt"
       },
       "tokens": [
         {
@@ -30,7 +33,8 @@
           "type": "number",
           "title": {
             "en": "Steps",
-            "de": "Schritte"
+            "de": "Schritte",
+            "nl": "Stappen"
           },
           "example": 10021
         },
@@ -39,7 +43,8 @@
           "type": "number",
           "title": {
             "en": "Goal",
-            "de": "Ziel"
+            "de": "Ziel",
+            "nl": "Doel"
           },
           "example": 10000
         }
@@ -49,7 +54,8 @@
       "id": "heart_rate_updated",
       "title": {
         "en": "A new heart rate reading arrived",
-        "de": "Eine neue Herzfrequenz-Messung ist eingetroffen"
+        "de": "Eine neue Herzfrequenz-Messung ist eingetroffen",
+        "nl": "Er is een nieuwe hartslagmeting binnengekomen"
       },
       "tokens": [
         {
@@ -57,7 +63,8 @@
           "type": "number",
           "title": {
             "en": "Heart rate",
-            "de": "Herzfrequenz"
+            "de": "Herzfrequenz",
+            "nl": "Hartslag"
           },
           "example": 72
         }
@@ -67,15 +74,18 @@
       "id": "heart_rate_crossed",
       "title": {
         "en": "The heart rate crossed a threshold...",
-        "de": "Die Herzfrequenz hat einen Schwellenwert gekreuzt..."
+        "de": "Die Herzfrequenz hat einen Schwellenwert gekreuzt...",
+        "nl": "De hartslag heeft een drempel gekruist..."
       },
       "titleFormatted": {
         "en": "The heart rate went [[direction]] [[bpm]] bpm",
-        "de": "Die Herzfrequenz ging [[direction]] [[bpm]] bpm"
+        "de": "Die Herzfrequenz ging [[direction]] [[bpm]] bpm",
+        "nl": "De hartslag ging [[direction]] [[bpm]] bpm"
       },
       "hint": {
         "en": "Fires when a new reading crosses the threshold compared to the previous reading. Note: readings arrive at the poll interval, not in realtime.",
-        "de": "Löst aus, wenn eine neue Messung den Schwellenwert gegenüber der vorherigen Messung kreuzt. Hinweis: Messungen kommen im Abrufintervall, nicht in Echtzeit."
+        "de": "Löst aus, wenn eine neue Messung den Schwellenwert gegenüber der vorherigen Messung kreuzt. Hinweis: Messungen kommen im Abrufintervall, nicht in Echtzeit.",
+        "nl": "Wordt geactiveerd wanneer een nieuwe meting de drempel kruist ten opzichte van de vorige meting. Let op: metingen komen binnen op het poll-interval, niet realtime."
       },
       "args": [
         {
@@ -86,14 +96,16 @@
               "id": "above",
               "label": {
                 "en": "above",
-                "de": "über"
+                "de": "über",
+                "nl": "boven"
               }
             },
             {
               "id": "below",
               "label": {
                 "en": "below",
-                "de": "unter"
+                "de": "unter",
+                "nl": "onder"
               }
             }
           ]
@@ -104,7 +116,8 @@
           "min": 30,
           "max": 220,
           "placeholder": {
-            "en": "120"
+            "en": "120",
+            "nl": "120"
           }
         }
       ],
@@ -114,7 +127,8 @@
           "type": "number",
           "title": {
             "en": "Heart rate",
-            "de": "Herzfrequenz"
+            "de": "Herzfrequenz",
+            "nl": "Hartslag"
           },
           "example": 128
         }
@@ -124,15 +138,18 @@
       "id": "resting_hr_elevated",
       "title": {
         "en": "The resting heart rate is above its 7-day average...",
-        "de": "Der Ruhepuls liegt über seinem 7-Tage-Durchschnitt..."
+        "de": "Der Ruhepuls liegt über seinem 7-Tage-Durchschnitt...",
+        "nl": "De rusthartslag ligt boven het 7-daagse gemiddelde..."
       },
       "titleFormatted": {
         "en": "The resting heart rate is more than [[delta]] bpm above its 7-day average",
-        "de": "Der Ruhepuls liegt mehr als [[delta]] bpm über seinem 7-Tage-Durchschnitt"
+        "de": "Der Ruhepuls liegt mehr als [[delta]] bpm über seinem 7-Tage-Durchschnitt",
+        "nl": "De rusthartslag ligt meer dan [[delta]] bpm boven het 7-daagse gemiddelde"
       },
       "hint": {
         "en": "Checked once per day when a new daily resting heart rate arrives. An elevated resting heart rate can indicate stress, illness or poor recovery.",
-        "de": "Wird einmal täglich geprüft, sobald ein neuer Tages-Ruhepuls eintrifft. Ein erhöhter Ruhepuls kann auf Stress, Krankheit oder schlechte Erholung hindeuten."
+        "de": "Wird einmal täglich geprüft, sobald ein neuer Tages-Ruhepuls eintrifft. Ein erhöhter Ruhepuls kann auf Stress, Krankheit oder schlechte Erholung hindeuten.",
+        "nl": "Wordt één keer per dag gecontroleerd zodra een nieuwe dagelijkse rusthartslag binnenkomt. Een verhoogde rusthartslag kan wijzen op stress, ziekte of slecht herstel."
       },
       "args": [
         {
@@ -141,7 +158,8 @@
           "min": 1,
           "max": 30,
           "placeholder": {
-            "en": "5"
+            "en": "5",
+            "nl": "5"
           }
         }
       ],
@@ -151,7 +169,8 @@
           "type": "number",
           "title": {
             "en": "Resting heart rate",
-            "de": "Ruhepuls"
+            "de": "Ruhepuls",
+            "nl": "Rusthartslag"
           },
           "example": 62
         },
@@ -160,7 +179,8 @@
           "type": "number",
           "title": {
             "en": "7-day average",
-            "de": "7-Tage-Durchschnitt"
+            "de": "7-Tage-Durchschnitt",
+            "nl": "7-daags gemiddelde"
           },
           "example": 56.4
         },
@@ -169,7 +189,8 @@
           "type": "number",
           "title": {
             "en": "Difference",
-            "de": "Differenz"
+            "de": "Differenz",
+            "nl": "Verschil"
           },
           "example": 5.6
         }
@@ -179,7 +200,8 @@
       "id": "new_weight_measurement",
       "title": {
         "en": "A new weight measurement arrived",
-        "de": "Eine neue Gewichtsmessung ist eingetroffen"
+        "de": "Eine neue Gewichtsmessung ist eingetroffen",
+        "nl": "Er is een nieuwe gewichtsmeting binnengekomen"
       },
       "tokens": [
         {
@@ -187,7 +209,8 @@
           "type": "number",
           "title": {
             "en": "Weight (kg)",
-            "de": "Gewicht (kg)"
+            "de": "Gewicht (kg)",
+            "nl": "Gewicht (kg)"
           },
           "example": 75.5
         }
@@ -197,7 +220,8 @@
       "id": "sleep_updated",
       "title": {
         "en": "New sleep data arrived",
-        "de": "Neue Schlafdaten sind eingetroffen"
+        "de": "Neue Schlafdaten sind eingetroffen",
+        "nl": "Er zijn nieuwe slaapgegevens binnengekomen"
       },
       "tokens": [
         {
@@ -205,7 +229,8 @@
           "type": "number",
           "title": {
             "en": "Hours asleep",
-            "de": "Stunden geschlafen"
+            "de": "Stunden geschlafen",
+            "nl": "Uren geslapen"
           },
           "example": 7.4
         },
@@ -214,7 +239,8 @@
           "type": "number",
           "title": {
             "en": "Minutes awake",
-            "de": "Minuten wach"
+            "de": "Minuten wach",
+            "nl": "Minuten wakker"
           },
           "example": 32
         }
@@ -224,11 +250,13 @@
       "id": "woke_up",
       "title": {
         "en": "You woke up",
-        "de": "Du bist aufgewacht"
+        "de": "Du bist aufgewacht",
+        "nl": "Je bent wakker geworden"
       },
       "hint": {
         "en": "Fires when a freshly ended night's sleep is synced (within 4 hours of waking). Perfect for morning routines.",
-        "de": "Löst aus, wenn eine frisch beendete Nachtruhe synchronisiert wird (innerhalb von 4 Stunden nach dem Aufwachen). Perfekt für Morgenroutinen."
+        "de": "Löst aus, wenn eine frisch beendete Nachtruhe synchronisiert wird (innerhalb von 4 Stunden nach dem Aufwachen). Perfekt für Morgenroutinen.",
+        "nl": "Wordt geactiveerd wanneer een net beëindigde nachtrust wordt gesynchroniseerd (binnen 4 uur na het ontwaken). Perfect voor ochtendroutines."
       },
       "tokens": [
         {
@@ -236,7 +264,8 @@
           "type": "number",
           "title": {
             "en": "Hours asleep",
-            "de": "Stunden geschlafen"
+            "de": "Stunden geschlafen",
+            "nl": "Uren geslapen"
           },
           "example": 7.4
         },
@@ -245,7 +274,8 @@
           "type": "number",
           "title": {
             "en": "Minutes awake",
-            "de": "Minuten wach"
+            "de": "Minuten wach",
+            "nl": "Minuten wakker"
           },
           "example": 32
         },
@@ -254,7 +284,8 @@
           "type": "string",
           "title": {
             "en": "Wake time",
-            "de": "Aufwachzeit"
+            "de": "Aufwachzeit",
+            "nl": "Tijd van ontwaken"
           },
           "example": "07:12"
         }
@@ -264,11 +295,13 @@
       "id": "workout_ended",
       "title": {
         "en": "A workout ended",
-        "de": "Ein Training wurde beendet"
+        "de": "Ein Training wurde beendet",
+        "nl": "Een training is beëindigd"
       },
       "hint": {
         "en": "Fires once per new workout session synced from Google Health.",
-        "de": "Löst einmal pro neuer Trainingseinheit aus, die aus Google Health synchronisiert wird."
+        "de": "Löst einmal pro neuer Trainingseinheit aus, die aus Google Health synchronisiert wird.",
+        "nl": "Wordt één keer geactiveerd per nieuwe trainingssessie die uit Google Health wordt gesynchroniseerd."
       },
       "tokens": [
         {
@@ -276,7 +309,8 @@
           "type": "string",
           "title": {
             "en": "Activity",
-            "de": "Aktivität"
+            "de": "Aktivität",
+            "nl": "Activiteit"
           },
           "example": "Running"
         },
@@ -285,7 +319,8 @@
           "type": "number",
           "title": {
             "en": "Duration (min)",
-            "de": "Dauer (min)"
+            "de": "Dauer (min)",
+            "nl": "Duur (min)"
           },
           "example": 42
         },
@@ -294,7 +329,8 @@
           "type": "number",
           "title": {
             "en": "Calories",
-            "de": "Kalorien"
+            "de": "Kalorien",
+            "nl": "Calorieën"
           },
           "example": 380
         },
@@ -303,7 +339,8 @@
           "type": "number",
           "title": {
             "en": "Avg. heart rate",
-            "de": "Ø Herzfrequenz"
+            "de": "Ø Herzfrequenz",
+            "nl": "Gem. hartslag"
           },
           "example": 141
         }
@@ -315,11 +352,13 @@
       "id": "steps_above",
       "title": {
         "en": "Steps today !{{are|aren't}} above...",
-        "de": "Schritte heute !{{sind|sind nicht}} über..."
+        "de": "Schritte heute !{{sind|sind nicht}} über...",
+        "nl": "Stappen vandaag !{{zijn|zijn niet}} boven..."
       },
       "titleFormatted": {
         "en": "Steps today !{{are|aren't}} above [[count]]",
-        "de": "Schritte heute !{{sind|sind nicht}} über [[count]]"
+        "de": "Schritte heute !{{sind|sind nicht}} über [[count]]",
+        "nl": "Stappen vandaag !{{zijn|zijn niet}} boven [[count]]"
       },
       "args": [
         {
@@ -327,7 +366,8 @@
           "type": "number",
           "min": 0,
           "placeholder": {
-            "en": "10000"
+            "en": "10000",
+            "nl": "10000"
           }
         }
       ]
@@ -336,11 +376,13 @@
       "id": "resting_hr_above",
       "title": {
         "en": "Resting heart rate !{{is|isn't}} above...",
-        "de": "Ruhepuls !{{ist|ist nicht}} über..."
+        "de": "Ruhepuls !{{ist|ist nicht}} über...",
+        "nl": "Rusthartslag !{{is|is niet}} boven..."
       },
       "titleFormatted": {
         "en": "Resting heart rate !{{is|isn't}} above [[bpm]] bpm",
-        "de": "Ruhepuls !{{ist|ist nicht}} über [[bpm]] bpm"
+        "de": "Ruhepuls !{{ist|ist nicht}} über [[bpm]] bpm",
+        "nl": "Rusthartslag !{{is|is niet}} boven [[bpm]] bpm"
       },
       "args": [
         {
@@ -349,7 +391,8 @@
           "min": 0,
           "max": 300,
           "placeholder": {
-            "en": "60"
+            "en": "60",
+            "nl": "60"
           }
         }
       ]
@@ -358,15 +401,18 @@
       "id": "slept_less_than",
       "title": {
         "en": "Sleep last night !{{was|wasn't}} shorter than...",
-        "de": "Der Schlaf letzte Nacht !{{war|war nicht}} kürzer als..."
+        "de": "Der Schlaf letzte Nacht !{{war|war nicht}} kürzer als...",
+        "nl": "De slaap afgelopen nacht !{{was|was niet}} korter dan..."
       },
       "titleFormatted": {
         "en": "Sleep last night !{{was|wasn't}} shorter than [[hours]] hours",
-        "de": "Der Schlaf letzte Nacht !{{war|war nicht}} kürzer als [[hours]] Stunden"
+        "de": "Der Schlaf letzte Nacht !{{war|war nicht}} kürzer als [[hours]] Stunden",
+        "nl": "De slaap afgelopen nacht !{{was|was niet}} korter dan [[hours]] uur"
       },
       "hint": {
         "en": "Resolves to 'no' when no sleep data has been synced yet.",
-        "de": "Ergibt 'nein', solange noch keine Schlafdaten synchronisiert wurden."
+        "de": "Ergibt 'nein', solange noch keine Schlafdaten synchronisiert wurden.",
+        "nl": "Geeft 'nee' zolang er nog geen slaapgegevens zijn gesynchroniseerd."
       },
       "args": [
         {
@@ -376,7 +422,8 @@
           "max": 24,
           "step": 0.5,
           "placeholder": {
-            "en": "6"
+            "en": "6",
+            "nl": "6"
           }
         }
       ]
@@ -385,15 +432,18 @@
       "id": "deep_sleep_below",
       "title": {
         "en": "Deep sleep last night !{{was|wasn't}} below...",
-        "de": "Tiefschlaf letzte Nacht !{{war|war nicht}} unter..."
+        "de": "Tiefschlaf letzte Nacht !{{war|war nicht}} unter...",
+        "nl": "Diepe slaap afgelopen nacht !{{was|was niet}} minder dan..."
       },
       "titleFormatted": {
         "en": "Deep sleep last night !{{was|wasn't}} below [[minutes]] minutes",
-        "de": "Tiefschlaf letzte Nacht !{{war|war nicht}} unter [[minutes]] Minuten"
+        "de": "Tiefschlaf letzte Nacht !{{war|war nicht}} unter [[minutes]] Minuten",
+        "nl": "Diepe slaap afgelopen nacht !{{was|was niet}} minder dan [[minutes]] minuten"
       },
       "hint": {
         "en": "Resolves to 'no' when the sleep source does not report sleep stages.",
-        "de": "Ergibt 'nein', wenn die Schlafquelle keine Schlafphasen liefert."
+        "de": "Ergibt 'nein', wenn die Schlafquelle keine Schlafphasen liefert.",
+        "nl": "Geeft 'nee' wanneer de slaapbron geen slaapfasen rapporteert."
       },
       "args": [
         {
@@ -403,7 +453,8 @@
           "max": 300,
           "step": 5,
           "placeholder": {
-            "en": "60"
+            "en": "60",
+            "nl": "60"
           }
         }
       ]
@@ -412,11 +463,13 @@
       "id": "hydration_below",
       "title": {
         "en": "Water intake today !{{is|isn't}} below...",
-        "de": "Die Wasseraufnahme heute !{{ist|ist nicht}} unter..."
+        "de": "Die Wasseraufnahme heute !{{ist|ist nicht}} unter...",
+        "nl": "De waterinname vandaag !{{is|is niet}} onder..."
       },
       "titleFormatted": {
         "en": "Water intake today !{{is|isn't}} below [[milliliters]] ml",
-        "de": "Die Wasseraufnahme heute !{{ist|ist nicht}} unter [[milliliters]] ml"
+        "de": "Die Wasseraufnahme heute !{{ist|ist nicht}} unter [[milliliters]] ml",
+        "nl": "De waterinname vandaag !{{is|is niet}} onder [[milliliters]] ml"
       },
       "args": [
         {
@@ -426,7 +479,8 @@
           "max": 10000,
           "step": 50,
           "placeholder": {
-            "en": "1500"
+            "en": "1500",
+            "nl": "1500"
           }
         }
       ]
@@ -435,11 +489,13 @@
       "id": "active_zone_minutes_above",
       "title": {
         "en": "Active zone minutes today !{{are|aren't}} above...",
-        "de": "Aktivzonen-Minuten heute !{{sind|sind nicht}} über..."
+        "de": "Aktivzonen-Minuten heute !{{sind|sind nicht}} über...",
+        "nl": "Actieve zone-minuten vandaag !{{zijn|zijn niet}} boven..."
       },
       "titleFormatted": {
         "en": "Active zone minutes today !{{are|aren't}} above [[minutes]]",
-        "de": "Aktivzonen-Minuten heute !{{sind|sind nicht}} über [[minutes]]"
+        "de": "Aktivzonen-Minuten heute !{{sind|sind nicht}} über [[minutes]]",
+        "nl": "Actieve zone-minuten vandaag !{{zijn|zijn niet}} boven [[minutes]]"
       },
       "args": [
         {
@@ -448,7 +504,8 @@
           "min": 0,
           "max": 600,
           "placeholder": {
-            "en": "30"
+            "en": "30",
+            "nl": "30"
           }
         }
       ]
@@ -457,15 +514,18 @@
       "id": "steps_increased_recently",
       "title": {
         "en": "Steps !{{have|haven't}} increased in the last...",
-        "de": "Die Schritte !{{sind|sind nicht}} in den letzten ... Minuten gestiegen"
+        "de": "Die Schritte !{{sind|sind nicht}} in den letzten ... Minuten gestiegen",
+        "nl": "De stappen !{{zijn|zijn niet}} toegenomen in de laatste..."
       },
       "titleFormatted": {
         "en": "Steps !{{have|haven't}} increased in the last [[minutes]] minutes",
-        "de": "Die Schritte !{{sind|sind nicht}} in den letzten [[minutes]] Minuten gestiegen"
+        "de": "Die Schritte !{{sind|sind nicht}} in den letzten [[minutes]] Minuten gestiegen",
+        "nl": "De stappen !{{zijn|zijn niet}} toegenomen in de laatste [[minutes]] minuten"
       },
       "hint": {
         "en": "Useful for inactivity nudges. Minimum 15 minutes because data arrives at the poll interval.",
-        "de": "Nützlich für Inaktivitäts-Erinnerungen. Minimum 15 Minuten, da Daten im Abrufintervall eintreffen."
+        "de": "Nützlich für Inaktivitäts-Erinnerungen. Minimum 15 Minuten, da Daten im Abrufintervall eintreffen.",
+        "nl": "Handig voor inactiviteitsmeldingen. Minimaal 15 minuten, omdat gegevens op het poll-interval binnenkomen."
       },
       "args": [
         {
@@ -475,7 +535,8 @@
           "max": 720,
           "step": 5,
           "placeholder": {
-            "en": "45"
+            "en": "45",
+            "nl": "45"
           }
         }
       ]
@@ -484,7 +545,8 @@
       "id": "exercised_today",
       "title": {
         "en": "You !{{have|haven't}} worked out today",
-        "de": "Du hast heute !{{trainiert|nicht trainiert}}"
+        "de": "Du hast heute !{{trainiert|nicht trainiert}}",
+        "nl": "Je hebt vandaag !{{getraind|niet getraind}}"
       }
     }
   ],
@@ -493,22 +555,26 @@
       "id": "sync_now",
       "title": {
         "en": "Synchronize now",
-        "de": "Jetzt synchronisieren"
+        "de": "Jetzt synchronisieren",
+        "nl": "Nu synchroniseren"
       }
     },
     {
       "id": "log_weight",
       "title": {
         "en": "Log weight...",
-        "de": "Gewicht protokollieren..."
+        "de": "Gewicht protokollieren...",
+        "nl": "Gewicht registreren..."
       },
       "titleFormatted": {
         "en": "Log weight [[weight]] kg to Google Health",
-        "de": "Gewicht [[weight]] kg in Google Health protokollieren"
+        "de": "Gewicht [[weight]] kg in Google Health protokollieren",
+        "nl": "Gewicht [[weight]] kg registreren in Google Health"
       },
       "hint": {
         "en": "Requires write access — enable it in the app settings, then run 'Repair' on the device.",
-        "de": "Erfordert Schreibzugriff — in den App-Einstellungen aktivieren und danach das Gerät 'Reparieren'."
+        "de": "Erfordert Schreibzugriff — in den App-Einstellungen aktivieren und danach das Gerät 'Reparieren'.",
+        "nl": "Vereist schrijftoegang — schakel dit in bij de app-instellingen en voer daarna 'Repareren' uit op het apparaat."
       },
       "args": [
         {
@@ -518,7 +584,8 @@
           "max": 500,
           "step": 0.1,
           "placeholder": {
-            "en": "75.5"
+            "en": "75.5",
+            "nl": "75.5"
           }
         }
       ]
@@ -527,15 +594,18 @@
       "id": "log_body_fat",
       "title": {
         "en": "Log body fat...",
-        "de": "Körperfett protokollieren..."
+        "de": "Körperfett protokollieren...",
+        "nl": "Lichaamsvet registreren..."
       },
       "titleFormatted": {
         "en": "Log body fat [[percentage]] % to Google Health",
-        "de": "Körperfett [[percentage]] % in Google Health protokollieren"
+        "de": "Körperfett [[percentage]] % in Google Health protokollieren",
+        "nl": "Lichaamsvet [[percentage]] % registreren in Google Health"
       },
       "hint": {
         "en": "Requires write access — enable it in the app settings, then run 'Repair' on the device.",
-        "de": "Erfordert Schreibzugriff — in den App-Einstellungen aktivieren und danach das Gerät 'Reparieren'."
+        "de": "Erfordert Schreibzugriff — in den App-Einstellungen aktivieren und danach das Gerät 'Reparieren'.",
+        "nl": "Vereist schrijftoegang — schakel dit in bij de app-instellingen en voer daarna 'Repareren' uit op het apparaat."
       },
       "args": [
         {
@@ -545,7 +615,8 @@
           "max": 75,
           "step": 0.1,
           "placeholder": {
-            "en": "22.5"
+            "en": "22.5",
+            "nl": "22.5"
           }
         }
       ]

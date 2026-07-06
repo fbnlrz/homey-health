@@ -2,10 +2,12 @@
   "type": "number",
   "title": {
     "en": "Heart rate variability",
-    "de": "Herzratenvariabilität"
+    "de": "Herzratenvariabilität",
+    "nl": "Hartslagvariabiliteit"
   },
   "units": {
-    "en": "ms"
+    "en": "ms",
+    "nl": "ms"
   },
   "decimals": 0,
   "min": 0,

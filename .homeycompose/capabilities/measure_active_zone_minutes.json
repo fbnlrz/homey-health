@@ -2,10 +2,12 @@
   "type": "number",
   "title": {
     "en": "Active zone minutes today",
-    "de": "Aktivzonen-Minuten heute"
+    "de": "Aktivzonen-Minuten heute",
+    "nl": "Actieve zone-minuten vandaag"
   },
   "units": {
-    "en": "min"
+    "en": "min",
+    "nl": "min"
   },
   "decimals": 0,
   "min": 0,

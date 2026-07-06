@@ -2,10 +2,12 @@
   "type": "number",
   "title": {
     "en": "Water intake today",
-    "de": "Wasseraufnahme heute"
+    "de": "Wasseraufnahme heute",
+    "nl": "Waterinname vandaag"
   },
   "units": {
-    "en": "ml"
+    "en": "ml",
+    "nl": "ml"
   },
   "decimals": 0,
   "min": 0,

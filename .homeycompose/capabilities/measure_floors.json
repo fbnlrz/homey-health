@@ -2,11 +2,13 @@
   "type": "number",
   "title": {
     "en": "Floors today",
-    "de": "Etagen heute"
+    "de": "Etagen heute",
+    "nl": "Verdiepingen vandaag"
   },
   "units": {
     "en": "floors",
-    "de": "Etagen"
+    "de": "Etagen",
+    "nl": "verdiepingen"
   },
   "decimals": 0,
   "min": 0,

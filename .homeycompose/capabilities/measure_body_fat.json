@@ -2,10 +2,12 @@
   "type": "number",
   "title": {
     "en": "Body fat",
-    "de": "Körperfett"
+    "de": "Körperfett",
+    "nl": "Lichaamsvet"
   },
   "units": {
-    "en": "%"
+    "en": "%",
+    "nl": "%"
   },
   "decimals": 1,
   "min": 0,
