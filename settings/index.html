@@ -273,7 +273,13 @@
         + '.rpt .btns{display:flex;gap:8px;margin:18px 0 4px;flex-wrap:wrap}'
         + '.rpt .btns button{padding:8px 16px;border-radius:8px;border:1px solid var(--border);'
         + 'background:var(--surface);color:var(--ink);font:inherit;font-size:13px;cursor:pointer}'
-        + '.rpt .access{font-size:12px;color:var(--ink2);margin:4px 0 0}'
+        + '.rpt .access{font-size:12px;color:var(--ink2);margin:4px 0 0;display:flex;align-items:center;gap:6px;flex-wrap:wrap}'
+        + '.rpt .access .pw{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;'
+        + 'font-weight:600;letter-spacing:.06em;color:var(--ink);background:var(--surface);'
+        + 'border:1px solid var(--border);border-radius:6px;padding:2px 8px;user-select:all}'
+        + '.rpt .access .pwcopy{font:inherit;font-size:11px;padding:3px 10px;border-radius:6px;'
+        + 'border:1px solid var(--border);background:var(--surface);color:var(--ink2);cursor:pointer}'
+        + '.rpt .access .pwcopy.ok{color:var(--c-weight);border-color:var(--c-weight)}'
         + '.rpt .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:20px 0 14px}'
         + '.rpt .tile{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px}'
         + '.rpt .tile .k{font-size:10.5px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}'
@@ -625,9 +631,40 @@
           openBtnEl.addEventListener('click', function () {
             Homey.openURL(res.url);
           });
-          document.getElementById('report_access').textContent = T('access_info')
-            .replace('__password__', res.password)
-            .replace('__minutes__', String(res.ttlMinutes || 5));
+          // Render the password as a one-click-copyable chip (typing it into
+          // the browser's auth dialog by hand is annoying)
+          var accessEl = document.getElementById('report_access');
+          var parts = T('access_info')
+            .replace('__minutes__', String(res.ttlMinutes || 5))
+            .split('__password__');
+          accessEl.innerHTML = esc(parts[0])
+            + '<code class="pw" id="report_pw">' + esc(res.password) + '</code>'
+            + '<button type="button" class="pwcopy" id="report_pw_copy">' + esc(T('copy')) + '</button>'
+            + esc(parts[1] || '');
+          var copyBtn = document.getElementById('report_pw_copy');
+          copyBtn.addEventListener('click', function () {
+            function flash() {
+              copyBtn.textContent = T('copied');
+              copyBtn.classList.add('ok');
+              setTimeout(function () { copyBtn.textContent = T('copy'); copyBtn.classList.remove('ok'); }, 1500);
+            }
+            function selectFallback() {
+              try {
+                var range = document.createRange();
+                range.selectNodeContents(document.getElementById('report_pw'));
+                var sel = window.getSelection();
+                sel.removeAllRanges(); sel.addRange(range);
+                document.execCommand('copy');
+                sel.removeAllRanges();
+                flash();
+              } catch (e) { /* clipboard unavailable in this context */ }
+            }
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              navigator.clipboard.writeText(res.password).then(flash, selectFallback);
+            } else {
+              selectFallback();
+            }
+          });
         });
 
         reportStatus.textContent = Homey.__('settings.report.inline_ready');

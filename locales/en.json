@@ -62,6 +62,8 @@
       "sec_disclaimer": "Disclaimer",
       "select_all": "All",
       "select_none": "None",
+      "copy": "Copy",
+      "copied": "Copied!",
       "days": "days",
       "generated": "generated",
       "daily_values": "Daily values",
