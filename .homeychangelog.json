@@ -1,4 +1,8 @@
 {
+  "0.1.3": {
+    "en": "Fixed the app icon (now renders correctly in the App Store).",
+    "de": "App-Icon korrigiert (wird jetzt im App Store richtig angezeigt)."
+  },
   "0.1.1": {
     "en": "Linked the community forum topic and switched to Homey Pro only.",
     "de": "Community-Forum-Topic verknüpft und auf Homey Pro beschränkt."
