@@ -1,4 +1,12 @@
 {
+  "0.1.3": {
+    "en": "Fixed the app icon (now renders correctly in the App Store).",
+    "de": "App-Icon korrigiert (wird jetzt im App Store richtig angezeigt)."
+  },
+  "0.1.1": {
+    "en": "Linked the community forum topic and switched to Homey Pro only.",
+    "de": "Community-Forum-Topic verknüpft und auf Homey Pro beschränkt."
+  },
   "0.1.0": {
     "en": "Initial test release: 16 health sensors with Insights, OAuth login with your own Google Cloud project, and flow cards for steps, sleep, workouts, heart rate and more.",
     "de": "Erste Testversion: 16 Gesundheits-Sensoren mit Insights, OAuth-Login mit eigenem Google-Cloud-Projekt und Flow-Karten für Schritte, Schlaf, Training, Herzfrequenz und mehr."
