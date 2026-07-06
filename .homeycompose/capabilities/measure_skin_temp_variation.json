@@ -1,0 +1,13 @@
+{
+  "type": "number",
+  "title": { "en": "Skin temp. variation", "de": "Hauttemp.-Abweichung", "nl": "Huidtemp.-afwijking" },
+  "units": { "en": "°C" },
+  "decimals": 1,
+  "min": -5,
+  "max": 5,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": true,
+  "icon": "/assets/capabilities/gauge.svg"
+}

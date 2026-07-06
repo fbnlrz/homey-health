@@ -238,7 +238,14 @@ class GoogleHealthDevice extends Homey.Device {
       { type: 'active-energy-burned', read: p => GoogleHealthApi.numberField(p, 'kcalSum'), apply: v => this._setNumber('measure_active_calories', Math.round(v)) },
       { type: 'floors', read: p => GoogleHealthApi.numberField(p, 'countSum'), apply: v => this._setNumber('measure_floors', v) },
       { type: 'active-zone-minutes', read: p => GoogleHealthApi.firstNumber(p, ['activeZoneMinutesSum', 'activeZoneMinutes', 'minutesSum']), apply: v => this._setNumber('measure_active_zone_minutes', Math.round(v)) },
-      { type: 'sedentary-period', read: p => GoogleHealthApi.deepNumber(p, ['minutesSum', 'sedentaryMinutesSum', 'minutes', 'durationMinutes']), apply: v => this._setNumber('measure_sedentary_minutes', Math.round(v)) },
+      { type: 'sedentary-period', read: p => {
+        // Verified shape: sedentaryPeriod.durationSum = "50880s" (protobuf Duration)
+        const values = GoogleHealthApi.valueObject(p) || {};
+        const dur = values.durationSum !== undefined ? values.durationSum
+          : (values.sedentaryPeriod && values.sedentaryPeriod.durationSum);
+        const secs = GoogleHealthApi.durationSeconds(dur);
+        return secs === null ? null : secs / 60;
+      }, apply: v => this._setNumber('measure_sedentary_minutes', Math.round(v)) },
     ];
 
     for (const { type, read, apply } of rollups) {
@@ -539,6 +546,21 @@ class GoogleHealthDevice extends Homey.Device {
       const celsius = points.length ? GoogleHealthApi.deepNumber(points[0], ['temperatureCelsius', 'celsius', 'bodyTemperatureCelsius', 'value']) : null;
       this._diag('core-body-temperature', points, celsius);
       if (celsius !== null) await this._setNumber('measure_body_temperature', Math.round(celsius * 10) / 10);
+    });
+
+    // Skin temperature *variation* from baseline (e.g. -0.6 °C during sleep) —
+    // this is what most wearables actually report (the Google Health app shows
+    // it as "Schwankungen der Hauttemperatur"). List/reconcile only, so no
+    // rollup; the exact field name is undocumented, hence candidate search.
+    await this._guarded('daily-sleep-temperature-derivations', async () => {
+      const points = await this.api.list('daily-sleep-temperature-derivations', { pageSize: 1 });
+      const delta = points.length ? GoogleHealthApi.deepNumber(points[0], [
+        'temperatureDeltaCelsius', 'deltaCelsius', 'temperatureDeviationCelsius',
+        'deviationCelsius', 'temperatureVariationCelsius', 'variationCelsius',
+        'baselineDeviationCelsius', 'celsius', 'value',
+      ]) : null;
+      this._diag('daily-sleep-temperature-derivations', points, delta);
+      if (delta !== null) await this._setNumber('measure_skin_temp_variation', Math.round(delta * 10) / 10);
     });
 
     await this._guarded('altitude', async () => {
