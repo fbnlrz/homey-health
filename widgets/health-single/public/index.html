@@ -5,57 +5,48 @@
   <style>
     html, body { margin: 0; padding: 0; height: 100%; }
     body { font-family: var(--homey-font); color: var(--homey-text-color); }
-    .wrap {
+    .tile {
+      display: flex;
+      align-items: center;
+      gap: var(--homey-su-3);
       height: 100%;
       box-sizing: border-box;
-      padding: var(--homey-su-3);
-      overflow-y: auto;
+      padding: var(--homey-su-4);
     }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
-      gap: var(--homey-su-2);
-    }
-    .cell {
-      aspect-ratio: 1;
+    .icon {
+      flex: none;
+      width: 46px; height: 46px;
       border-radius: var(--homey-border-radius-default);
-      background: color-mix(in srgb, var(--homey-text-color) 6%, transparent);
-      border: 1px solid var(--homey-line-color);
-      padding: 8px;
-      box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      overflow: hidden;
-    }
-    .cell .ic {
-      width: 24px; height: 24px; flex: none;
-      border-radius: 7px;
       display: flex; align-items: center; justify-content: center;
-      color: var(--c, var(--homey-text-color));
-      background: color-mix(in srgb, var(--c, var(--homey-text-color)) 16%, transparent);
+      color: var(--accent, var(--homey-text-color));
+      background: color-mix(in srgb, var(--accent, var(--homey-text-color)) 15%, transparent);
     }
-    .cell .ic svg { width: 15px; height: 15px; display: block; }
-    .cell .v {
-      font-size: var(--homey-font-size-default);
+    .icon svg { width: 27px; height: 27px; display: block; }
+    .body { min-width: 0; }
+    .value { display: flex; align-items: baseline; gap: 4px; }
+    .value .v {
+      font-size: var(--homey-font-size-xxlarge);
+      line-height: 1.1;
       font-weight: var(--homey-font-weight-bold);
-      line-height: 1.05;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      white-space: nowrap;
     }
-    .cell .v .u { font-size: 11px; font-weight: var(--homey-font-weight-regular); color: var(--homey-text-color-light); }
-    .cell .lab {
-      font-size: 10px; line-height: 1.1; color: var(--homey-text-color-light);
+    .value .u { font-size: var(--homey-font-size-small); color: var(--homey-text-color-light); white-space: nowrap; }
+    .label {
+      margin-top: 2px;
+      font-size: var(--homey-font-size-small);
+      font-weight: var(--homey-font-weight-medium);
+      color: var(--homey-text-color-light);
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     .muted {
       display: flex; align-items: center; justify-content: center;
-      height: 100%; padding: var(--homey-su-3); text-align: center;
+      height: 100%; padding: var(--homey-su-4); text-align: center;
       color: var(--homey-text-color-light); font-size: var(--homey-font-size-small);
     }
   </style>
 </head>
 <body>
-  <div id="root"><div class="wrap"><div id="grid" class="grid"></div></div></div>
+  <div id="root"></div>
   <script type="text/javascript">
     var PATHS = {
       ecg: '<polyline points="1,12 7,12 9,7 11,17 12.5,9 14,12 23,12"/>',
@@ -91,33 +82,16 @@
       measure_altitude: 'mountain', measure_sleep_hours: 'moon', measure_hydration: 'waves',
       measure_carbs: 'wheat', measure_protein: 'molecule', measure_fat: 'droplet',
     };
-    var RED = 'var(--homey-color-red)', BLUE = 'var(--homey-color-blue)',
-      GREEN = 'var(--homey-color-green)', ORANGE = 'var(--homey-color-orange)', MONO = 'var(--homey-text-color)';
-    var COLOR_FOR = {
-      measure_heart_rate: RED, measure_resting_heart_rate: RED, measure_hrv: RED,
-      measure_calories: ORANGE, measure_active_calories: ORANGE, measure_basal_calories: ORANGE, measure_calorie_intake: ORANGE,
-      measure_carbs: ORANGE, measure_protein: ORANGE, measure_fat: ORANGE,
-      measure_steps: GREEN, measure_distance: GREEN, measure_floors: GREEN, measure_active_zone_minutes: GREEN,
-      measure_hydration: BLUE, measure_spo2: BLUE, measure_glucose: BLUE, measure_respiratory_rate: BLUE,
-      measure_sleep_hours: MONO, measure_weight: MONO, measure_body_fat: MONO, measure_vo2_max: MONO,
-      measure_body_temperature: MONO, measure_skin_temp_variation: MONO, measure_altitude: MONO, measure_sedentary_minutes: MONO,
-    };
-    // Stable order (matches the settings checkbox order)
-    var ALL = [
-      'measure_steps', 'measure_distance', 'measure_calories', 'measure_active_calories', 'measure_basal_calories',
-      'measure_floors', 'measure_active_zone_minutes', 'measure_sedentary_minutes', 'measure_heart_rate',
-      'measure_resting_heart_rate', 'measure_hrv', 'measure_vo2_max', 'measure_weight', 'measure_body_fat',
-      'measure_spo2', 'measure_respiratory_rate', 'measure_body_temperature', 'measure_skin_temp_variation',
-      'measure_altitude', 'measure_sleep_hours', 'measure_hydration', 'measure_calorie_intake', 'measure_carbs',
-      'measure_protein', 'measure_fat', 'measure_glucose',
-    ];
-    var DEFAULT_ON = {
-      measure_steps: 1, measure_active_calories: 1, measure_resting_heart_rate: 1,
-      measure_sleep_hours: 1, measure_hydration: 1, measure_weight: 1,
+    var ACCENTS = {
+      brand: '#DE3226',
+      blue: 'var(--homey-color-blue)',
+      green: 'var(--homey-color-green)',
+      orange: 'var(--homey-color-orange)',
+      mono: 'var(--homey-text-color)',
     };
 
-    function svgFor(m) {
-      var inner = PATHS[ICON_FOR[m] || 'dot'] || PATHS.dot;
+    function svgFor(metric) {
+      var inner = PATHS[ICON_FOR[metric] || 'dot'] || PATHS.dot;
       return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + inner + '</svg>';
     }
     function fmt(v, d) {
@@ -129,45 +103,29 @@
 
     function onHomeyReady(Homey) {
       var root = document.getElementById('root');
-      var gridEl = document.getElementById('grid');
       var s = Homey.getSettings() || {};
       var dev = s.device;
       var deviceId = dev && typeof dev === 'object' ? dev.id : (typeof dev === 'string' ? dev : '');
+      var metric = s.metric || 'measure_steps';
+      var accent = ACCENTS[s.accent] || ACCENTS.brand;
 
-      function on(id) {
-        var k = 'show_' + id.replace('measure_', '');
-        return s.hasOwnProperty(k) ? s[k] !== false : !!DEFAULT_ON[id];
-      }
-      var order = ALL.filter(on);
-
-      var dataMap = {};
-      function renderGrid() {
-        gridEl.innerHTML = order.map(function (id) {
-          var m = dataMap[id] || {};
-          return '<div class="cell" data-id="' + id + '">'
-            + '<div class="ic" style="--c:' + (COLOR_FOR[id] || MONO) + '">' + svgFor(id) + '</div>'
-            + '<div><div class="v">' + fmt(m.value, m.decimals || 0)
-            + (unit(m.units) ? ' <span class="u">' + unit(m.units) + '</span>' : '') + '</div>'
-            + '<div class="lab">' + (m.title || '') + '</div></div></div>';
-        }).join('');
+      function render(data) {
+        if (!data || !data.paired) { root.innerHTML = '<div class="muted">—</div>'; return; }
+        root.innerHTML = '<div class="tile" style="--accent:' + accent + '">'
+          + '<div class="icon">' + svgFor(data.id) + '</div>'
+          + '<div class="body">'
+          + '<div class="value"><span class="v">' + fmt(data.value, data.decimals) + '</span>'
+          + (unit(data.units) ? '<span class="u">' + unit(data.units) + '</span>' : '') + '</div>'
+          + '<div class="label">' + (data.title || '') + '</div>'
+          + '</div></div>';
       }
 
       function refresh() {
-        if (!order.length) {
-          root.innerHTML = '<div class="muted">' + (Homey.__ ? Homey.__('settings.report.no_device') : '') + '</div>';
-          return;
-        }
-        Homey.api('GET', '/tiles?device=' + encodeURIComponent(deviceId) + '&metrics=' + encodeURIComponent(order.join(',')))
-          .then(function (data) {
-            if (!data || !data.paired) { root.innerHTML = '<div class="muted">—</div>'; return; }
-            dataMap = {};
-            (data.metrics || []).forEach(function (m) { dataMap[m.id] = m; });
-            renderGrid();
-          })
+        Homey.api('GET', '/metric?device=' + encodeURIComponent(deviceId) + '&metric=' + encodeURIComponent(metric))
+          .then(render)
           .catch(function () { /* keep last render */ });
       }
 
-      renderGrid();
       refresh();
       setInterval(refresh, 60000);
       Homey.ready();

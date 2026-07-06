@@ -195,7 +195,7 @@ class GoogleHealthApp extends Homey.App {
         .map(d => ({ name: d.getName(), id: d.getData().id }))
         .filter(o => o.name.toLowerCase().includes(q));
     };
-    for (const id of ['health-tile', 'health-overview']) {
+    for (const id of ['health-tile', 'health-single', 'health-overview']) {
       try {
         this.homey.dashboards.getWidget(id).registerSettingAutocompleteListener('device', listener);
       } catch (err) {
