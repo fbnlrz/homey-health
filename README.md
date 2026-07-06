@@ -29,9 +29,9 @@ Basiert auf den API-Erkenntnissen aus der [google-health-cli](https://github.com
 
 **Flow-Karten**
 
-- Auslöser: Schrittzahl geändert · Tägliches Schrittziel erreicht · Neue Herzfrequenz-Messung · Neue Gewichtsmessung · Neue Schlafdaten
-- Bedingungen: Schritte heute über X · Ruhepuls über X bpm
-- Aktionen: Jetzt synchronisieren · Gewicht in Google Health protokollieren (erfordert Schreibzugriff)
+- Auslöser: Schrittzahl geändert · Tägliches Schrittziel erreicht · Neue Herzfrequenz-Messung · Herzfrequenz über/unter Schwellenwert · Ruhepuls über 7-Tage-Durchschnitt · Neue Gewichtsmessung · Neue Schlafdaten · Du bist aufgewacht (mit Aufwachzeit) · Training beendet (mit Aktivität, Dauer, Kalorien, Ø Puls)
+- Bedingungen: Schritte heute über X · Ruhepuls über X bpm · Schlaf kürzer als X h · Tiefschlaf unter X min · Wasseraufnahme unter X ml · Aktivzonen-Minuten über X · Schritte in den letzten X min gestiegen · Heute trainiert
+- Aktionen: Jetzt synchronisieren · Gewicht protokollieren · Körperfett protokollieren (beide erfordern Schreibzugriff)
 
 ## Einrichtung
 
