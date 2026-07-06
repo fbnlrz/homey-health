@@ -35,6 +35,10 @@
     "getReport": {
       "method": "GET",
       "path": "/report"
+    },
+    "publishReport": {
+      "method": "POST",
+      "path": "/report/publish"
     }
   },
   "author": {

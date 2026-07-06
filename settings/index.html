@@ -317,22 +317,30 @@
 
         var container = document.getElementById('report_output');
         container.innerHTML = '<div class="report-sheet"><style>' + scopedCss + '</style>'
-          + '<div class="noprint" style="display:flex;gap:8px;margin-bottom:12px">'
+          + '<div class="noprint" style="display:flex;gap:8px;margin-bottom:6px;flex-wrap:wrap">'
+          + '<button id="report_open" style="padding:8px 16px" disabled>' + T('open_browser') + '</button>'
           + '<button onclick="window.print()" style="padding:8px 16px">' + T('print') + '</button>'
-          + '<button id="report_download" style="padding:8px 16px">' + T('download') + '</button>'
-          + '</div>' + inner + '</div>';
+          + '</div>'
+          + '<div id="report_access" class="noprint" style="font-size:12px;margin-bottom:12px;color:#555"></div>'
+          + inner + '</div>';
 
-        // Download as a standalone HTML file — opens outside the sandbox,
-        // where the browser's print-to-PDF always works
-        document.getElementById('report_download').addEventListener('click', function () {
-          var blob = new Blob([fullDoc], { type: 'text/html' });
-          var link = document.createElement('a');
-          link.href = URL.createObjectURL(blob);
-          link.download = 'health-report-' + report.meta.from + '-' + report.meta.to + '.html';
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          setTimeout(function () { URL.revokeObjectURL(link.href); }, 5000);
+        // The sandboxed settings iframe blocks window.open, print and
+        // downloads. Publish the report on the Homey's LAN address instead
+        // and open it via Homey.openURL — that runs outside the sandbox.
+        Homey.api('POST', '/report/publish', { html: fullDoc }, function (err, res) {
+          var openBtn = document.getElementById('report_open');
+          if (err || !res || !res.url) {
+            if (openBtn) openBtn.style.display = 'none';
+            reportStatus.textContent = err ? String(err.message || err) : '';
+            return;
+          }
+          openBtn.disabled = false;
+          openBtn.addEventListener('click', function () {
+            Homey.openURL(res.url);
+          });
+          document.getElementById('report_access').textContent = T('access_info')
+            .replace('__password__', res.password)
+            .replace('__minutes__', String(res.ttlMinutes || 5));
         });
 
         reportStatus.textContent = Homey.__('settings.report.inline_ready');

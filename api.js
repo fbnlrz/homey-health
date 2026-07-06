@@ -25,4 +25,8 @@ module.exports = {
     return device.collectReport(Number(query.days) || 30);
   },
 
+  async publishReport({ homey, body }) {
+    return homey.app.publishReport(body && body.html);
+  },
+
 };

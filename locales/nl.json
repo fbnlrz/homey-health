@@ -32,8 +32,9 @@
       "generate": "Rapport genereren",
       "generating": "Gegevens worden opgehaald uit Google Health…",
       "no_device": "Nog geen apparaat gekoppeld.",
-      "inline_ready": "Rapport hieronder gegenereerd — gebruik 'Afdrukken / Opslaan als PDF', of download het als bestand en print van daaruit.",
-      "download": "Downloaden als HTML-bestand",
+      "inline_ready": "Rapport hieronder gegenereerd. Gebruik 'Openen in browser' om het af te drukken of als PDF op te slaan (je apparaat moet op hetzelfde netwerk zitten als je Homey).",
+      "open_browser": "Openen in browser (afdrukken / PDF)",
+      "access_info": "Wachtwoord: __password__ — gebruikersnaam maakt niet uit, link __minutes__ minuten geldig.",
       "print": "Afdrukken / Opslaan als PDF",
       "days": "dagen",
       "generated": "gegenereerd",
@@ -54,7 +55,7 @@
       "avg_spo2": "Ø SpO2",
       "weight_change": "Gewichtsverandering",
       "disclaimer": "Gegenereerd door Health Sync voor Google Health (Homey) op basis van je Google Health-gegevens. Dit is geen medisch document; de waarden komen van consumentenapparaten en kunnen onnauwkeurig zijn. Niet verbonden met Google.",
-      "hint": "Het rapport verschijnt hieronder op deze pagina. Voor een PDF gebruik je 'Afdrukken / Opslaan als PDF' in een desktopbrowser (my.homey.app), of download het HTML-bestand en print het van daaruit."
+      "hint": "Het rapport verschijnt hieronder op deze pagina. 'Openen in browser' serveert het kort via je Homey op het lokale netwerk — daar kun je afdrukken of opslaan als PDF."
     }
   }
 }
