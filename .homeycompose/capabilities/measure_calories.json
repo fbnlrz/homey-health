@@ -2,10 +2,12 @@
   "type": "number",
   "title": {
     "en": "Calories today",
-    "de": "Kalorien heute"
+    "de": "Kalorien heute",
+    "nl": "Calorieën vandaag"
   },
   "units": {
-    "en": "kcal"
+    "en": "kcal",
+    "nl": "kcal"
   },
   "decimals": 0,
   "min": 0,

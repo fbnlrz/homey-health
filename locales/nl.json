@@ -1,0 +1,28 @@
+{
+  "pair": {
+    "missing_credentials": "Vul eerst je Google OAuth Client-ID en Client-secret in bij de app-instellingen (Meer > Apps > Health Sync voor Google Health > App configureren).",
+    "not_authorized": "De Google-aanmelding is niet voltooid. Probeer het opnieuw.",
+    "wrong_account": "Deze aanmelding hoort bij een ander Google-account dan dit apparaat. Meld je aan met het oorspronkelijke account."
+  },
+  "device": {
+    "auth_lost": "De Google-aanmelding is verlopen. Open het apparaat en gebruik 'Repareren' om opnieuw in te loggen.",
+    "missing_scopes": "Geen Google-toestemming voor: __types__. Gebruik 'Repareren' en vink ALLE selectievakjes aan op het Google-toestemmingsscherm.",
+    "api_disabled": "De Google Health API is uitgeschakeld voor je Cloud-project. Schakel deze in via de Google Cloud Console.",
+    "sync_failing": "Herhaalde synchronisatiefouten bij: __types__. Details staan in het app-logboek."
+  },
+  "settings": {
+    "title": "Health Sync voor Google Health",
+    "intro": "Deze app heeft een eigen Google Cloud OAuth-client nodig, omdat Google de Health API-toegang per project verleent.",
+    "step1": "Open de Google Cloud Console en maak (of selecteer) een project.",
+    "step2": "Schakel de Google Health API in voor het project.",
+    "step3": "Maak een OAuth-client-ID van het type 'Webapplicatie' en voeg deze geautoriseerde omleidings-URI toe:",
+    "step4": "Zolang het OAuth-toestemmingsscherm in de modus 'Testen' staat: voeg je eigen Google-account toe als testgebruiker. Let op: in de testmodus laat Google aanmeldingen na 7 dagen verlopen — publiceer het toestemmingsscherm voor permanente toegang.",
+    "step5": "Plak hieronder de Client-ID en het Client-secret, sla op en voeg daarna het apparaat toe. Belangrijk: vink bij het inloggen bij Google ALLE toestemmings-selectievakjes aan — Google laat ze standaard leeg.",
+    "client_id": "Client-ID",
+    "client_secret": "Client-secret",
+    "enable_write": "Schrijven naar Google Health toestaan (nodig voor de Flow-kaart 'Gewicht registreren')",
+    "enable_write_hint": "Voer na een wijziging 'Repareren' uit op bestaande apparaten (of koppel een nieuw apparaat) om de nieuwe toestemming toe te passen.",
+    "save": "Opslaan",
+    "saved": "Opgeslagen!"
+  }
+}

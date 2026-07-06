@@ -2,10 +2,12 @@
   "type": "number",
   "title": {
     "en": "Resting heart rate",
-    "de": "Ruhepuls"
+    "de": "Ruhepuls",
+    "nl": "Rusthartslag"
   },
   "units": {
-    "en": "bpm"
+    "en": "bpm",
+    "nl": "bpm"
   },
   "decimals": 0,
   "min": 0,

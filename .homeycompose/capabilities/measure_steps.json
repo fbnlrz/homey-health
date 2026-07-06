@@ -2,11 +2,13 @@
   "type": "number",
   "title": {
     "en": "Steps today",
-    "de": "Schritte heute"
+    "de": "Schritte heute",
+    "nl": "Stappen vandaag"
   },
   "units": {
     "en": "steps",
-    "de": "Schritte"
+    "de": "Schritte",
+    "nl": "stappen"
   },
   "decimals": 0,
   "min": 0,

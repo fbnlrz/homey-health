@@ -2,11 +2,13 @@
   "type": "number",
   "title": {
     "en": "Respiratory rate",
-    "de": "Atemfrequenz"
+    "de": "Atemfrequenz",
+    "nl": "Ademhalingsfrequentie"
   },
   "units": {
     "en": "brpm",
-    "de": "AZ/min"
+    "de": "AZ/min",
+    "nl": "AH/min"
   },
   "decimals": 1,
   "min": 0,

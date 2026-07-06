@@ -2,10 +2,12 @@
   "type": "number",
   "title": {
     "en": "Weight",
-    "de": "Gewicht"
+    "de": "Gewicht",
+    "nl": "Gewicht"
   },
   "units": {
-    "en": "kg"
+    "en": "kg",
+    "nl": "kg"
   },
   "decimals": 1,
   "min": 0,

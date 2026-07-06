@@ -1,7 +1,8 @@
 {
   "name": {
     "en": "Google Health",
-    "de": "Google Health"
+    "de": "Google Health",
+    "nl": "Google Health"
   },
   "class": "sensor",
   "capabilities": [
@@ -22,8 +23,12 @@
     "measure_sleep_hours",
     "measure_hydration"
   ],
-  "platforms": ["local"],
-  "connectivity": ["cloud"],
+  "platforms": [
+    "local"
+  ],
+  "connectivity": [
+    "cloud"
+  ],
   "images": {
     "small": "/drivers/google-health-user/assets/images/small.png",
     "large": "/drivers/google-health-user/assets/images/large.png",

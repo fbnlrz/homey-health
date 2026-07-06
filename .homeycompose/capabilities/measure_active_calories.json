@@ -2,10 +2,12 @@
   "type": "number",
   "title": {
     "en": "Active calories today",
-    "de": "Aktivkalorien heute"
+    "de": "Aktivkalorien heute",
+    "nl": "Actieve calorieën vandaag"
   },
   "units": {
-    "en": "kcal"
+    "en": "kcal",
+    "nl": "kcal"
   },
   "decimals": 0,
   "min": 0,

@@ -2,10 +2,12 @@
   "type": "number",
   "title": {
     "en": "Distance today",
-    "de": "Distanz heute"
+    "de": "Distanz heute",
+    "nl": "Afstand vandaag"
   },
   "units": {
-    "en": "km"
+    "en": "km",
+    "nl": "km"
   },
   "decimals": 2,
   "min": 0,

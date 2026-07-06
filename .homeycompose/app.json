@@ -1,19 +1,25 @@
 {
   "id": "io.github.fbnlrz.healthsync",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "homeyCommunityTopicId": 156934,
   "compatibility": ">=12.9.0",
   "sdk": 3,
-  "platforms": ["local"],
+  "platforms": [
+    "local"
+  ],
   "name": {
     "en": "Health Sync for Google Health",
-    "de": "Health Sync für Google Health"
+    "de": "Health Sync für Google Health",
+    "nl": "Health Sync voor Google Health"
   },
   "description": {
     "en": "Your steps, heart rate, sleep and weight from Google Health on Homey",
-    "de": "Deine Schritte, Herzfrequenz, Schlaf- und Gewichtsdaten aus Google Health auf Homey"
+    "de": "Deine Schritte, Herzfrequenz, Schlaf- und Gewichtsdaten aus Google Health auf Homey",
+    "nl": "Je stappen, hartslag, slaap- en gewichtsgegevens uit Google Health op Homey"
   },
-  "category": ["tools"],
+  "category": [
+    "tools"
+  ],
   "permissions": [],
   "brandColor": "#DE3226",
   "images": {

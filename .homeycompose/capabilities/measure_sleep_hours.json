@@ -2,10 +2,12 @@
   "type": "number",
   "title": {
     "en": "Sleep last night",
-    "de": "Schlaf letzte Nacht"
+    "de": "Schlaf letzte Nacht",
+    "nl": "Slaap afgelopen nacht"
   },
   "units": {
-    "en": "h"
+    "en": "h",
+    "nl": "h"
   },
   "decimals": 1,
   "min": 0,
