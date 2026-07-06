@@ -8,19 +8,22 @@
       font-family: var(--homey-font);
       color: var(--homey-text-color);
     }
+    /* Square widget (aspect ratio from compose "height":"100%"). Sizes scale
+       with the tile (vmin) but are clamped, so it looks right whether the user
+       keeps it large or drags it down to a small square. */
     .tile {
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       height: 100%;
       box-sizing: border-box;
-      padding: var(--homey-su-3);
+      padding: clamp(10px, 7vmin, 22px);
       gap: var(--homey-su-2);
     }
     .icon {
       flex: none;
-      width: 34px;
-      height: 34px;
+      width: clamp(30px, 22vmin, 60px);
+      height: clamp(30px, 22vmin, 60px);
       border-radius: var(--homey-border-radius-default);
       display: flex;
       align-items: center;
@@ -28,7 +31,7 @@
       color: var(--accent, var(--homey-text-color));
       background: color-mix(in srgb, var(--accent, var(--homey-text-color)) 15%, transparent);
     }
-    .icon svg { width: 20px; height: 20px; display: block; }
+    .icon svg { width: 58%; height: 58%; display: block; }
     .foot { min-width: 0; }
     .value {
       display: flex;
@@ -36,19 +39,19 @@
       gap: 3px;
     }
     .value .v {
-      font-size: var(--homey-font-size-xlarge);
+      font-size: clamp(20px, 15vmin, 44px);
       line-height: 1.05;
       font-weight: var(--homey-font-weight-bold);
       white-space: nowrap;
     }
     .value .u {
-      font-size: var(--homey-font-size-small);
+      font-size: clamp(11px, 6vmin, 18px);
       color: var(--homey-text-color-light);
       white-space: nowrap;
     }
     .label {
       margin-top: 3px;
-      font-size: 12px;
+      font-size: clamp(11px, 5.5vmin, 15px);
       line-height: 1.2;
       color: var(--homey-text-color-light);
       display: -webkit-box;
