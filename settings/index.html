@@ -17,6 +17,16 @@
     }
     ol li { margin-bottom: 8px; }
     .hy-nostyle { margin-top: 16px; }
+    #report_output .report-sheet {
+      background: #fff; color: #222; padding: 16px;
+      border-radius: 8px; margin-top: 12px; overflow-x: auto;
+    }
+    @media print {
+      body * { visibility: hidden; }
+      #report_output, #report_output * { visibility: visible; }
+      #report_output { position: absolute; left: 0; top: 0; width: 100%; }
+      #report_output .noprint { display: none; }
+    }
   </style>
 </head>
 <body>
@@ -90,6 +100,8 @@
     <p><small data-i18n="settings.report.hint"></small></p>
   </fieldset>
 
+  <div id="report_output"></div>
+
   <script type="text/javascript">
     function onHomeyReady(Homey) {
       var clientIdEl = document.getElementById('client_id');
@@ -145,16 +157,27 @@
       reportBtn.addEventListener('click', function () {
         reportBtn.disabled = true;
         reportStatus.textContent = Homey.__('settings.report.generating');
+
+        // The window must be opened synchronously inside the click gesture —
+        // opening it later in the API callback gets blocked as a popup
+        var win = null;
+        try { win = window.open('', '_blank'); } catch (e) { win = null; }
+        if (win) {
+          win.document.write('<p style="font-family:sans-serif;margin:24px">'
+            + Homey.__('settings.report.generating') + '</p>');
+        }
+
         var url = '/report?days=' + reportDaysEl.value
           + '&device=' + encodeURIComponent(reportDeviceEl.value);
         Homey.api('GET', url, function (err, report) {
           reportBtn.disabled = false;
           if (err) {
+            if (win) win.close();
             reportStatus.textContent = String(err.message || err);
             return;
           }
           reportStatus.textContent = '';
-          openReport(report);
+          openReport(report, win);
         });
       });
 
@@ -190,7 +213,7 @@
           + '<span>min ' + fmt(min, 1) + '</span><span>max ' + fmt(max, 1) + '</span></div>';
       }
 
-      function openReport(report) {
+      function openReport(report, win) {
         var T = function (k) { return Homey.__('settings.report.' + k); };
         var s = report.series || {};
         var byDate = {};
@@ -249,17 +272,13 @@
             + c[0] + '</div>' + c[1] + '</div>';
         }).join('');
 
-        var html = '<!doctype html><html><head><meta charset="utf-8"><title>' + T('title') + '</title>'
-          + '<style>body{font-family:Arial,Helvetica,sans-serif;margin:28px;color:#222}'
-          + 'h1{font-size:20px;margin:0 0 2px}h2{font-size:14px;margin:18px 0 6px}'
+        var reportCss = 'h1{font-size:20px;margin:0 0 2px}h2{font-size:14px;margin:18px 0 6px}'
           + 'table{border-collapse:collapse;width:100%;font-size:10.5px;margin-top:6px}'
-          + 'th,td{border:1px solid #ccc;padding:3px 5px;text-align:right}'
+          + 'th,td{border:1px solid #ccc;padding:3px 5px;text-align:right;color:#222}'
           + 'th:first-child,td:first-child{text-align:left}'
-          + 'thead{background:#f4f4f4}tr:nth-child(even){background:#fafafa}'
-          + '@media print{.noprint{display:none}}</style></head><body>'
-          + '<button class="noprint" onclick="window.print()" style="float:right;padding:8px 16px">'
-          + T('print') + '</button>'
-          + '<h1>' + T('title') + '</h1>'
+          + 'thead{background:#f4f4f4}tr:nth-child(even){background:#fafafa}';
+
+        var inner = '<h1>' + T('title') + '</h1>'
           + '<div style="font-size:12px;color:#555">' + report.meta.deviceName + ' · '
           + report.meta.from + ' – ' + report.meta.to + ' (' + report.meta.days + ' ' + T('days') + ') · '
           + T('generated') + ' ' + new Date(report.meta.generatedAt).toLocaleString() + '</div>'
@@ -269,16 +288,55 @@
           + '<table><thead><tr><th>' + T('col_date') + '</th>'
           + cols.map(function (c) { return '<th>' + c[1] + '</th>'; }).join('')
           + '</tr></thead><tbody>' + rows + '</tbody></table>'
-          + '<p style="font-size:10px;color:#777;margin-top:14px">' + T('disclaimer') + '</p>'
-          + '</body></html>';
+          + '<p style="font-size:10px;color:#777;margin-top:14px">' + T('disclaimer') + '</p>';
 
-        var win = window.open('', '_blank');
+        var fullDoc = '<!doctype html><html><head><meta charset="utf-8"><title>' + T('title') + '</title>'
+          + '<style>body{font-family:Arial,Helvetica,sans-serif;margin:28px;color:#222;background:#fff}'
+          + reportCss + '@media print{.noprint{display:none}}</style></head><body>'
+          + '<button class="noprint" onclick="window.print()" style="float:right;padding:8px 16px">'
+          + T('print') + '</button>' + inner + '</body></html>';
+
         if (win) {
-          win.document.write(html);
+          // A separate tab worked (not available in the sandboxed settings iframe)
+          win.document.open();
+          win.document.write(fullDoc);
           win.document.close();
-        } else {
-          reportStatus.textContent = Homey.__('settings.report.popup_blocked');
+          return;
         }
+
+        // Inline fallback: render on this page. Printing uses the @media print
+        // rules that hide everything except the report.
+        var scopedCss = reportCss.split('}').filter(function (rule) { return rule.trim(); })
+          .map(function (rule) {
+            var brace = rule.indexOf('{');
+            var selectors = rule.slice(0, brace).split(',').map(function (sel) {
+              return '#report_output ' + sel.trim();
+            }).join(',');
+            return selectors + rule.slice(brace) + '}';
+          }).join('');
+
+        var container = document.getElementById('report_output');
+        container.innerHTML = '<div class="report-sheet"><style>' + scopedCss + '</style>'
+          + '<div class="noprint" style="display:flex;gap:8px;margin-bottom:12px">'
+          + '<button onclick="window.print()" style="padding:8px 16px">' + T('print') + '</button>'
+          + '<button id="report_download" style="padding:8px 16px">' + T('download') + '</button>'
+          + '</div>' + inner + '</div>';
+
+        // Download as a standalone HTML file — opens outside the sandbox,
+        // where the browser's print-to-PDF always works
+        document.getElementById('report_download').addEventListener('click', function () {
+          var blob = new Blob([fullDoc], { type: 'text/html' });
+          var link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.download = 'health-report-' + report.meta.from + '-' + report.meta.to + '.html';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          setTimeout(function () { URL.revokeObjectURL(link.href); }, 5000);
+        });
+
+        reportStatus.textContent = Homey.__('settings.report.inline_ready');
+        container.scrollIntoView({ behavior: 'smooth' });
       }
 
       Homey.ready();
