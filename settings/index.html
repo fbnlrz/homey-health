@@ -297,6 +297,15 @@
         + '.rpt tbody tr:last-child td{border-bottom:none}'
         + '.rpt td.empty{color:var(--muted)}'
         + '.rpt .disclaimer{font-size:10px;color:var(--muted);margin-top:14px;line-height:1.5}'
+        + '.rpt .customizer{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin:16px 0 4px}'
+        + '.rpt .customizer .ct{font-size:12.5px;font-weight:650}'
+        + '.rpt .customizer .ch{font-size:11px;color:var(--muted);margin-top:2px}'
+        + '.rpt .customizer .grp{margin-top:12px}'
+        + '.rpt .customizer .gl{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:7px;display:flex;align-items:center;gap:8px}'
+        + '.rpt .customizer .gl button{font:inherit;font-size:10px;padding:1px 8px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--ink2);cursor:pointer}'
+        + '.rpt .customizer .opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:7px 14px}'
+        + '.rpt .customizer label{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ink);cursor:pointer}'
+        + '.rpt .customizer input{accent-color:var(--c-steps);width:15px;height:15px;flex:none;margin:0}'
         + '@media screen{.rpt thead th{position:sticky;top:0;background:var(--surface)}}';
 
       var RPT_MARK = '<svg width="22" height="22" viewBox="0 0 512 512" aria-hidden="true">'
@@ -355,6 +364,57 @@
         };
       }
 
+      // Self-contained (no closure refs): its source is also stringified via
+      // .toString() and embedded into the standalone served page, so it must
+      // rely only on its `doc` argument, the DOM and localStorage.
+      function wireCustomizer(doc) {
+        var KEY = 'ghhealthreport.hidden.v1';
+        var hidden = {};
+        try { hidden = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { hidden = {}; }
+        function save() { try { localStorage.setItem(KEY, JSON.stringify(hidden)); } catch (e) {} }
+        function applySec(id, on) {
+          var el = doc.querySelector('[data-sec="' + id + '"]');
+          if (el) el.style.display = on ? '' : 'none';
+        }
+        function applyCol(key, on) {
+          var els = doc.querySelectorAll('.col-' + key);
+          for (var i = 0; i < els.length; i++) els[i].style.display = on ? '' : 'none';
+        }
+        function bind(attr, apply) {
+          var boxes = doc.querySelectorAll('[data-cz-' + attr + ']');
+          for (var i = 0; i < boxes.length; i++) {
+            (function (box) {
+              var id = box.getAttribute('data-cz-' + attr);
+              var storeKey = attr + ':' + id;
+              var on = hidden[storeKey] !== true;
+              box.checked = on;
+              apply(id, on);
+              box.onchange = function () {
+                hidden[storeKey] = !box.checked;
+                apply(id, box.checked);
+                save();
+              };
+            })(boxes[i]);
+          }
+        }
+        bind('sec', applySec);
+        bind('col', applyCol);
+        var btns = doc.querySelectorAll('[data-cz-all]');
+        for (var k = 0; k < btns.length; k++) {
+          (function (btn) {
+            btn.onclick = function () {
+              var grp = btn.getAttribute('data-cz-all');
+              var val = btn.getAttribute('data-cz-val') === '1';
+              var boxes = doc.querySelectorAll('[data-cz-' + grp + ']');
+              for (var m = 0; m < boxes.length; m++) {
+                boxes[m].checked = val;
+                boxes[m].onchange();
+              }
+            };
+          })(btns[k]);
+        }
+      }
+
       function openReport(report, win) {
         var T = function (k) { return Homey.__('settings.report.' + k); };
         var s = report.series || {};
@@ -395,8 +455,8 @@
           return '<tr><td>' + d + '</td>' + cols.map(function (c) {
             var v = byDate[d][c[0]];
             return typeof v === 'number'
-              ? '<td>' + fmt(v, c[2]) + '</td>'
-              : '<td class="empty">–</td>';
+              ? '<td class="col-' + c[0] + '">' + fmt(v, c[2]) + '</td>'
+              : '<td class="col-' + c[0] + ' empty">–</td>';
           }).join('') + '</tr>';
         }).join('');
 
@@ -447,7 +507,7 @@
         if (pGender) patientParts.push(T('gender_' + pGender));
         if (heightCm) patientParts.push(heightCm + ' cm');
         var patientBlock = patientParts.length
-          ? '<div class="patient">' + patientParts.join(' &nbsp;·&nbsp; ') + '</div>' : '';
+          ? '<div class="patient" data-sec="patient">' + patientParts.join(' &nbsp;·&nbsp; ') + '</div>' : '';
 
         var tileData = [
           [T('avg_steps'), fmt(mean(s.steps), 0)],
@@ -462,29 +522,56 @@
             + (c[2] ? '<div class="s">' + c[2] + '</div>' : '') + '</div>';
         }).join('');
 
-        var charts = [
-          [T('col_steps'), lineChart(s.steps, null, '--c-steps', 0, ''), '--c-steps'],
-          [T('col_rhr'), lineChart(s.resting_heart_rate, null, '--c-rhr', 0, 'bpm'), '--c-rhr'],
-          [T('col_sleep'), lineChart(s.sleep, 'hours', '--c-sleep', 1, 'h'), '--c-sleep'],
-          [T('col_weight'), lineChart(s.weight_kg, null, '--c-weight', 1, 'kg'), '--c-weight'],
-        ].filter(function (c) { return c[1]; }).map(function (c) {
-          return '<div class="chart"><div class="t"><span>' + c[0] + '</span>'
-            + '<span class="last"><span class="dot" style="background:var(' + c[2] + ')"></span>' + c[1].last + '</span></div>'
-            + c[1].svg + '</div>';
+        var chartDefs = [
+          ['chart_steps', T('col_steps'), lineChart(s.steps, null, '--c-steps', 0, ''), '--c-steps'],
+          ['chart_rhr', T('col_rhr'), lineChart(s.resting_heart_rate, null, '--c-rhr', 0, 'bpm'), '--c-rhr'],
+          ['chart_sleep', T('col_sleep'), lineChart(s.sleep, 'hours', '--c-sleep', 1, 'h'), '--c-sleep'],
+          ['chart_weight', T('col_weight'), lineChart(s.weight_kg, null, '--c-weight', 1, 'kg'), '--c-weight'],
+        ].filter(function (c) { return c[2]; });
+        var charts = chartDefs.map(function (c) {
+          return '<div class="chart" data-sec="' + c[0] + '"><div class="t"><span>' + c[1] + '</span>'
+            + '<span class="last"><span class="dot" style="background:var(' + c[3] + ')"></span>' + c[2].last + '</span></div>'
+            + c[2].svg + '</div>';
         }).join('');
+
+        // Build the on-page customizer from the blocks/columns that actually
+        // exist, so users never see a toggle for data they don't have.
+        var secDefs = [];
+        if (patientBlock) secDefs.push(['patient', T('sec_patient')]);
+        secDefs.push(['summary', T('sec_summary')]);
+        chartDefs.forEach(function (c) { secDefs.push([c[0], c[1]]); });
+        if (rows) secDefs.push(['table', T('daily_values')]);
+        secDefs.push(['disclaimer', T('sec_disclaimer')]);
+
+        function czGroup(label, attr, defs) {
+          if (!defs.length) return '';
+          return '<div class="grp"><div class="gl">' + label
+            + '<button data-cz-all="' + attr + '" data-cz-val="1">' + T('select_all') + '</button>'
+            + '<button data-cz-all="' + attr + '" data-cz-val="0">' + T('select_none') + '</button></div>'
+            + '<div class="opts">' + defs.map(function (d) {
+              return '<label><input type="checkbox" data-cz-' + attr + '="' + d[0] + '" checked><span>' + d[1] + '</span></label>';
+            }).join('') + '</div></div>';
+        }
+        var customizer = '<div class="customizer noprint">'
+          + '<div class="ct">' + T('customize') + '</div>'
+          + '<div class="ch">' + T('customize_hint') + '</div>'
+          + czGroup(T('sec_sections'), 'sec', secDefs)
+          + czGroup(T('sec_columns'), 'col', cols.map(function (c) { return [c[0], c[1]]; }))
+          + '</div>';
 
         var inner = '<h1>' + RPT_MARK + T('title') + '</h1>'
           + '<div class="meta">' + report.meta.deviceName + ' · '
           + report.meta.from + ' – ' + report.meta.to + ' (' + report.meta.days + ' ' + T('days') + ') · '
           + T('generated') + ' ' + new Date(report.meta.generatedAt).toLocaleString() + '</div>'
+          + customizer
           + patientBlock
-          + '<div class="tiles">' + tiles + '</div>'
+          + '<div class="tiles" data-sec="summary">' + tiles + '</div>'
           + '<div class="charts">' + charts + '</div>'
-          + '<h2>' + T('daily_values') + '</h2>'
+          + '<div data-sec="table"><h2>' + T('daily_values') + '</h2>'
           + '<div class="tablewrap"><table><thead><tr><th>' + T('col_date') + '</th>'
-          + cols.map(function (c) { return '<th>' + c[1] + '</th>'; }).join('')
-          + '</tr></thead><tbody>' + rows + '</tbody></table></div>'
-          + '<p class="disclaimer">' + T('disclaimer') + '</p>';
+          + cols.map(function (c) { return '<th class="col-' + c[0] + '">' + c[1] + '</th>'; }).join('')
+          + '</tr></thead><tbody>' + rows + '</tbody></table></div></div>'
+          + '<p class="disclaimer" data-sec="disclaimer">' + T('disclaimer') + '</p>';
 
         var fullDoc = '<!doctype html><html><head><meta charset="utf-8">'
           + '<meta name="viewport" content="width=device-width,initial-scale=1">'
@@ -492,7 +579,9 @@
           + '<style>body{margin:0;background:#0d0d0d}@media print{body{background:#fff}}' + RPT_CSS + '</style></head>'
           + '<body><div class="rpt">'
           + '<div class="btns noprint"><button onclick="window.print()">' + T('print') + '</button></div>'
-          + inner + '</div></body></html>';
+          + inner + '</div>'
+          + '<script>(' + wireCustomizer.toString() + ')(document);</scr' + 'ipt>'
+          + '</body></html>';
 
         if (win) {
           // A separate tab worked (not available in the sandboxed settings iframe)
@@ -515,6 +604,10 @@
           + '</div>'
           + '<div id="report_access" class="access noprint"></div>'
           + inner + '</div>';
+
+        // Make the inline preview's customizer interactive too (the standalone
+        // served page wires itself via the embedded script instead).
+        wireCustomizer(document);
 
         var openBtnEl = document.getElementById('report_open');
         openBtnEl.disabled = true;
