@@ -956,6 +956,7 @@
         "measure_basal_calories",
         "measure_glucose",
         "measure_body_temperature",
+        "measure_skin_temp_variation",
         "measure_altitude",
         "measure_sedentary_minutes",
         "alarm_asleep"
@@ -1525,6 +1526,25 @@
       "insights": true,
       "chartType": "stepLine",
       "icon": "/assets/capabilities/timer.svg"
+    },
+    "measure_skin_temp_variation": {
+      "type": "number",
+      "title": {
+        "en": "Skin temp. variation",
+        "de": "Hauttemp.-Abweichung",
+        "nl": "Huidtemp.-afwijking"
+      },
+      "units": {
+        "en": "°C"
+      },
+      "decimals": 1,
+      "min": -5,
+      "max": 5,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "icon": "/assets/capabilities/gauge.svg"
     },
     "measure_sleep_hours": {
       "type": "number",

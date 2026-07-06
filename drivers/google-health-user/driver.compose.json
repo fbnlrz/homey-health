@@ -29,6 +29,7 @@
     "measure_basal_calories",
     "measure_glucose",
     "measure_body_temperature",
+    "measure_skin_temp_variation",
     "measure_altitude",
     "measure_sedentary_minutes",
     "alarm_asleep"
