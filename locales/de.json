@@ -1,0 +1,24 @@
+{
+  "pair": {
+    "missing_credentials": "Bitte hinterlege zuerst die Google OAuth Client-ID und das Client-Secret in den App-Einstellungen (Mehr > Apps > Google Health > App konfigurieren).",
+    "not_authorized": "Die Google-Anmeldung wurde nicht abgeschlossen. Bitte versuche es erneut."
+  },
+  "device": {
+    "auth_lost": "Die Google-Anmeldung ist abgelaufen. Öffne das Gerät und nutze 'Reparieren', um dich erneut anzumelden."
+  },
+  "settings": {
+    "title": "Google Health",
+    "intro": "Diese App benötigt einen eigenen Google-Cloud-OAuth-Client, da Google den Health-API-Zugriff pro Projekt vergibt.",
+    "step1": "Öffne die Google Cloud Console und erstelle (oder wähle) ein Projekt.",
+    "step2": "Aktiviere die Google Health API für das Projekt.",
+    "step3": "Erstelle eine OAuth-Client-ID vom Typ 'Webanwendung' und füge diese autorisierte Weiterleitungs-URI hinzu:",
+    "step4": "Solange der OAuth-Zustimmungsbildschirm im Modus 'Testen' ist, füge dein eigenes Google-Konto als Testnutzer hinzu. Hinweis: Im Testmodus laufen Anmeldungen nach 7 Tagen ab — veröffentliche den Zustimmungsbildschirm für dauerhaften Zugriff.",
+    "step5": "Füge unten Client-ID und Client-Secret ein, speichere und füge dann das Gerät hinzu.",
+    "client_id": "Client-ID",
+    "client_secret": "Client-Secret",
+    "enable_write": "Schreiben in Google Health erlauben (nötig für die Flow-Karte 'Gewicht protokollieren')",
+    "enable_write_hint": "Eine Änderung wirkt nur auf danach gekoppelte Geräte. Bestehende Geräte neu koppeln, um sie zu übernehmen.",
+    "save": "Speichern",
+    "saved": "Gespeichert!"
+  }
+}

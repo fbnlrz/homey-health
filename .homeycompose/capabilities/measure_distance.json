@@ -1,0 +1,18 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Distance today",
+    "de": "Distanz heute"
+  },
+  "units": {
+    "en": "km"
+  },
+  "decimals": 2,
+  "min": 0,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": true,
+  "chartType": "stepLine",
+  "icon": "/assets/capabilities/distance.svg"
+}

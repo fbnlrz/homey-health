@@ -1,2 +1,64 @@
-# homey-health
-Google Health x Homey
+# Google Health für Homey
+
+Homey-App, die Gesundheitsdaten aus der [Google Health API v4](https://developers.google.com/health) auf Homey holt — Schritte, Distanz, Kalorien, Etagen, Herzfrequenz, Ruhepuls, Gewicht, Blutsauerstoff (SpO2) und Schlaf.
+
+Basiert auf den API-Erkenntnissen aus der [google-health-cli](https://github.com/Google-Health-API/google-health-cli) und den Homey-SDK-v3-Konventionen aus dem [homey-app-skill](https://github.com/dvflw/homey-app-skill).
+
+## Funktionen
+
+**Gerät „Google Health"** (ein Gerät pro Google-Konto) mit diesen Sensor-Capabilities, alle mit Insights-Verlauf:
+
+| Capability | Quelle (Health API) |
+|---|---|
+| Schritte heute | `steps` daily-rollup (`countSum`) |
+| Distanz heute (km) | `distance` daily-rollup (`millimetersSum`) |
+| Kalorien heute (kcal) | `total-calories` daily-rollup (`kcalSum`) |
+| Etagen heute | `floors` daily-rollup (`countSum`) |
+| Herzfrequenz (letzte Messung) | `heart-rate` list |
+| Ruhepuls | `daily-resting-heart-rate` list |
+| Gewicht (kg) | `weight` list |
+| Blutsauerstoff SpO2 (%) | `oxygen-saturation` list |
+| Schlaf letzte Nacht (h) | `sleep` list (`minutesAsleep`) |
+
+**Flow-Karten**
+
+- Auslöser: Schrittzahl geändert · Tägliches Schrittziel erreicht · Neue Herzfrequenz-Messung · Neue Gewichtsmessung · Neue Schlafdaten
+- Bedingungen: Schritte heute über X · Ruhepuls über X bpm
+- Aktionen: Jetzt synchronisieren · Gewicht in Google Health protokollieren (erfordert Schreibzugriff)
+
+## Einrichtung
+
+Die Google Health API wird pro Google-Cloud-Projekt freigeschaltet, deshalb brauchst du einen eigenen OAuth-Client:
+
+1. [Google Cloud Console](https://console.cloud.google.com/) öffnen, Projekt anlegen oder auswählen.
+2. Die [Google Health API](https://console.cloud.google.com/apis/api/health.googleapis.com) für das Projekt aktivieren.
+3. Unter *APIs & Dienste → Anmeldedaten* eine **OAuth-Client-ID** vom Typ **Webanwendung** erstellen und als autorisierte Weiterleitungs-URI eintragen:
+
+   ```
+   https://callback.athom.com/oauth2/callback
+   ```
+
+4. Solange der OAuth-Zustimmungsbildschirm im Modus **Testen** ist: dein Google-Konto als **Testnutzer** hinzufügen. (Achtung: Im Testmodus laufen Refresh-Tokens nach 7 Tagen ab — dann in Homey einfach „Reparieren" ausführen oder den Zustimmungsbildschirm veröffentlichen.)
+5. In Homey: *Mehr → Apps → Google Health → App konfigurieren* — Client-ID und Client-Secret eintragen. Optional „Schreiben erlauben" aktivieren, wenn du die Flow-Karte „Gewicht protokollieren" nutzen willst.
+6. Gerät hinzufügen (*Geräte → + → Google Health*) und mit Google anmelden.
+
+## Hinweise zum Verhalten
+
+- **Abrufintervall**: Standard 15 Minuten, einstellbar ab 5 Minuten (Geräteeinstellungen). Datengruppen (Aktivität/Herz/Körper/Schlaf) lassen sich einzeln abschalten.
+- **Fehlende Tage ≠ 0**: Liefert die API für heute (noch) keine Aktivitätsdaten, behält die App den letzten Wert; nur beim Tageswechsel wird der Schrittzähler auf 0 gesetzt. Ein `countSum: "0"` der API ist dagegen eine echte Null.
+- **Zahlenformate**: `int64`-Felder kommen als Strings (protobuf-JSON) und werden defensiv nach `Number` konvertiert.
+- **Schreiben** (Gewicht) nutzt den Scope `googlehealth.health_metrics_and_measurements` (read/write) und wird nur angefragt, wenn in den App-Einstellungen aktiviert. Scope-Änderungen wirken erst beim (Neu-)Koppeln.
+
+## Entwicklung
+
+```bash
+npm install
+npx homey app validate --level publish
+npx homey app run    # live auf deinem Homey testen
+```
+
+Projektstruktur nach Homey Compose — `app.json` wird aus `.homeycompose/` und den `*.compose.json`-Dateien der Driver generiert, nie direkt editieren.
+
+## Lizenz
+
+MIT

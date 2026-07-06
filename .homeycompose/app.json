@@ -1,0 +1,28 @@
+{
+  "id": "io.github.fbnlrz.googlehealth",
+  "version": "0.1.0",
+  "compatibility": ">=12.9.0",
+  "sdk": 3,
+  "platforms": ["local", "cloud"],
+  "name": {
+    "en": "Google Health",
+    "de": "Google Health"
+  },
+  "description": {
+    "en": "Your steps, heart rate, sleep and weight from Google Health on Homey",
+    "de": "Deine Schritte, Herzfrequenz, Schlaf- und Gewichtsdaten aus Google Health auf Homey"
+  },
+  "category": ["tools"],
+  "permissions": [],
+  "brandColor": "#EA4335",
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "author": {
+    "name": "fbnlrz"
+  },
+  "source": "https://github.com/fbnlrz/homey-health",
+  "support": "https://github.com/fbnlrz/homey-health/issues"
+}

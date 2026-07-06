@@ -1,0 +1,24 @@
+{
+  "pair": {
+    "missing_credentials": "Please enter your Google OAuth Client ID and Client Secret in the app settings first (More > Apps > Google Health > Configure app).",
+    "not_authorized": "Google login was not completed. Please try again."
+  },
+  "device": {
+    "auth_lost": "Google login expired. Open the device and use 'Repair' to log in again."
+  },
+  "settings": {
+    "title": "Google Health",
+    "intro": "This app needs its own Google Cloud OAuth client, because Google grants Health API access per project.",
+    "step1": "Open the Google Cloud Console and create (or select) a project.",
+    "step2": "Enable the Google Health API for the project.",
+    "step3": "Create an OAuth client ID of type 'Web application' and add this authorized redirect URI:",
+    "step4": "While the OAuth consent screen is in 'Testing' mode, add your own Google account as a test user. Note: in testing mode Google expires logins after 7 days — publish the consent screen for permanent access.",
+    "step5": "Paste the Client ID and Client Secret below, save, then add the device.",
+    "client_id": "Client ID",
+    "client_secret": "Client Secret",
+    "enable_write": "Allow writing to Google Health (needed for the 'Log weight' Flow card)",
+    "enable_write_hint": "Changing this only affects devices paired afterwards. Re-pair existing devices to apply.",
+    "save": "Save",
+    "saved": "Saved!"
+  }
+}

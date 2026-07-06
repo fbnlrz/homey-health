@@ -1,0 +1,193 @@
+{
+  "triggers": [
+    {
+      "id": "steps_updated",
+      "title": {
+        "en": "The step count changed",
+        "de": "Die Schrittzahl hat sich geändert"
+      },
+      "tokens": [
+        {
+          "name": "steps",
+          "type": "number",
+          "title": {
+            "en": "Steps",
+            "de": "Schritte"
+          },
+          "example": 8500
+        }
+      ]
+    },
+    {
+      "id": "step_goal_reached",
+      "title": {
+        "en": "The daily step goal was reached",
+        "de": "Das tägliche Schrittziel wurde erreicht"
+      },
+      "tokens": [
+        {
+          "name": "steps",
+          "type": "number",
+          "title": {
+            "en": "Steps",
+            "de": "Schritte"
+          },
+          "example": 10021
+        },
+        {
+          "name": "goal",
+          "type": "number",
+          "title": {
+            "en": "Goal",
+            "de": "Ziel"
+          },
+          "example": 10000
+        }
+      ]
+    },
+    {
+      "id": "heart_rate_updated",
+      "title": {
+        "en": "A new heart rate reading arrived",
+        "de": "Eine neue Herzfrequenz-Messung ist eingetroffen"
+      },
+      "tokens": [
+        {
+          "name": "heart_rate",
+          "type": "number",
+          "title": {
+            "en": "Heart rate",
+            "de": "Herzfrequenz"
+          },
+          "example": 72
+        }
+      ]
+    },
+    {
+      "id": "new_weight_measurement",
+      "title": {
+        "en": "A new weight measurement arrived",
+        "de": "Eine neue Gewichtsmessung ist eingetroffen"
+      },
+      "tokens": [
+        {
+          "name": "weight",
+          "type": "number",
+          "title": {
+            "en": "Weight (kg)",
+            "de": "Gewicht (kg)"
+          },
+          "example": 75.5
+        }
+      ]
+    },
+    {
+      "id": "sleep_updated",
+      "title": {
+        "en": "New sleep data arrived",
+        "de": "Neue Schlafdaten sind eingetroffen"
+      },
+      "tokens": [
+        {
+          "name": "hours_asleep",
+          "type": "number",
+          "title": {
+            "en": "Hours asleep",
+            "de": "Stunden geschlafen"
+          },
+          "example": 7.4
+        },
+        {
+          "name": "minutes_awake",
+          "type": "number",
+          "title": {
+            "en": "Minutes awake",
+            "de": "Minuten wach"
+          },
+          "example": 32
+        }
+      ]
+    }
+  ],
+  "conditions": [
+    {
+      "id": "steps_above",
+      "title": {
+        "en": "Steps today !{{are|aren't}} above...",
+        "de": "Schritte heute !{{sind|sind nicht}} über..."
+      },
+      "titleFormatted": {
+        "en": "Steps today !{{are|aren't}} above [[count]]",
+        "de": "Schritte heute !{{sind|sind nicht}} über [[count]]"
+      },
+      "args": [
+        {
+          "name": "count",
+          "type": "number",
+          "min": 0,
+          "placeholder": {
+            "en": "10000"
+          }
+        }
+      ]
+    },
+    {
+      "id": "resting_hr_above",
+      "title": {
+        "en": "Resting heart rate !{{is|isn't}} above...",
+        "de": "Ruhepuls !{{ist|ist nicht}} über..."
+      },
+      "titleFormatted": {
+        "en": "Resting heart rate !{{is|isn't}} above [[bpm]] bpm",
+        "de": "Ruhepuls !{{ist|ist nicht}} über [[bpm]] bpm"
+      },
+      "args": [
+        {
+          "name": "bpm",
+          "type": "number",
+          "min": 0,
+          "max": 300,
+          "placeholder": {
+            "en": "60"
+          }
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "id": "sync_now",
+      "title": {
+        "en": "Synchronize now",
+        "de": "Jetzt synchronisieren"
+      }
+    },
+    {
+      "id": "log_weight",
+      "title": {
+        "en": "Log weight...",
+        "de": "Gewicht protokollieren..."
+      },
+      "titleFormatted": {
+        "en": "Log weight [[weight]] kg to Google Health",
+        "de": "Gewicht [[weight]] kg in Google Health protokollieren"
+      },
+      "hint": {
+        "en": "Requires write access — enable it in the app settings before pairing.",
+        "de": "Erfordert Schreibzugriff — vor dem Koppeln in den App-Einstellungen aktivieren."
+      },
+      "args": [
+        {
+          "name": "weight",
+          "type": "number",
+          "min": 1,
+          "max": 500,
+          "step": 0.1,
+          "placeholder": {
+            "en": "75.5"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Weight",
+    "de": "Gewicht"
+  },
+  "units": {
+    "en": "kg"
+  },
+  "decimals": 1,
+  "min": 0,
+  "max": 500,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": true,
+  "icon": "/assets/capabilities/weight.svg"
+}

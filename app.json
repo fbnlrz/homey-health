@@ -1,0 +1,599 @@
+{
+  "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
+  "id": "io.github.fbnlrz.googlehealth",
+  "version": "0.1.0",
+  "compatibility": ">=12.9.0",
+  "sdk": 3,
+  "platforms": [
+    "local",
+    "cloud"
+  ],
+  "name": {
+    "en": "Google Health",
+    "de": "Google Health"
+  },
+  "description": {
+    "en": "Your steps, heart rate, sleep and weight from Google Health on Homey",
+    "de": "Deine Schritte, Herzfrequenz, Schlaf- und Gewichtsdaten aus Google Health auf Homey"
+  },
+  "category": [
+    "tools"
+  ],
+  "permissions": [],
+  "brandColor": "#EA4335",
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "author": {
+    "name": "fbnlrz"
+  },
+  "source": "https://github.com/fbnlrz/homey-health",
+  "support": "https://github.com/fbnlrz/homey-health/issues",
+  "flow": {
+    "triggers": [
+      {
+        "id": "steps_updated",
+        "title": {
+          "en": "The step count changed",
+          "de": "Die Schrittzahl hat sich geändert"
+        },
+        "tokens": [
+          {
+            "name": "steps",
+            "type": "number",
+            "title": {
+              "en": "Steps",
+              "de": "Schritte"
+            },
+            "example": 8500
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=google-health-user"
+          }
+        ]
+      },
+      {
+        "id": "step_goal_reached",
+        "title": {
+          "en": "The daily step goal was reached",
+          "de": "Das tägliche Schrittziel wurde erreicht"
+        },
+        "tokens": [
+          {
+            "name": "steps",
+            "type": "number",
+            "title": {
+              "en": "Steps",
+              "de": "Schritte"
+            },
+            "example": 10021
+          },
+          {
+            "name": "goal",
+            "type": "number",
+            "title": {
+              "en": "Goal",
+              "de": "Ziel"
+            },
+            "example": 10000
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=google-health-user"
+          }
+        ]
+      },
+      {
+        "id": "heart_rate_updated",
+        "title": {
+          "en": "A new heart rate reading arrived",
+          "de": "Eine neue Herzfrequenz-Messung ist eingetroffen"
+        },
+        "tokens": [
+          {
+            "name": "heart_rate",
+            "type": "number",
+            "title": {
+              "en": "Heart rate",
+              "de": "Herzfrequenz"
+            },
+            "example": 72
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=google-health-user"
+          }
+        ]
+      },
+      {
+        "id": "new_weight_measurement",
+        "title": {
+          "en": "A new weight measurement arrived",
+          "de": "Eine neue Gewichtsmessung ist eingetroffen"
+        },
+        "tokens": [
+          {
+            "name": "weight",
+            "type": "number",
+            "title": {
+              "en": "Weight (kg)",
+              "de": "Gewicht (kg)"
+            },
+            "example": 75.5
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=google-health-user"
+          }
+        ]
+      },
+      {
+        "id": "sleep_updated",
+        "title": {
+          "en": "New sleep data arrived",
+          "de": "Neue Schlafdaten sind eingetroffen"
+        },
+        "tokens": [
+          {
+            "name": "hours_asleep",
+            "type": "number",
+            "title": {
+              "en": "Hours asleep",
+              "de": "Stunden geschlafen"
+            },
+            "example": 7.4
+          },
+          {
+            "name": "minutes_awake",
+            "type": "number",
+            "title": {
+              "en": "Minutes awake",
+              "de": "Minuten wach"
+            },
+            "example": 32
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=google-health-user"
+          }
+        ]
+      }
+    ],
+    "conditions": [
+      {
+        "id": "steps_above",
+        "title": {
+          "en": "Steps today !{{are|aren't}} above...",
+          "de": "Schritte heute !{{sind|sind nicht}} über..."
+        },
+        "titleFormatted": {
+          "en": "Steps today !{{are|aren't}} above [[count]]",
+          "de": "Schritte heute !{{sind|sind nicht}} über [[count]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=google-health-user"
+          },
+          {
+            "name": "count",
+            "type": "number",
+            "min": 0,
+            "placeholder": {
+              "en": "10000"
+            }
+          }
+        ]
+      },
+      {
+        "id": "resting_hr_above",
+        "title": {
+          "en": "Resting heart rate !{{is|isn't}} above...",
+          "de": "Ruhepuls !{{ist|ist nicht}} über..."
+        },
+        "titleFormatted": {
+          "en": "Resting heart rate !{{is|isn't}} above [[bpm]] bpm",
+          "de": "Ruhepuls !{{ist|ist nicht}} über [[bpm]] bpm"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=google-health-user"
+          },
+          {
+            "name": "bpm",
+            "type": "number",
+            "min": 0,
+            "max": 300,
+            "placeholder": {
+              "en": "60"
+            }
+          }
+        ]
+      }
+    ],
+    "actions": [
+      {
+        "id": "sync_now",
+        "title": {
+          "en": "Synchronize now",
+          "de": "Jetzt synchronisieren"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=google-health-user"
+          }
+        ]
+      },
+      {
+        "id": "log_weight",
+        "title": {
+          "en": "Log weight...",
+          "de": "Gewicht protokollieren..."
+        },
+        "titleFormatted": {
+          "en": "Log weight [[weight]] kg to Google Health",
+          "de": "Gewicht [[weight]] kg in Google Health protokollieren"
+        },
+        "hint": {
+          "en": "Requires write access — enable it in the app settings before pairing.",
+          "de": "Erfordert Schreibzugriff — vor dem Koppeln in den App-Einstellungen aktivieren."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=google-health-user"
+          },
+          {
+            "name": "weight",
+            "type": "number",
+            "min": 1,
+            "max": 500,
+            "step": 0.1,
+            "placeholder": {
+              "en": "75.5"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "drivers": [
+    {
+      "name": {
+        "en": "Google Health",
+        "de": "Google Health"
+      },
+      "class": "sensor",
+      "capabilities": [
+        "measure_steps",
+        "measure_distance",
+        "measure_calories",
+        "measure_floors",
+        "measure_heart_rate",
+        "measure_resting_heart_rate",
+        "measure_weight",
+        "measure_spo2",
+        "measure_sleep_hours"
+      ],
+      "platforms": [
+        "local",
+        "cloud"
+      ],
+      "connectivity": [
+        "cloud"
+      ],
+      "images": {
+        "small": "/drivers/google-health-user/assets/images/small.png",
+        "large": "/drivers/google-health-user/assets/images/large.png",
+        "xlarge": "/drivers/google-health-user/assets/images/xlarge.png"
+      },
+      "pair": [
+        {
+          "id": "login_oauth2",
+          "template": "login_oauth2"
+        },
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ],
+      "repair": [
+        {
+          "id": "login_oauth2",
+          "template": "login_oauth2"
+        }
+      ],
+      "id": "google-health-user",
+      "settings": [
+        {
+          "type": "group",
+          "label": {
+            "en": "Synchronization",
+            "de": "Synchronisierung"
+          },
+          "children": [
+            {
+              "id": "poll_interval",
+              "type": "number",
+              "label": {
+                "en": "Update interval",
+                "de": "Aktualisierungsintervall"
+              },
+              "hint": {
+                "en": "How often Homey fetches new data from Google Health.",
+                "de": "Wie oft Homey neue Daten von Google Health abruft."
+              },
+              "value": 15,
+              "min": 5,
+              "max": 1440,
+              "units": {
+                "en": "min"
+              }
+            },
+            {
+              "id": "step_goal",
+              "type": "number",
+              "label": {
+                "en": "Daily step goal",
+                "de": "Tägliches Schrittziel"
+              },
+              "hint": {
+                "en": "Used by the 'Daily step goal reached' Flow trigger.",
+                "de": "Wird vom Flow-Auslöser 'Tägliches Schrittziel erreicht' verwendet."
+              },
+              "value": 10000,
+              "min": 1,
+              "max": 200000,
+              "units": {
+                "en": "steps",
+                "de": "Schritte"
+              }
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Data to synchronize",
+            "de": "Zu synchronisierende Daten"
+          },
+          "children": [
+            {
+              "id": "sync_activity",
+              "type": "checkbox",
+              "label": {
+                "en": "Activity (steps, distance, calories, floors)",
+                "de": "Aktivität (Schritte, Distanz, Kalorien, Etagen)"
+              },
+              "value": true
+            },
+            {
+              "id": "sync_heart",
+              "type": "checkbox",
+              "label": {
+                "en": "Heart (heart rate, resting heart rate)",
+                "de": "Herz (Herzfrequenz, Ruhepuls)"
+              },
+              "value": true
+            },
+            {
+              "id": "sync_body",
+              "type": "checkbox",
+              "label": {
+                "en": "Body (weight, blood oxygen)",
+                "de": "Körper (Gewicht, Blutsauerstoff)"
+              },
+              "value": true
+            },
+            {
+              "id": "sync_sleep",
+              "type": "checkbox",
+              "label": {
+                "en": "Sleep",
+                "de": "Schlaf"
+              },
+              "value": true
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "capabilities": {
+    "measure_calories": {
+      "type": "number",
+      "title": {
+        "en": "Calories today",
+        "de": "Kalorien heute"
+      },
+      "units": {
+        "en": "kcal"
+      },
+      "decimals": 0,
+      "min": 0,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "chartType": "stepLine",
+      "icon": "/assets/capabilities/calories.svg"
+    },
+    "measure_distance": {
+      "type": "number",
+      "title": {
+        "en": "Distance today",
+        "de": "Distanz heute"
+      },
+      "units": {
+        "en": "km"
+      },
+      "decimals": 2,
+      "min": 0,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "chartType": "stepLine",
+      "icon": "/assets/capabilities/distance.svg"
+    },
+    "measure_floors": {
+      "type": "number",
+      "title": {
+        "en": "Floors today",
+        "de": "Etagen heute"
+      },
+      "units": {
+        "en": "floors",
+        "de": "Etagen"
+      },
+      "decimals": 0,
+      "min": 0,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "chartType": "stepLine",
+      "icon": "/assets/capabilities/floors.svg"
+    },
+    "measure_heart_rate": {
+      "type": "number",
+      "title": {
+        "en": "Heart rate",
+        "de": "Herzfrequenz"
+      },
+      "units": {
+        "en": "bpm"
+      },
+      "decimals": 0,
+      "min": 0,
+      "max": 300,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "icon": "/assets/capabilities/heart.svg"
+    },
+    "measure_resting_heart_rate": {
+      "type": "number",
+      "title": {
+        "en": "Resting heart rate",
+        "de": "Ruhepuls"
+      },
+      "units": {
+        "en": "bpm"
+      },
+      "decimals": 0,
+      "min": 0,
+      "max": 300,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "icon": "/assets/capabilities/heart.svg"
+    },
+    "measure_sleep_hours": {
+      "type": "number",
+      "title": {
+        "en": "Sleep last night",
+        "de": "Schlaf letzte Nacht"
+      },
+      "units": {
+        "en": "h"
+      },
+      "decimals": 1,
+      "min": 0,
+      "max": 24,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "icon": "/assets/capabilities/sleep.svg"
+    },
+    "measure_spo2": {
+      "type": "number",
+      "title": {
+        "en": "Blood oxygen (SpO2)",
+        "de": "Blutsauerstoff (SpO2)"
+      },
+      "units": {
+        "en": "%"
+      },
+      "decimals": 0,
+      "min": 0,
+      "max": 100,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "icon": "/assets/capabilities/spo2.svg"
+    },
+    "measure_steps": {
+      "type": "number",
+      "title": {
+        "en": "Steps today",
+        "de": "Schritte heute"
+      },
+      "units": {
+        "en": "steps",
+        "de": "Schritte"
+      },
+      "decimals": 0,
+      "min": 0,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "chartType": "stepLine",
+      "icon": "/assets/capabilities/steps.svg"
+    },
+    "measure_weight": {
+      "type": "number",
+      "title": {
+        "en": "Weight",
+        "de": "Gewicht"
+      },
+      "units": {
+        "en": "kg"
+      },
+      "decimals": 1,
+      "min": 0,
+      "max": 500,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "icon": "/assets/capabilities/weight.svg"
+    }
+  }
+}

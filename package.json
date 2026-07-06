@@ -1,0 +1,13 @@
+{
+  "name": "io.github.fbnlrz.googlehealth",
+  "version": "0.1.0",
+  "description": "Google Health data on Homey",
+  "main": "app.js",
+  "private": true,
+  "scripts": {
+    "validate": "homey app validate --level publish"
+  },
+  "devDependencies": {
+    "homey": "^3.0.0"
+  }
+}
