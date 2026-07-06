@@ -37,5 +37,8 @@
   },
   "0.4.0": {
     "en": "New health data: nutrition (calorie intake, carbs, protein, fat), blood glucose, basal calories, sedentary minutes, respiratory rate, VO2 max, altitude and skin-temperature variation — all in Insights. Optional ECG and irregular heart rhythm (extra Google permission). Fixed: water, nutrition macros and sedentary minutes now read correctly; more accurate blood-glucose parsing."
+  },
+  "0.5.0": {
+    "en": "New: dashboard widgets — a compact square Health tile (pick any metric; add one per data point) and a Health overview, both in native Homey style with data-type-matched icons (ECG for heart rate, waves for water, and so on). Health report: customize it right on the page (choose sections and table columns), one-tap copyable password, and it now works in the mobile app too — not just on a PC."
   }
 }
