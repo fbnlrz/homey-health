@@ -187,30 +187,107 @@
       }
 
       function mean(entries, key) {
-        var vals = entries.map(function (e) { return key ? e[key] : e.value; })
+        var vals = (entries || []).map(function (e) { return key ? e[key] : e.value; })
           .filter(function (v) { return typeof v === 'number'; });
         if (!vals.length) return null;
         return vals.reduce(function (a, b) { return a + b; }, 0) / vals.length;
       }
 
-      function sparkline(entries, key, color) {
-        var vals = entries.map(function (e) { return key ? e[key] : e.value; })
-          .filter(function (v) { return typeof v === 'number'; });
-        if (vals.length < 2) return '';
+      // Design tokens (dataviz reference palette): dark on screen, light in
+      // print — series colors validated for both surfaces.
+      var RPT_CSS = ''
+        + '.rpt{--surface:#1a1a19;--page:#0d0d0d;--ink:#fff;--ink2:#c3c2b7;--muted:#898781;'
+        + '--grid:#2c2c2a;--border:rgba(255,255,255,.10);'
+        + '--c-steps:#3987e5;--c-rhr:#e66767;--c-sleep:#9085e9;--c-weight:#199e70;'
+        + 'font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);'
+        + 'background:var(--page);max-width:880px;margin:0 auto;padding:28px 24px 40px;'
+        + '-webkit-print-color-adjust:exact;print-color-adjust:exact}'
+        + '@media print{.rpt{--surface:#fcfcfb;--page:#fff;--ink:#0b0b0b;--ink2:#52514e;'
+        + '--grid:#e1e0d9;--border:rgba(11,11,11,.10);'
+        + '--c-steps:#2a78d6;--c-rhr:#e34948;--c-sleep:#4a3aa7;--c-weight:#1baf7a;'
+        + 'max-width:none;padding:0}.rpt .noprint{display:none}}'
+        + '.rpt h1{font-size:22px;font-weight:650;margin:0;display:flex;align-items:center;gap:10px}'
+        + '.rpt h1 svg{flex:none}'
+        + '.rpt .meta{font-size:12px;color:var(--ink2);margin-top:4px}'
+        + '.rpt .btns{display:flex;gap:8px;margin:18px 0 4px;flex-wrap:wrap}'
+        + '.rpt .btns button{padding:8px 16px;border-radius:8px;border:1px solid var(--border);'
+        + 'background:var(--surface);color:var(--ink);font:inherit;font-size:13px;cursor:pointer}'
+        + '.rpt .access{font-size:12px;color:var(--ink2);margin:4px 0 0}'
+        + '.rpt .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:20px 0 14px}'
+        + '.rpt .tile{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px}'
+        + '.rpt .tile .k{font-size:10.5px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}'
+        + '.rpt .tile .v{font-size:22px;font-weight:650;margin-top:4px}'
+        + '.rpt .charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px}'
+        + '.rpt .chart{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px 8px}'
+        + '.rpt .chart .t{font-size:12.5px;font-weight:600;margin-bottom:6px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}'
+        + '.rpt .chart .last{color:var(--ink2);font-weight:500;font-size:11.5px;white-space:nowrap}'
+        + '.rpt .chart .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:baseline}'
+        + '.rpt .chart svg{width:100%;height:auto;display:block}'
+        + '.rpt h2{font-size:14px;font-weight:650;margin:24px 0 8px}'
+        + '.rpt .tablewrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow-x:auto}'
+        + '.rpt table{border-collapse:collapse;width:100%;font-size:10.5px;font-variant-numeric:tabular-nums}'
+        + '.rpt th,.rpt td{padding:5px 9px;text-align:right;border-bottom:1px solid var(--grid);white-space:nowrap}'
+        + '.rpt th{color:var(--muted);font-weight:600;font-size:9.5px;text-transform:uppercase;letter-spacing:.04em}'
+        + '.rpt th:first-child,.rpt td:first-child{text-align:left}'
+        + '.rpt tbody tr:last-child td{border-bottom:none}'
+        + '.rpt td.empty{color:var(--muted)}'
+        + '.rpt .disclaimer{font-size:10px;color:var(--muted);margin-top:14px;line-height:1.5}'
+        + '@media screen{.rpt thead th{position:sticky;top:0;background:var(--surface)}}';
+
+      var RPT_MARK = '<svg width="22" height="22" viewBox="0 0 512 512" aria-hidden="true">'
+        + '<path fill-rule="evenodd" fill="#DE3226" d="M256 450.6 C112.6 337.9 41 250.9 41 166.4 '
+        + 'C41 94.7 94.7 41 163.8 41 C204.8 41 240.6 62.5 256 97.3 C271.4 62.5 307.2 41 348.2 41 '
+        + 'C417.3 41 471 94.7 471 166.4 C471 250.9 399.4 337.9 256 450.6 Z '
+        + 'M74 240 L174.1 240 L223.5 141.2 L263.2 269.8 L291.6 201.3 L328.8 240 L438 240 L438 272 '
+        + 'L315.2 272 L302.4 258.7 L258.8 364.2 L216.5 226.8 L193.9 272 L74 272 Z"/></svg>';
+
+      function lineChart(entries, key, cssVar, digits, unit) {
+        var pts = (entries || []).map(function (e) {
+          return { date: e.date, value: key ? e[key] : e.value };
+        }).filter(function (p) { return typeof p.value === 'number'; });
+        if (pts.length < 2) return null;
+
+        var W = 560; var H = 170;
+        var padL = 44; var padR = 12; var padT = 12; var padB = 24;
+        var vals = pts.map(function (p) { return p.value; });
         var min = Math.min.apply(null, vals);
         var max = Math.max.apply(null, vals);
-        var range = (max - min) || 1;
-        var W = 600; var H = 80; var P = 4;
-        var pts = vals.map(function (v, i) {
-          var x = P + (i / (vals.length - 1)) * (W - 2 * P);
-          var y = H - P - ((v - min) / range) * (H - 2 * P);
-          return x.toFixed(1) + ',' + y.toFixed(1);
-        }).join(' ');
-        return '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:56px">'
-          + '<polyline points="' + pts + '" fill="none" stroke="' + color + '" stroke-width="2.5" '
-          + 'stroke-linejoin="round" stroke-linecap="round"/></svg>'
-          + '<div style="display:flex;justify-content:space-between;font-size:10px;color:#888">'
-          + '<span>min ' + fmt(min, 1) + '</span><span>max ' + fmt(max, 1) + '</span></div>';
+        if (min === max) { min -= 1; max += 1; }
+        var span = max - min;
+        min -= span * 0.06; max += span * 0.06;
+
+        var X = function (i) { return padL + (i / (pts.length - 1)) * (W - padL - padR); };
+        var Y = function (v) { return padT + (1 - (v - min) / (max - min)) * (H - padT - padB); };
+
+        var line = pts.map(function (p, i) { return X(i).toFixed(1) + ',' + Y(p.value).toFixed(1); }).join(' ');
+        var baseY = (H - padB).toFixed(1);
+        var area = 'M' + X(0).toFixed(1) + ',' + baseY + ' L' + line.split(' ').join(' L') + ' L' + X(pts.length - 1).toFixed(1) + ',' + baseY + ' Z';
+
+        var grid = '';
+        [min + (max - min), min + (max - min) / 2, min].forEach(function (v) {
+          var y = Y(v).toFixed(1);
+          grid += '<line x1="' + padL + '" y1="' + y + '" x2="' + (W - padR) + '" y2="' + y + '" stroke="var(--grid)" stroke-width="1"/>'
+            + '<text x="' + (padL - 6) + '" y="' + (Number(y) + 3) + '" text-anchor="end" font-size="9" fill="var(--muted)">' + fmt(v, digits) + '</text>';
+        });
+
+        var hover = pts.map(function (p, i) {
+          return '<circle cx="' + X(i).toFixed(1) + '" cy="' + Y(p.value).toFixed(1) + '" r="9" fill="transparent">'
+            + '<title>' + p.date + ' · ' + fmt(p.value, digits) + (unit ? ' ' + unit : '') + '</title></circle>';
+        }).join('');
+
+        var lastPt = pts[pts.length - 1];
+        return {
+          last: fmt(lastPt.value, digits) + (unit ? ' ' + unit : ''),
+          svg: '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img">'
+            + grid
+            + '<path d="' + area + '" fill="var(' + cssVar + ')" opacity="0.12"/>'
+            + '<polyline points="' + line + '" fill="none" stroke="var(' + cssVar + ')" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'
+            + '<circle cx="' + X(pts.length - 1).toFixed(1) + '" cy="' + Y(lastPt.value).toFixed(1) + '" r="3.5" fill="var(' + cssVar + ')"/>'
+            + '<text x="' + padL + '" y="' + (H - 8) + '" font-size="9" fill="var(--muted)">' + pts[0].date + '</text>'
+            + '<text x="' + (W - padR) + '" y="' + (H - 8) + '" text-anchor="end" font-size="9" fill="var(--muted)">' + lastPt.date + '</text>'
+            + hover
+            + '</svg>',
+        };
       }
 
       function openReport(report, win) {
@@ -242,7 +319,9 @@
         var rows = dates.map(function (d) {
           return '<tr><td>' + d + '</td>' + cols.map(function (c) {
             var v = byDate[d][c[0]];
-            return '<td>' + (typeof v === 'number' ? fmt(v, c[2]) : '–') + '</td>';
+            return typeof v === 'number'
+              ? '<td>' + fmt(v, c[2]) + '</td>'
+              : '<td class="empty">–</td>';
           }).join('') + '</tr>';
         }).join('');
 
@@ -250,51 +329,46 @@
         if (s.weight_kg && s.weight_kg.length >= 2) {
           weightDelta = s.weight_kg[s.weight_kg.length - 1].value - s.weight_kg[0].value;
         }
-        var cards = [
+        var tiles = [
           [T('avg_steps'), fmt(mean(s.steps), 0)],
           [T('avg_sleep'), fmt(mean(s.sleep, 'hours'), 1) + ' h'],
           [T('avg_rhr'), fmt(mean(s.resting_heart_rate), 0) + ' bpm'],
           [T('avg_spo2'), fmt(mean(s.spo2_pct), 0) + ' %'],
           [T('weight_change'), (weightDelta === null ? '–' : (weightDelta > 0 ? '+' : '') + fmt(weightDelta, 1) + ' kg')],
         ].map(function (c) {
-          return '<div style="border:1px solid #ddd;border-radius:8px;padding:10px 14px;min-width:120px">'
-            + '<div style="font-size:11px;color:#777">' + c[0] + '</div>'
-            + '<div style="font-size:20px;font-weight:600">' + c[1] + '</div></div>';
+          return '<div class="tile"><div class="k">' + c[0] + '</div><div class="v">' + c[1] + '</div></div>';
         }).join('');
 
         var charts = [
-          [T('col_steps'), sparkline(s.steps, null, '#DE3226')],
-          [T('col_rhr'), sparkline(s.resting_heart_rate, null, '#B0413E')],
-          [T('col_sleep'), sparkline(s.sleep, 'hours', '#4A6FA5')],
-          [T('col_weight'), sparkline(s.weight_kg, null, '#3E7C59')],
+          [T('col_steps'), lineChart(s.steps, null, '--c-steps', 0, ''), '--c-steps'],
+          [T('col_rhr'), lineChart(s.resting_heart_rate, null, '--c-rhr', 0, 'bpm'), '--c-rhr'],
+          [T('col_sleep'), lineChart(s.sleep, 'hours', '--c-sleep', 1, 'h'), '--c-sleep'],
+          [T('col_weight'), lineChart(s.weight_kg, null, '--c-weight', 1, 'kg'), '--c-weight'],
         ].filter(function (c) { return c[1]; }).map(function (c) {
-          return '<div style="margin:10px 0"><div style="font-size:12px;font-weight:600;margin-bottom:2px">'
-            + c[0] + '</div>' + c[1] + '</div>';
+          return '<div class="chart"><div class="t"><span>' + c[0] + '</span>'
+            + '<span class="last"><span class="dot" style="background:var(' + c[2] + ')"></span>' + c[1].last + '</span></div>'
+            + c[1].svg + '</div>';
         }).join('');
 
-        var reportCss = 'h1{font-size:20px;margin:0 0 2px}h2{font-size:14px;margin:18px 0 6px}'
-          + 'table{border-collapse:collapse;width:100%;font-size:10.5px;margin-top:6px}'
-          + 'th,td{border:1px solid #ccc;padding:3px 5px;text-align:right;color:#222}'
-          + 'th:first-child,td:first-child{text-align:left}'
-          + 'thead{background:#f4f4f4}tr:nth-child(even){background:#fafafa}';
-
-        var inner = '<h1>' + T('title') + '</h1>'
-          + '<div style="font-size:12px;color:#555">' + report.meta.deviceName + ' · '
+        var inner = '<h1>' + RPT_MARK + T('title') + '</h1>'
+          + '<div class="meta">' + report.meta.deviceName + ' · '
           + report.meta.from + ' – ' + report.meta.to + ' (' + report.meta.days + ' ' + T('days') + ') · '
           + T('generated') + ' ' + new Date(report.meta.generatedAt).toLocaleString() + '</div>'
-          + '<div style="display:flex;gap:10px;flex-wrap:wrap;margin:14px 0">' + cards + '</div>'
-          + charts
+          + '<div class="tiles">' + tiles + '</div>'
+          + '<div class="charts">' + charts + '</div>'
           + '<h2>' + T('daily_values') + '</h2>'
-          + '<table><thead><tr><th>' + T('col_date') + '</th>'
+          + '<div class="tablewrap"><table><thead><tr><th>' + T('col_date') + '</th>'
           + cols.map(function (c) { return '<th>' + c[1] + '</th>'; }).join('')
-          + '</tr></thead><tbody>' + rows + '</tbody></table>'
-          + '<p style="font-size:10px;color:#777;margin-top:14px">' + T('disclaimer') + '</p>';
+          + '</tr></thead><tbody>' + rows + '</tbody></table></div>'
+          + '<p class="disclaimer">' + T('disclaimer') + '</p>';
 
-        var fullDoc = '<!doctype html><html><head><meta charset="utf-8"><title>' + T('title') + '</title>'
-          + '<style>body{font-family:Arial,Helvetica,sans-serif;margin:28px;color:#222;background:#fff}'
-          + reportCss + '@media print{.noprint{display:none}}</style></head><body>'
-          + '<button class="noprint" onclick="window.print()" style="float:right;padding:8px 16px">'
-          + T('print') + '</button>' + inner + '</body></html>';
+        var fullDoc = '<!doctype html><html><head><meta charset="utf-8">'
+          + '<meta name="viewport" content="width=device-width,initial-scale=1">'
+          + '<title>' + T('title') + '</title>'
+          + '<style>body{margin:0;background:#0d0d0d}@media print{body{background:#fff}}' + RPT_CSS + '</style></head>'
+          + '<body><div class="rpt">'
+          + '<div class="btns noprint"><button onclick="window.print()">' + T('print') + '</button></div>'
+          + inner + '</div></body></html>';
 
         if (win) {
           // A separate tab worked (not available in the sandboxed settings iframe)
@@ -306,36 +380,32 @@
 
         // Inline fallback: render on this page. Printing uses the @media print
         // rules that hide everything except the report.
-        var scopedCss = reportCss.split('}').filter(function (rule) { return rule.trim(); })
-          .map(function (rule) {
-            var brace = rule.indexOf('{');
-            var selectors = rule.slice(0, brace).split(',').map(function (sel) {
-              return '#report_output ' + sel.trim();
-            }).join(',');
-            return selectors + rule.slice(brace) + '}';
-          }).join('');
-
         var container = document.getElementById('report_output');
-        container.innerHTML = '<div class="report-sheet"><style>' + scopedCss + '</style>'
-          + '<div class="noprint" style="display:flex;gap:8px;margin-bottom:6px;flex-wrap:wrap">'
-          + '<button id="report_open" style="padding:8px 16px" disabled>' + T('open_browser') + '</button>'
-          + '<button onclick="window.print()" style="padding:8px 16px">' + T('print') + '</button>'
+        container.innerHTML = '<style>' + RPT_CSS
+          + '#report_output .rpt{border:1px solid var(--border);border-radius:12px;margin-top:12px;padding:20px 18px 28px}'
+          + '@media print{#report_output .rpt{border:none;margin:0;padding:0}}</style>'
+          + '<div class="rpt">'
+          + '<div class="btns noprint">'
+          + '<button id="report_open">' + T('open_browser') + '</button>'
+          + '<button onclick="window.print()">' + T('print') + '</button>'
           + '</div>'
-          + '<div id="report_access" class="noprint" style="font-size:12px;margin-bottom:12px;color:#555"></div>'
+          + '<div id="report_access" class="access noprint"></div>'
           + inner + '</div>';
+
+        var openBtnEl = document.getElementById('report_open');
+        openBtnEl.disabled = true;
 
         // The sandboxed settings iframe blocks window.open, print and
         // downloads. Publish the report on the Homey's LAN address instead
         // and open it via Homey.openURL — that runs outside the sandbox.
         Homey.api('POST', '/report/publish', { html: fullDoc }, function (err, res) {
-          var openBtn = document.getElementById('report_open');
           if (err || !res || !res.url) {
-            if (openBtn) openBtn.style.display = 'none';
+            openBtnEl.style.display = 'none';
             reportStatus.textContent = err ? String(err.message || err) : '';
             return;
           }
-          openBtn.disabled = false;
-          openBtn.addEventListener('click', function () {
+          openBtnEl.disabled = false;
+          openBtnEl.addEventListener('click', function () {
             Homey.openURL(res.url);
           });
           document.getElementById('report_access').textContent = T('access_info')
