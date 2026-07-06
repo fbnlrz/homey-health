@@ -3,49 +3,41 @@
 <head>
   <meta charset="utf-8" />
   <style>
-    html, body { margin: 0; padding: 0; }
+    html, body { margin: 0; padding: 0; height: 100%; }
     body {
       font-family: var(--homey-font);
       color: var(--homey-text-color);
     }
     .tile {
       display: flex;
-      align-items: center;
-      gap: var(--homey-su-3);
-      padding: var(--homey-su-4);
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
       box-sizing: border-box;
-      min-height: 72px;
+      padding: var(--homey-su-3);
+      gap: var(--homey-su-2);
     }
     .icon {
       flex: none;
-      width: 44px;
-      height: 44px;
+      width: 34px;
+      height: 34px;
       border-radius: var(--homey-border-radius-default);
       display: flex;
       align-items: center;
       justify-content: center;
       color: var(--accent, var(--homey-text-color));
-      background: color-mix(in srgb, var(--accent, var(--homey-text-color)) 14%, transparent);
+      background: color-mix(in srgb, var(--accent, var(--homey-text-color)) 15%, transparent);
     }
-    .icon svg { width: 26px; height: 26px; display: block; }
-    .body { min-width: 0; flex: 1; }
-    .label {
-      font-size: var(--homey-font-size-small);
-      font-weight: var(--homey-font-weight-medium);
-      color: var(--homey-text-color-light);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+    .icon svg { width: 20px; height: 20px; display: block; }
+    .foot { min-width: 0; }
     .value {
       display: flex;
       align-items: baseline;
-      gap: 4px;
-      margin-top: 2px;
+      gap: 3px;
     }
     .value .v {
-      font-size: var(--homey-font-size-xxlarge);
-      line-height: 1.1;
+      font-size: var(--homey-font-size-xlarge);
+      line-height: 1.05;
       font-weight: var(--homey-font-weight-bold);
       white-space: nowrap;
     }
@@ -54,12 +46,22 @@
       color: var(--homey-text-color-light);
       white-space: nowrap;
     }
+    .label {
+      margin-top: 3px;
+      font-size: 12px;
+      line-height: 1.2;
+      color: var(--homey-text-color-light);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
     .muted {
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 72px;
-      padding: var(--homey-su-4);
+      height: 100%;
+      padding: var(--homey-su-3);
       color: var(--homey-text-color-light);
       font-size: var(--homey-font-size-small);
       text-align: center;
@@ -142,10 +144,10 @@
         }
         root.innerHTML = '<div class="tile" style="--accent:' + accent + '">'
           + '<div class="icon">' + svgFor(data.id) + '</div>'
-          + '<div class="body">'
-          + '<div class="label">' + (data.title || '') + '</div>'
+          + '<div class="foot">'
           + '<div class="value"><span class="v">' + fmt(data.value, data.decimals) + '</span>'
           + (unit(data.units) ? '<span class="u">' + unit(data.units) + '</span>' : '') + '</div>'
+          + '<div class="label">' + (data.title || '') + '</div>'
           + '</div></div>';
       }
 
