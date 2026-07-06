@@ -1,4 +1,9 @@
 {
+  "0.1.6": {
+    "en": "Restored the correct app icon.",
+    "de": "Korrektes App-Icon wiederhergestellt.",
+    "nl": "Correcte app-pictogram hersteld."
+  },
   "0.1.4": {
     "en": "Added Dutch translation (app, flow cards and store description).",
     "de": "Niederländische Übersetzung ergänzt (App, Flow-Karten und Store-Beschreibung).",
