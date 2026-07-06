@@ -215,26 +215,16 @@
           Homey.set(f[0], f[1].value, function () {});
         });
 
-        // The window must be opened synchronously inside the click gesture —
-        // opening it later in the API callback gets blocked as a popup
-        var win = null;
-        try { win = window.open('', '_blank'); } catch (e) { win = null; }
-        if (win) {
-          win.document.write('<p style="font-family:sans-serif;margin:24px">'
-            + Homey.__('settings.report.generating') + '</p>');
-        }
-
         var url = '/report?days=' + reportDaysEl.value
           + '&device=' + encodeURIComponent(reportDeviceEl.value);
         Homey.api('GET', url, function (err, report) {
           reportBtn.disabled = false;
           if (err) {
-            if (win) win.close();
             reportStatus.textContent = String(err.message || err);
             return;
           }
           reportStatus.textContent = '';
-          openReport(report, win);
+          openReport(report);
         });
       });
 
@@ -421,7 +411,7 @@
         }
       }
 
-      function openReport(report, win) {
+      function openReport(report) {
         var T = function (k) { return Homey.__('settings.report.' + k); };
         var s = report.series || {};
         var byDate = {};
@@ -589,16 +579,11 @@
           + '<script>(' + wireCustomizer.toString() + ')(document);</scr' + 'ipt>'
           + '</body></html>';
 
-        if (win) {
-          // A separate tab worked (not available in the sandboxed settings iframe)
-          win.document.open();
-          win.document.write(fullDoc);
-          win.document.close();
-          return;
-        }
-
-        // Inline fallback: render on this page. Printing uses the @media print
-        // rules that hide everything except the report.
+        // Render the report on this page, then publish it on the LAN so it can
+        // be opened in a real browser for printing / PDF. This inline path
+        // works identically on desktop and in the mobile app; the old
+        // window.open popup path was unreliable in the mobile app's webview
+        // (it returned a non-null but invisible window, swallowing the report).
         var container = document.getElementById('report_output');
         container.innerHTML = '<style>' + RPT_CSS
           + '#report_output .rpt{border:1px solid var(--border);border-radius:12px;margin-top:12px;padding:20px 18px 28px}'
