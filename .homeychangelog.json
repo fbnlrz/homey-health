@@ -1,0 +1,6 @@
+{
+  "0.1.0": {
+    "en": "Initial test release: 16 health sensors with Insights, OAuth login with your own Google Cloud project, and flow cards for steps, sleep, workouts, heart rate and more.",
+    "de": "Erste Testversion: 16 Gesundheits-Sensoren mit Insights, OAuth-Login mit eigenem Google-Cloud-Projekt und Flow-Karten für Schritte, Schlaf, Training, Herzfrequenz und mehr."
+  }
+}

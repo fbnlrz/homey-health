@@ -9,8 +9,8 @@
     "cloud"
   ],
   "name": {
-    "en": "Google Health",
-    "de": "Google Health"
+    "en": "Health Sync for Google Health",
+    "de": "Health Sync für Google Health"
   },
   "description": {
     "en": "Your steps, heart rate, sleep and weight from Google Health on Homey",
@@ -20,7 +20,7 @@
     "tools"
   ],
   "permissions": [],
-  "brandColor": "#EA4335",
+  "brandColor": "#DE3226",
   "images": {
     "small": "/assets/images/small.png",
     "large": "/assets/images/large.png",
