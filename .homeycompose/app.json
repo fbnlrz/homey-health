@@ -1,6 +1,7 @@
 {
   "id": "io.github.fbnlrz.healthsync",
-  "version": "0.1.0",
+  "version": "0.1.1",
+  "homeyCommunityTopicId": 156934,
   "compatibility": ">=12.9.0",
   "sdk": 3,
   "platforms": ["local"],
