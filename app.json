@@ -28,6 +28,16 @@
     "large": "/assets/images/large.png",
     "xlarge": "/assets/images/xlarge.png"
   },
+  "api": {
+    "getDevices": {
+      "method": "GET",
+      "path": "/devices"
+    },
+    "getReport": {
+      "method": "GET",
+      "path": "/report"
+    }
+  },
   "author": {
     "name": "fbnlrz"
   },

@@ -64,6 +64,32 @@
 
   <button id="save" class="hy-nostyle" data-i18n="settings.save">Save</button>
 
+  <hr style="margin:24px 0" />
+
+  <fieldset>
+    <legend data-i18n="settings.report.title">Health report</legend>
+    <p data-i18n="settings.report.intro"></p>
+
+    <div class="field row">
+      <label for="report_device" data-i18n="settings.report.device">Device</label>
+      <select id="report_device"></select>
+    </div>
+
+    <div class="field row">
+      <label for="report_days" data-i18n="settings.report.period">Period</label>
+      <select id="report_days">
+        <option value="14">14</option>
+        <option value="30" selected>30</option>
+        <option value="60">60</option>
+        <option value="90">90</option>
+      </select>
+    </div>
+
+    <button id="report_generate" class="hy-nostyle" data-i18n="settings.report.generate">Generate report</button>
+    <p><small id="report_status"></small></p>
+    <p><small data-i18n="settings.report.hint"></small></p>
+  </fieldset>
+
   <script type="text/javascript">
     function onHomeyReady(Homey) {
       var clientIdEl = document.getElementById('client_id');
@@ -95,6 +121,165 @@
           Homey.set(pair[0], pair[1], next);
         })();
       });
+
+      // ── Health report ────────────────────────────────────────────
+      var reportDeviceEl = document.getElementById('report_device');
+      var reportDaysEl = document.getElementById('report_days');
+      var reportBtn = document.getElementById('report_generate');
+      var reportStatus = document.getElementById('report_status');
+
+      Homey.api('GET', '/devices', function (err, devices) {
+        if (err || !devices || !devices.length) {
+          reportBtn.disabled = true;
+          reportStatus.textContent = Homey.__('settings.report.no_device');
+          return;
+        }
+        devices.forEach(function (d) {
+          var opt = document.createElement('option');
+          opt.value = d.id;
+          opt.textContent = d.name;
+          reportDeviceEl.appendChild(opt);
+        });
+      });
+
+      reportBtn.addEventListener('click', function () {
+        reportBtn.disabled = true;
+        reportStatus.textContent = Homey.__('settings.report.generating');
+        var url = '/report?days=' + reportDaysEl.value
+          + '&device=' + encodeURIComponent(reportDeviceEl.value);
+        Homey.api('GET', url, function (err, report) {
+          reportBtn.disabled = false;
+          if (err) {
+            reportStatus.textContent = String(err.message || err);
+            return;
+          }
+          reportStatus.textContent = '';
+          openReport(report);
+        });
+      });
+
+      function fmt(value, digits) {
+        if (value === null || value === undefined) return '–';
+        return Number(value).toFixed(digits === undefined ? 0 : digits);
+      }
+
+      function mean(entries, key) {
+        var vals = entries.map(function (e) { return key ? e[key] : e.value; })
+          .filter(function (v) { return typeof v === 'number'; });
+        if (!vals.length) return null;
+        return vals.reduce(function (a, b) { return a + b; }, 0) / vals.length;
+      }
+
+      function sparkline(entries, key, color) {
+        var vals = entries.map(function (e) { return key ? e[key] : e.value; })
+          .filter(function (v) { return typeof v === 'number'; });
+        if (vals.length < 2) return '';
+        var min = Math.min.apply(null, vals);
+        var max = Math.max.apply(null, vals);
+        var range = (max - min) || 1;
+        var W = 600; var H = 80; var P = 4;
+        var pts = vals.map(function (v, i) {
+          var x = P + (i / (vals.length - 1)) * (W - 2 * P);
+          var y = H - P - ((v - min) / range) * (H - 2 * P);
+          return x.toFixed(1) + ',' + y.toFixed(1);
+        }).join(' ');
+        return '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:56px">'
+          + '<polyline points="' + pts + '" fill="none" stroke="' + color + '" stroke-width="2.5" '
+          + 'stroke-linejoin="round" stroke-linecap="round"/></svg>'
+          + '<div style="display:flex;justify-content:space-between;font-size:10px;color:#888">'
+          + '<span>min ' + fmt(min, 1) + '</span><span>max ' + fmt(max, 1) + '</span></div>';
+      }
+
+      function openReport(report) {
+        var T = function (k) { return Homey.__('settings.report.' + k); };
+        var s = report.series || {};
+        var byDate = {};
+        function put(entries, col, key) {
+          (entries || []).forEach(function (e) {
+            if (!byDate[e.date]) byDate[e.date] = {};
+            byDate[e.date][col] = key ? e[key] : e.value;
+          });
+        }
+        put(s.steps, 'steps'); put(s.distance_km, 'km'); put(s.floors, 'floors');
+        put(s.active_zone_minutes, 'azm'); put(s.hydration_ml, 'water');
+        put(s.resting_heart_rate, 'rhr'); put(s.hrv_ms, 'hrv');
+        put(s.spo2_pct, 'spo2'); put(s.respiratory_rate, 'resp');
+        put(s.sleep, 'sleep', 'hours'); put(s.sleep, 'deep', 'deepMinutes');
+        put(s.weight_kg, 'weight');
+
+        var dates = Object.keys(byDate).sort();
+        var cols = [
+          ['steps', T('col_steps'), 0], ['km', 'km', 2], ['floors', T('col_floors'), 0],
+          ['azm', T('col_azm'), 0], ['water', T('col_water'), 0],
+          ['rhr', T('col_rhr'), 0], ['hrv', 'HRV ms', 0], ['spo2', 'SpO2 %', 0],
+          ['resp', T('col_resp'), 1], ['sleep', T('col_sleep'), 1],
+          ['deep', T('col_deep'), 0], ['weight', T('col_weight'), 1],
+        ];
+
+        var rows = dates.map(function (d) {
+          return '<tr><td>' + d + '</td>' + cols.map(function (c) {
+            var v = byDate[d][c[0]];
+            return '<td>' + (typeof v === 'number' ? fmt(v, c[2]) : '–') + '</td>';
+          }).join('') + '</tr>';
+        }).join('');
+
+        var weightDelta = null;
+        if (s.weight_kg && s.weight_kg.length >= 2) {
+          weightDelta = s.weight_kg[s.weight_kg.length - 1].value - s.weight_kg[0].value;
+        }
+        var cards = [
+          [T('avg_steps'), fmt(mean(s.steps), 0)],
+          [T('avg_sleep'), fmt(mean(s.sleep, 'hours'), 1) + ' h'],
+          [T('avg_rhr'), fmt(mean(s.resting_heart_rate), 0) + ' bpm'],
+          [T('avg_spo2'), fmt(mean(s.spo2_pct), 0) + ' %'],
+          [T('weight_change'), (weightDelta === null ? '–' : (weightDelta > 0 ? '+' : '') + fmt(weightDelta, 1) + ' kg')],
+        ].map(function (c) {
+          return '<div style="border:1px solid #ddd;border-radius:8px;padding:10px 14px;min-width:120px">'
+            + '<div style="font-size:11px;color:#777">' + c[0] + '</div>'
+            + '<div style="font-size:20px;font-weight:600">' + c[1] + '</div></div>';
+        }).join('');
+
+        var charts = [
+          [T('col_steps'), sparkline(s.steps, null, '#DE3226')],
+          [T('col_rhr'), sparkline(s.resting_heart_rate, null, '#B0413E')],
+          [T('col_sleep'), sparkline(s.sleep, 'hours', '#4A6FA5')],
+          [T('col_weight'), sparkline(s.weight_kg, null, '#3E7C59')],
+        ].filter(function (c) { return c[1]; }).map(function (c) {
+          return '<div style="margin:10px 0"><div style="font-size:12px;font-weight:600;margin-bottom:2px">'
+            + c[0] + '</div>' + c[1] + '</div>';
+        }).join('');
+
+        var html = '<!doctype html><html><head><meta charset="utf-8"><title>' + T('title') + '</title>'
+          + '<style>body{font-family:Arial,Helvetica,sans-serif;margin:28px;color:#222}'
+          + 'h1{font-size:20px;margin:0 0 2px}h2{font-size:14px;margin:18px 0 6px}'
+          + 'table{border-collapse:collapse;width:100%;font-size:10.5px;margin-top:6px}'
+          + 'th,td{border:1px solid #ccc;padding:3px 5px;text-align:right}'
+          + 'th:first-child,td:first-child{text-align:left}'
+          + 'thead{background:#f4f4f4}tr:nth-child(even){background:#fafafa}'
+          + '@media print{.noprint{display:none}}</style></head><body>'
+          + '<button class="noprint" onclick="window.print()" style="float:right;padding:8px 16px">'
+          + T('print') + '</button>'
+          + '<h1>' + T('title') + '</h1>'
+          + '<div style="font-size:12px;color:#555">' + report.meta.deviceName + ' · '
+          + report.meta.from + ' – ' + report.meta.to + ' (' + report.meta.days + ' ' + T('days') + ') · '
+          + T('generated') + ' ' + new Date(report.meta.generatedAt).toLocaleString() + '</div>'
+          + '<div style="display:flex;gap:10px;flex-wrap:wrap;margin:14px 0">' + cards + '</div>'
+          + charts
+          + '<h2>' + T('daily_values') + '</h2>'
+          + '<table><thead><tr><th>' + T('col_date') + '</th>'
+          + cols.map(function (c) { return '<th>' + c[1] + '</th>'; }).join('')
+          + '</tr></thead><tbody>' + rows + '</tbody></table>'
+          + '<p style="font-size:10px;color:#777;margin-top:14px">' + T('disclaimer') + '</p>'
+          + '</body></html>';
+
+        var win = window.open('', '_blank');
+        if (win) {
+          win.document.write(html);
+          win.document.close();
+        } else {
+          reportStatus.textContent = Homey.__('settings.report.popup_blocked');
+        }
+      }
 
       Homey.ready();
     }

@@ -23,6 +23,37 @@
     "enable_write": "Schrijven naar Google Health toestaan (nodig voor de Flow-kaart 'Gewicht registreren')",
     "enable_write_hint": "Voer na een wijziging 'Repareren' uit op bestaande apparaten (of koppel een nieuw apparaat) om de nieuwe toestemming toe te passen.",
     "save": "Opslaan",
-    "saved": "Opgeslagen!"
+    "saved": "Opgeslagen!",
+    "report": {
+      "title": "Gezondheidsrapport",
+      "intro": "Genereer een printklaar overzicht van je gezondheidsgegevens — bijv. om aan je arts te laten zien. Via het printdialoogvenster van je browser sla je het op als PDF.",
+      "device": "Apparaat",
+      "period": "Periode (dagen)",
+      "generate": "Rapport genereren",
+      "generating": "Gegevens worden opgehaald uit Google Health…",
+      "no_device": "Nog geen apparaat gekoppeld.",
+      "popup_blocked": "Pop-up geblokkeerd — sta pop-ups toe voor deze pagina en probeer het opnieuw.",
+      "print": "Afdrukken / Opslaan als PDF",
+      "days": "dagen",
+      "generated": "gegenereerd",
+      "daily_values": "Dagwaarden",
+      "col_date": "Datum",
+      "col_steps": "Stappen",
+      "col_floors": "Verdiepingen",
+      "col_azm": "AZM",
+      "col_water": "Water ml",
+      "col_rhr": "Rusthartslag",
+      "col_resp": "AH/min",
+      "col_sleep": "Slaap u",
+      "col_deep": "Diep min",
+      "col_weight": "Gewicht kg",
+      "avg_steps": "Ø Stappen/dag",
+      "avg_sleep": "Ø Slaap",
+      "avg_rhr": "Ø Rusthartslag",
+      "avg_spo2": "Ø SpO2",
+      "weight_change": "Gewichtsverandering",
+      "disclaimer": "Gegenereerd door Health Sync voor Google Health (Homey) op basis van je Google Health-gegevens. Dit is geen medisch document; de waarden komen van consumentenapparaten en kunnen onnauwkeurig zijn. Niet verbonden met Google.",
+      "hint": "Werkt het best in een desktopbrowser (my.homey.app) — het rapport opent in een nieuw tabblad met een printknop."
+    }
   }
 }

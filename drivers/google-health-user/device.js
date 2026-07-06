@@ -569,6 +569,144 @@ class GoogleHealthDevice extends Homey.Device {
     await this._setNumber('measure_body_fat', Math.round(percentage * 10) / 10);
   }
 
+  // ── Health report: up to 90 days of history for the printable report ─
+
+  async collectReport(days = 30) {
+    const span = Math.min(90, Math.max(7, Number(days) || 30));
+    const today = this._todayLocalDate();
+    const from = this._daysBefore(today, span - 1);
+    const errors = [];
+    const series = {};
+
+    const attempt = async (key, fn) => {
+      try {
+        series[key] = await fn();
+      } catch (err) {
+        this.error(`report ${key} failed:`, err.message);
+        errors.push({ key, message: err.message });
+      }
+    };
+
+    // Daily rollups → [{date, value}]
+    const rollups = [
+      ['steps', 'steps', p => GoogleHealthApi.numberField(p, 'countSum')],
+      ['distance_km', 'distance', p => {
+        const mm = GoogleHealthApi.numberField(p, 'millimetersSum');
+        return mm === null ? null : Math.round(mm / 10000) / 100;
+      }],
+      ['floors', 'floors', p => GoogleHealthApi.numberField(p, 'countSum')],
+      ['active_zone_minutes', 'active-zone-minutes', p => GoogleHealthApi.firstNumber(p, ['activeZoneMinutesSum', 'activeZoneMinutes', 'minutesSum'])],
+      ['hydration_ml', 'hydration-log', p => GoogleHealthApi.firstNumber(p, ['millilitersSum', 'milliliters'])],
+    ];
+    for (const [key, type, read] of rollups) {
+      await attempt(key, async () => {
+        const points = await this.api.dailyRollup(type, from, today);
+        return points
+          .map(p => ({ date: GoogleHealthApi.rollupDate(p), value: read(p) }))
+          .filter(e => e.date && e.value !== null)
+          .sort((a, b) => a.date.localeCompare(b.date));
+      });
+    }
+
+    // Daily summaries → [{date, value}]
+    const dailies = [
+      ['resting_heart_rate', 'daily-resting-heart-rate', 'daily_resting_heart_rate', ['beatsPerMinute']],
+      ['hrv_ms', 'daily-heart-rate-variability', 'daily_heart_rate_variability', ['rmssd', 'rmssdMilliseconds', 'dailyRmssd']],
+      ['spo2_pct', 'daily-oxygen-saturation', 'daily_oxygen_saturation', ['averagePercentage', 'avgPercentage', 'percentage', 'average']],
+      ['respiratory_rate', 'daily-respiratory-rate', 'daily_respiratory_rate', ['breathsPerMinute', 'respiratoryRate', 'value']],
+    ];
+    for (const [key, type, filterName, candidates] of dailies) {
+      await attempt(key, async () => {
+        const points = await this.api.listAll(type, {
+          filter: `${filterName}.date >= "${from}"`,
+          pageSize: 100,
+        });
+        return points
+          .map(p => {
+            const values = GoogleHealthApi.valueObject(p) || {};
+            const civil = values.date;
+            const date = civil
+              ? `${civil.year}-${String(civil.month).padStart(2, '0')}-${String(civil.day).padStart(2, '0')}`
+              : null;
+            return { date, value: GoogleHealthApi.firstNumber(p, candidates) };
+          })
+          .filter(e => e.date && e.value !== null)
+          .sort((a, b) => a.date.localeCompare(b.date));
+      });
+    }
+
+    // Weight samples → [{date, value: kg}]
+    await attempt('weight_kg', async () => {
+      const points = await this.api.listAll('weight', {
+        filter: `weight.sample_time.physical_time >= "${from}T00:00:00Z"`,
+        pageSize: 100,
+      });
+      return points
+        .map(p => {
+          const grams = GoogleHealthApi.numberField(p, 'weightGrams');
+          const values = GoogleHealthApi.valueObject(p) || {};
+          const time = values.sampleTime ? values.sampleTime.physicalTime : null;
+          return {
+            date: time ? this._localDateOf(time) : null,
+            value: grams === null ? null : Math.round(grams / 100) / 10,
+          };
+        })
+        .filter(e => e.date && e.value !== null)
+        .sort((a, b) => a.date.localeCompare(b.date));
+    });
+
+    // Sleep sessions (non-nap) → [{date, hours, minutesAwake, deepMinutes}]
+    await attempt('sleep', async () => {
+      const points = await this.api.listAll('sleep', {
+        filter: `sleep.interval.civil_end_time >= "${from}"`,
+        pageSize: 25,
+        maxPages: 5,
+      });
+      return points
+        .map(p => {
+          const sleep = p.sleep || GoogleHealthApi.valueObject(p);
+          if (!sleep || !sleep.summary) return null;
+          if (sleep.metadata && sleep.metadata.nap) return null;
+          const minutes = Number(sleep.summary.minutesAsleep);
+          if (!Number.isFinite(minutes)) return null;
+          const end = sleep.interval ? sleep.interval.endTime : null;
+          let deepMinutes = null;
+          if (Array.isArray(sleep.summary.stagesSummary)) {
+            const deep = sleep.summary.stagesSummary.find(s => s && /deep/i.test(String(s.type)));
+            if (deep) deepMinutes = Number(deep.minutes) || null;
+          }
+          return {
+            date: end ? this._localDateOf(end) : null,
+            hours: Math.round((minutes / 60) * 10) / 10,
+            minutesAwake: Number(sleep.summary.minutesAwake) || 0,
+            deepMinutes,
+          };
+        })
+        .filter(e => e && e.date)
+        .sort((a, b) => a.date.localeCompare(b.date));
+    });
+
+    return {
+      meta: {
+        deviceName: this.getName(),
+        from,
+        to: today,
+        days: span,
+        timezone: this.homey.clock.getTimezone(),
+        generatedAt: new Date().toISOString(),
+      },
+      series,
+      errors,
+    };
+  }
+
+  /** ISO date `count` days before an ISO date (civil arithmetic). */
+  _daysBefore(isoDate, count) {
+    const [year, month, day] = isoDate.split('-').map(Number);
+    const d = new Date(Date.UTC(year, month - 1, day - count));
+    return d.toISOString().slice(0, 10);
+  }
+
   // ── Helpers ───────────────────────────────────────────────────────
 
   async _setNumber(capability, value) {

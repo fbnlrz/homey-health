@@ -23,6 +23,37 @@
     "enable_write": "Schreiben in Google Health erlauben (nötig für die Flow-Karte 'Gewicht protokollieren')",
     "enable_write_hint": "Nach einer Änderung bei bestehenden Geräten 'Reparieren' ausführen (oder neu koppeln), um die neue Berechtigung zu übernehmen.",
     "save": "Speichern",
-    "saved": "Gespeichert!"
+    "saved": "Gespeichert!",
+    "report": {
+      "title": "Gesundheitsbericht",
+      "intro": "Erstelle eine druckfertige Übersicht deiner Gesundheitsdaten — z. B. für deinen Arzt. Über den Druckdialog des Browsers speicherst du sie als PDF.",
+      "device": "Gerät",
+      "period": "Zeitraum (Tage)",
+      "generate": "Bericht erstellen",
+      "generating": "Daten werden aus Google Health geladen…",
+      "no_device": "Noch kein Gerät gekoppelt.",
+      "popup_blocked": "Popup blockiert — bitte Popups für diese Seite erlauben und erneut versuchen.",
+      "print": "Drucken / Als PDF speichern",
+      "days": "Tage",
+      "generated": "erstellt",
+      "daily_values": "Tageswerte",
+      "col_date": "Datum",
+      "col_steps": "Schritte",
+      "col_floors": "Etagen",
+      "col_azm": "AZM",
+      "col_water": "Wasser ml",
+      "col_rhr": "Ruhepuls",
+      "col_resp": "AZ/min",
+      "col_sleep": "Schlaf h",
+      "col_deep": "Tief min",
+      "col_weight": "Gewicht kg",
+      "avg_steps": "Ø Schritte/Tag",
+      "avg_sleep": "Ø Schlaf",
+      "avg_rhr": "Ø Ruhepuls",
+      "avg_spo2": "Ø SpO2",
+      "weight_change": "Gewichtsänderung",
+      "disclaimer": "Erstellt von Health Sync für Google Health (Homey) aus deinen Google-Health-Daten. Dies ist kein medizinisches Dokument; die Werte stammen von Consumer-Geräten und können ungenau sein. Nicht mit Google verbunden.",
+      "hint": "Am besten im Desktop-Browser nutzen (my.homey.app) — der Bericht öffnet sich in einem neuen Tab mit Druck-Button."
+    }
   }
 }
