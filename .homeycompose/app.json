@@ -1,6 +1,6 @@
 {
   "id": "io.github.fbnlrz.healthsync",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "homeyCommunityTopicId": 156934,
   "compatibility": ">=12.9.0",
   "sdk": 3,
@@ -26,6 +26,20 @@
     "small": "/assets/images/small.png",
     "large": "/assets/images/large.png",
     "xlarge": "/assets/images/xlarge.png"
+  },
+  "api": {
+    "getDevices": {
+      "method": "GET",
+      "path": "/devices"
+    },
+    "getReport": {
+      "method": "GET",
+      "path": "/report"
+    },
+    "publishReport": {
+      "method": "POST",
+      "path": "/report/publish"
+    }
   },
   "author": {
     "name": "fbnlrz"

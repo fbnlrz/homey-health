@@ -21,7 +21,8 @@
     "measure_spo2",
     "measure_respiratory_rate",
     "measure_sleep_hours",
-    "measure_hydration"
+    "measure_hydration",
+    "alarm_asleep"
   ],
   "platforms": [
     "local"
