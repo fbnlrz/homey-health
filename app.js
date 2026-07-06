@@ -98,7 +98,93 @@ class GoogleHealthApp extends Homey.App {
         await args.device.logBodyFat(args.percentage);
       });
 
+    this._registerWidgets();
+
     this.log('Google Health app has been initialized');
+  }
+
+  // ── Dashboard widgets ────────────────────────────────────────────
+
+  _driverDevices() {
+    try {
+      return this.homey.drivers.getDriver('google-health-user').getDevices();
+    } catch (err) {
+      return [];
+    }
+  }
+
+  /** Resolve the device an autocomplete setting points at, else the first. */
+  _resolveWidgetDevice(deviceRef) {
+    const devices = this._driverDevices();
+    if (!devices.length) return null;
+    const id = deviceRef && typeof deviceRef === 'object' ? deviceRef.id : deviceRef;
+    return devices.find(d => d.getData().id === id) || devices[0];
+  }
+
+  _localize(obj) {
+    if (!obj) return '';
+    if (typeof obj === 'string') return obj;
+    let lang = 'en';
+    try { lang = this.homey.i18n.getLanguage() || 'en'; } catch (err) { /* default en */ }
+    return obj[lang] || obj.en || Object.values(obj)[0] || '';
+  }
+
+  /** Metadata (localized title + units + decimals) for a capability id. */
+  _metricMeta(capabilityId) {
+    const cap = (this.homey.manifest.capabilities || {})[capabilityId] || {};
+    return {
+      id: capabilityId,
+      title: this._localize(cap.title),
+      units: this._localize(cap.units),
+      decimals: typeof cap.decimals === 'number' ? cap.decimals : 0,
+    };
+  }
+
+  /** Single-metric payload for the Health tile widget. */
+  getWidgetMetric(deviceRef, capabilityId) {
+    const device = this._resolveWidgetDevice(deviceRef);
+    if (!device) return { paired: false };
+    const cap = device.hasCapability(capabilityId) ? capabilityId : 'measure_steps';
+    const value = device.getCapabilityValue(cap);
+    return {
+      paired: true,
+      deviceName: device.getName(),
+      ...this._metricMeta(cap),
+      value: typeof value === 'number' ? value : null,
+    };
+  }
+
+  /** Multi-metric payload for the Health overview widget. */
+  getWidgetOverview(deviceRef, capabilityIds) {
+    const device = this._resolveWidgetDevice(deviceRef);
+    if (!device) return { paired: false, metrics: [] };
+    const ids = (Array.isArray(capabilityIds) && capabilityIds.length)
+      ? capabilityIds
+      : ['measure_steps', 'measure_active_calories', 'measure_resting_heart_rate', 'measure_sleep_hours'];
+    const metrics = ids
+      .filter(id => device.hasCapability(id))
+      .map(id => {
+        const value = device.getCapabilityValue(id);
+        return { ...this._metricMeta(id), value: typeof value === 'number' ? value : null };
+      })
+      .filter(m => m.value !== null);
+    return { paired: true, deviceName: device.getName(), metrics };
+  }
+
+  _registerWidgets() {
+    const listener = async query => {
+      const q = String(query || '').toLowerCase();
+      return this._driverDevices()
+        .map(d => ({ name: d.getName(), id: d.getData().id }))
+        .filter(o => o.name.toLowerCase().includes(q));
+    };
+    for (const id of ['health-tile', 'health-overview']) {
+      try {
+        this.homey.dashboards.getWidget(id).registerSettingAutocompleteListener('device', listener);
+      } catch (err) {
+        this.log('Widget autocomplete registration skipped for', id, '-', err.message);
+      }
+    }
   }
 
   /**
