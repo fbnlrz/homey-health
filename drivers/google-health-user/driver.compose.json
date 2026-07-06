@@ -22,7 +22,7 @@
     "measure_sleep_hours",
     "measure_hydration"
   ],
-  "platforms": ["local", "cloud"],
+  "platforms": ["local"],
   "connectivity": ["cloud"],
   "images": {
     "small": "/drivers/google-health-user/assets/images/small.png",

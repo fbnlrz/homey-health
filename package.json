@@ -1,5 +1,5 @@
 {
-  "name": "io.github.fbnlrz.googlehealth",
+  "name": "io.github.fbnlrz.healthsync",
   "version": "0.1.0",
   "description": "Google Health data on Homey",
   "main": "app.js",
