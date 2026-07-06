@@ -411,9 +411,41 @@ class GoogleHealthDevice extends Homey.Device {
     });
 
     await this._guarded('oxygen-saturation', async () => {
-      const points = await this.api.list('oxygen-saturation', { pageSize: 1 });
-      if (!points.length) return;
-      const pct = GoogleHealthApi.numberField(points[0], 'percentage');
+      // Prefer the daily summary — that is what the Google Health app itself
+      // shows. Raw spot samples can contain low-confidence garbage readings
+      // (e.g. 50% because the sensor lost skin contact) that the app ignores.
+      let pct = null;
+      try {
+        const daily = await this.api.list('daily-oxygen-saturation', { pageSize: 1 });
+        if (daily.length) {
+          const values = GoogleHealthApi.valueObject(daily[0]) || {};
+          for (const key of ['averagePercentage', 'avgPercentage', 'meanPercentage', 'percentage', 'average', 'mean']) {
+            const value = values[key];
+            // some summary fields nest further, e.g. average: { percentage: 96 }
+            const num = Number(value && typeof value === 'object' ? value.percentage : value);
+            if (Number.isFinite(num)) {
+              pct = num;
+              break;
+            }
+          }
+          if (pct === null) {
+            this.log('daily-oxygen-saturation: unrecognized fields:', JSON.stringify(values).slice(0, 300));
+          }
+        }
+      } catch (err) {
+        this.error('daily SpO2 fetch failed, falling back to samples:', err.message);
+      }
+
+      if (pct === null) {
+        const points = await this.api.list('oxygen-saturation', { pageSize: 1 });
+        if (!points.length) return;
+        pct = GoogleHealthApi.numberField(points[0], 'percentage');
+        if (pct !== null && pct < 70) {
+          // physiologically implausible spot reading — log the raw point for diagnosis
+          this.log('Suspicious SpO2 sample:', JSON.stringify(points[0]).slice(0, 300));
+        }
+      }
+
       if (pct !== null) await this._setNumber('measure_spo2', Math.round(pct));
     });
 

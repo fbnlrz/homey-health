@@ -1,4 +1,9 @@
 {
+  "0.1.7": {
+    "en": "SpO2 now uses the daily summary (like the Google Health app) instead of raw spot readings, which could show low-confidence values like 50%.",
+    "de": "SpO2 nutzt jetzt die Tageszusammenfassung (wie die Google-Health-App) statt roher Einzelmessungen, die Ausreißer wie 50% anzeigen konnten.",
+    "nl": "SpO2 gebruikt nu de dagelijkse samenvatting (zoals de Google Health-app) in plaats van ruwe losse metingen, die uitschieters zoals 50% konden tonen."
+  },
   "0.1.6": {
     "en": "Restored the correct app icon.",
     "de": "Korrektes App-Icon wiederhergestellt.",
