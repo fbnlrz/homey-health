@@ -1,7 +1,8 @@
 {
   "pair": {
     "missing_credentials": "Bitte hinterlege zuerst die Google OAuth Client-ID und das Client-Secret in den App-Einstellungen (Mehr > Apps > Google Health > App konfigurieren).",
-    "not_authorized": "Die Google-Anmeldung wurde nicht abgeschlossen. Bitte versuche es erneut."
+    "not_authorized": "Die Google-Anmeldung wurde nicht abgeschlossen. Bitte versuche es erneut.",
+    "wrong_account": "Diese Anmeldung gehört zu einem anderen Google-Konto als dieses Gerät. Bitte melde dich mit dem ursprünglichen Konto an."
   },
   "device": {
     "auth_lost": "Die Google-Anmeldung ist abgelaufen. Öffne das Gerät und nutze 'Reparieren', um dich erneut anzumelden.",

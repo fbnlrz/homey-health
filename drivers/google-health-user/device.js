@@ -43,9 +43,10 @@ class GoogleHealthDevice extends Homey.Device {
     });
   }
 
-  _startPolling() {
+  _startPolling(minutesOverride) {
     if (this._pollInterval) this.homey.clearInterval(this._pollInterval);
-    const minutes = Math.max(MIN_POLL_MINUTES, Number(this.getSetting('poll_interval')) || 15);
+    const configured = Number(minutesOverride) || Number(this.getSetting('poll_interval')) || 15;
+    const minutes = Math.max(MIN_POLL_MINUTES, configured);
     this._pollInterval = this.homey.setInterval(() => {
       this.sync().catch(this.error);
     }, minutes * 60 * 1000);
@@ -70,9 +71,16 @@ class GoogleHealthDevice extends Homey.Device {
   }
 
   async sync() {
-    if (this._syncing) return;
-    this._syncing = true;
+    // Share the in-flight sync instead of silently no-opping, so the
+    // "Synchronize now" flow action always resolves after a completed sync
+    if (this._syncPromise) return this._syncPromise;
+    this._syncPromise = this._doSync().finally(() => {
+      this._syncPromise = null;
+    });
+    return this._syncPromise;
+  }
 
+  async _doSync() {
     try {
       const today = this._todayLocalDate();
       await this._resetDailyCountersIfNewDay(today);
@@ -96,15 +104,18 @@ class GoogleHealthDevice extends Homey.Device {
       await this.setAvailable().catch(this.error);
     } catch (err) {
       this.error('Sync failed:', err.message || err);
-      if (err.statusCode === 401
-        || err.code === 'no_refresh_token' || err.code === 'not_authenticated'
-        || err.code === 'invalid_grant') {
+      if (err.statusCode === 401 || GoogleHealthDevice.AUTH_ERROR_CODES.has(err.code)) {
         await this.setUnavailable(this.homey.__('device.auth_lost')).catch(this.error);
       }
       throw err;
-    } finally {
-      this._syncing = false;
     }
+  }
+
+  static get AUTH_ERROR_CODES() {
+    return new Set([
+      'no_refresh_token', 'not_authenticated', 'invalid_grant',
+      'invalid_client', 'unauthorized_client',
+    ]);
   }
 
   /**
@@ -141,13 +152,16 @@ class GoogleHealthDevice extends Homey.Device {
     // the next rollup that has data (a missing rollup day means "not synced",
     // so we never overwrite a fresh value with 0 later in the day).
     const dailyCapabilities = [
-      'measure_steps', 'measure_distance', 'measure_calories',
+      'measure_distance', 'measure_calories',
       'measure_active_calories', 'measure_floors',
       'measure_active_zone_minutes', 'measure_hydration',
     ];
     for (const capability of dailyCapabilities) {
       await this._setNumber(capability, 0);
     }
+    // Route steps through _setSteps so the steps_updated trigger also fires
+    // for the midnight N→0 transition (Flows mirroring the value stay in sync)
+    await this._setSteps(today, 0);
   }
 
   // ── Activity: daily rollups for today ────────────────────────────
@@ -347,8 +361,7 @@ class GoogleHealthDevice extends Homey.Device {
   }
 
   _rethrowIfAuth(err) {
-    if (err && (err.statusCode === 401 || err.code === 'no_refresh_token'
-      || err.code === 'not_authenticated' || err.code === 'invalid_grant')) {
+    if (err && (err.statusCode === 401 || GoogleHealthDevice.AUTH_ERROR_CODES.has(err.code))) {
       throw err;
     }
   }
@@ -381,11 +394,13 @@ class GoogleHealthDevice extends Homey.Device {
     }
   }
 
-  async onSettings({ changedKeys }) {
+  async onSettings({ newSettings, changedKeys }) {
     if (changedKeys.includes('poll_interval')) {
-      this._startPolling();
+      // getSetting() still returns the OLD value inside onSettings (settings
+      // persist only after this resolves) — pass the fresh value explicitly
+      this._startPolling(newSettings.poll_interval);
     }
-    // Apply new data-group selections right away
+    // Apply new data-group selections right away (after settings persisted)
     this.homey.setTimeout(() => {
       this.sync().catch(this.error);
     }, 1000);

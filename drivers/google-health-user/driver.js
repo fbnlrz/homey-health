@@ -4,6 +4,8 @@ const crypto = require('crypto');
 const Homey = require('homey');
 const GoogleHealthApi = require('../../lib/GoogleHealthApi');
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 class GoogleHealthDriver extends Homey.Driver {
 
   async onInit() {
@@ -14,7 +16,23 @@ class GoogleHealthDriver extends Homey.Driver {
     this.newWeightTrigger = this.homey.flow.getDeviceTriggerCard('new_weight_measurement');
     this.sleepUpdatedTrigger = this.homey.flow.getDeviceTriggerCard('sleep_updated');
 
+    // Pick up rotated OAuth credentials without an app restart
+    this._onAppSettingsChanged = key => {
+      if (key === 'client_id' || key === 'client_secret') {
+        for (const device of this.getDevices()) {
+          if (typeof device._createApi === 'function') device._createApi();
+        }
+      }
+    };
+    this.homey.settings.on('set', this._onAppSettingsChanged);
+
     this.log('GoogleHealthDriver has been initialized');
+  }
+
+  async onUninit() {
+    if (this._onAppSettingsChanged) {
+      this.homey.settings.removeListener('set', this._onAppSettingsChanged);
+    }
   }
 
   getOAuthConfig() {
@@ -25,83 +43,26 @@ class GoogleHealthDriver extends Homey.Driver {
     };
   }
 
-  async onPair(session) {
-    let tokens = null;
-    const { clientId, clientSecret, allowWrite } = this.getOAuthConfig();
-
-    session.setHandler('showView', async viewId => {
-      if (viewId === 'login_oauth2' && (!clientId || !clientSecret)) {
-        await session.emit('error', this.homey.__('pair.missing_credentials'))
-          .catch(this.error);
-      }
-    });
-
-    if (clientId && clientSecret) {
-      const authUrl = GoogleHealthApi.buildAuthUrl({
-        clientId,
-        scopes: GoogleHealthApi.scopes({ allowWrite }),
-      });
-
-      const oauth2Callback = await this.homey.cloud.createOAuth2Callback(authUrl);
-      oauth2Callback
-        .on('url', url => {
-          session.emit('url', url).catch(this.error);
-        })
-        .on('code', async code => {
-          try {
-            tokens = await GoogleHealthApi.exchangeCode({ clientId, clientSecret, code });
-            this.log('OAuth granted scopes:', tokens.scope || '(none reported)');
-            await session.emit('authorized');
-          } catch (err) {
-            this.error('OAuth code exchange failed:', err);
-            session.emit('error', err.message).catch(this.error);
-          }
-        });
-    }
-
-    session.setHandler('list_devices', async () => {
-      if (!tokens) {
-        throw new Error(this.homey.__('pair.not_authorized'));
-      }
-
-      const api = new GoogleHealthApi({ clientId, clientSecret, tokens });
-
-      let deviceId = null;
-      let deviceName = 'Google Health';
-      try {
-        const identity = await api.getIdentity();
-        deviceId = identity.obfuscatedId || identity.id || identity.email || null;
-        if (identity.displayName) deviceName = `Google Health (${identity.displayName})`;
-        else if (identity.email) deviceName = `Google Health (${identity.email})`;
-      } catch (err) {
-        this.error('Could not fetch user identity, using generated id:', err.message);
-      }
-      if (!deviceId) deviceId = crypto.randomUUID();
-
-      return [
-        {
-          name: deviceName,
-          data: { id: String(deviceId) },
-          store: { tokens },
-        },
-      ];
-    });
-  }
-
   /**
-   * Re-authorize an existing device (e.g. after the refresh token expired).
+   * Lazily create the Homey OAuth2 callback when the login view is shown, so
+   * credentials saved in the app settings mid-session are picked up.
+   * onCode receives the freshly exchanged token set.
    */
-  async onRepair(session, device) {
-    const { clientId, clientSecret, allowWrite } = this.getOAuthConfig();
+  _setupOAuthLogin(session, onCode) {
+    let started = false;
 
     session.setHandler('showView', async viewId => {
-      if (viewId === 'login_oauth2' && (!clientId || !clientSecret)) {
+      if (viewId !== 'login_oauth2') return;
+
+      const { clientId, clientSecret, allowWrite } = this.getOAuthConfig();
+      if (!clientId || !clientSecret) {
         await session.emit('error', this.homey.__('pair.missing_credentials'))
           .catch(this.error);
+        return;
       }
-    });
+      if (started) return;
+      started = true;
 
-    if (clientId && clientSecret) {
       const authUrl = GoogleHealthApi.buildAuthUrl({
         clientId,
         scopes: GoogleHealthApi.scopes({ allowWrite }),
@@ -115,16 +76,98 @@ class GoogleHealthDriver extends Homey.Driver {
         .on('code', async code => {
           try {
             const tokens = await GoogleHealthApi.exchangeCode({ clientId, clientSecret, code });
-            this.log('OAuth granted scopes (repair):', tokens.scope || '(none reported)');
-            await device.onTokensRepaired(tokens);
+            this.log('OAuth granted scopes:', tokens.scope || '(none reported)');
+            await onCode({ tokens, clientId, clientSecret });
             await session.emit('authorized');
-            await session.done();
           } catch (err) {
-            this.error('OAuth repair failed:', err);
+            this.error('OAuth flow failed:', err);
             session.emit('error', err.message).catch(this.error);
           }
         });
+    });
+  }
+
+  /** Fetch the user's identity id with a couple of retries. Returns null on failure. */
+  async _fetchIdentityId(api) {
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        const identity = await api.getIdentity();
+        return {
+          id: identity.obfuscatedId || identity.id || identity.email || null,
+          name: identity.displayName || identity.email || null,
+        };
+      } catch (err) {
+        this.error(`getIdentity attempt ${attempt} failed:`, err.message);
+        if (attempt < 3) await new Promise(resolve => this.homey.setTimeout(resolve, 800));
+      }
     }
+    return null;
+  }
+
+  async onPair(session) {
+    let auth = null;
+
+    this._setupOAuthLogin(session, async result => {
+      auth = result;
+    });
+
+    session.setHandler('list_devices', async () => {
+      if (!auth) {
+        throw new Error(this.homey.__('pair.not_authorized'));
+      }
+
+      const api = new GoogleHealthApi({
+        clientId: auth.clientId,
+        clientSecret: auth.clientSecret,
+        tokens: auth.tokens,
+      });
+
+      const identity = await this._fetchIdentityId(api);
+      const identityId = identity ? identity.id : null;
+      // Fall back to a random id only when the identity endpoint is
+      // unavailable — the id must stay immutable once the device is created
+      const deviceId = identityId || crypto.randomUUID();
+      const deviceName = identity && identity.name
+        ? `Google Health (${identity.name})`
+        : 'Google Health';
+
+      return [
+        {
+          name: deviceName,
+          data: { id: String(deviceId) },
+          store: {
+            tokens: auth.tokens,
+            identity_id: identityId ? String(identityId) : null,
+          },
+        },
+      ];
+    });
+  }
+
+  /**
+   * Re-authorize an existing device. Verifies the login belongs to the same
+   * Google account, so a household member cannot accidentally cross-wire
+   * another person's health data onto this device.
+   */
+  async onRepair(session, device) {
+    this._setupOAuthLogin(session, async ({ tokens, clientId, clientSecret }) => {
+      const api = new GoogleHealthApi({ clientId, clientSecret, tokens });
+      const identity = await this._fetchIdentityId(api);
+      const newId = identity && identity.id ? String(identity.id) : null;
+
+      if (newId) {
+        const knownId = device.getStoreValue('identity_id')
+          || (UUID_RE.test(device.getData().id) ? null : device.getData().id);
+        if (knownId && String(knownId) !== newId) {
+          throw new Error(this.homey.__('pair.wrong_account'));
+        }
+        // Remember the identity for future repairs (covers UUID-fallback pairs)
+        await device.setStoreValue('identity_id', newId).catch(this.error);
+      }
+
+      await device.onTokensRepaired(tokens);
+      await session.done().catch(this.error);
+    });
   }
 
 }

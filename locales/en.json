@@ -1,7 +1,8 @@
 {
   "pair": {
     "missing_credentials": "Please enter your Google OAuth Client ID and Client Secret in the app settings first (More > Apps > Google Health > Configure app).",
-    "not_authorized": "Google login was not completed. Please try again."
+    "not_authorized": "Google login was not completed. Please try again.",
+    "wrong_account": "This login belongs to a different Google account than this device. Please sign in with the original account."
   },
   "device": {
     "auth_lost": "Google login expired. Open the device and use 'Repair' to log in again.",
