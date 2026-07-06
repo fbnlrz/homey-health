@@ -183,7 +183,11 @@ class GoogleHealthApp extends Homey.App {
       .filter(id => device.hasCapability(id))
       .map(id => {
         const value = device.getCapabilityValue(id);
-        return { ...this._metricMeta(id), value: typeof value === 'number' ? value : null };
+        return {
+          ...this._metricMeta(id),
+          value: typeof value === 'number' ? value : null,
+          history: this._metricHistory(device, id),
+        };
       });
     return { paired: true, deviceName: device.getName(), metrics };
   }
