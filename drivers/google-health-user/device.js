@@ -15,6 +15,10 @@ class GoogleHealthDevice extends Homey.Device {
       }
     }
 
+    // Data types the user's Google consent does not cover — detected via 403s,
+    // skipped until the next repair/restart so every poll isn't error spam
+    this._scopeDenied = new Set();
+
     this._createApi();
     this._startPolling();
 
@@ -50,6 +54,8 @@ class GoogleHealthDevice extends Homey.Device {
   /** Called from the repair flow with freshly exchanged tokens. */
   async onTokensRepaired(tokens) {
     await this.setStoreValue('tokens', tokens);
+    this._scopeDenied.clear();
+    await this.unsetWarning().catch(this.error);
     this._createApi();
     await this.setAvailable().catch(this.error);
     this.sync().catch(this.error);
@@ -83,7 +89,7 @@ class GoogleHealthDevice extends Homey.Device {
       await this.setAvailable().catch(this.error);
     } catch (err) {
       this.error('Sync failed:', err.message || err);
-      if (err.statusCode === 401 || err.statusCode === 403
+      if (err.statusCode === 401
         || err.code === 'no_refresh_token' || err.code === 'not_authenticated'
         || err.code === 'invalid_grant') {
         await this.setUnavailable(this.homey.__('device.auth_lost')).catch(this.error);
@@ -91,6 +97,28 @@ class GoogleHealthDevice extends Homey.Device {
       throw err;
     } finally {
       this._syncing = false;
+    }
+  }
+
+  /**
+   * Wrap one data-type call: skip types whose scope the user did not grant,
+   * and remember new scope denials instead of retrying them every poll.
+   */
+  async _guarded(type, fn) {
+    if (this._scopeDenied.has(type)) return;
+    try {
+      await fn();
+    } catch (err) {
+      if (err.code === 'missing_scope') {
+        this._scopeDenied.add(type);
+        this.error(`No OAuth scope for '${type}' — skipping until repair. Re-authorize and tick all permission checkboxes on the Google consent screen.`);
+        this.setWarning(this.homey.__('device.missing_scopes', {
+          types: [...this._scopeDenied].join(', '),
+        })).catch(this.error);
+        return;
+      }
+      this._rethrowIfAuth(err);
+      this.error(`${type} sync failed:`, err.message);
     }
   }
 
@@ -105,7 +133,7 @@ class GoogleHealthDevice extends Homey.Device {
     ];
 
     for (const { type, field, apply } of rollups) {
-      try {
+      await this._guarded(type, async () => {
         const points = await this.api.dailyRollup(type, today, today);
         const value = points.length ? GoogleHealthApi.numberField(points[0], field) : null;
         if (value !== null) {
@@ -115,10 +143,7 @@ class GoogleHealthDevice extends Homey.Device {
           // new day rather than keep showing yesterday's total.
           await this._resetDailyIfNewDay(type, today);
         }
-      } catch (err) {
-        this._rethrowIfAuth(err);
-        this.error(`dailyRollup ${type} failed:`, err.message);
-      }
+      });
     }
   }
 
@@ -155,82 +180,64 @@ class GoogleHealthDevice extends Homey.Device {
   // ── Heart: latest reading + latest daily resting HR ──────────────
 
   async _syncHeart() {
-    try {
+    await this._guarded('heart-rate', async () => {
       const points = await this.api.list('heart-rate', { pageSize: 1 });
-      if (points.length) {
-        const bpm = GoogleHealthApi.numberField(points[0], 'beatsPerMinute');
-        const values = GoogleHealthApi.valueObject(points[0]);
-        const sampleTime = values && values.sampleTime ? values.sampleTime.physicalTime : null;
-        if (bpm !== null) {
-          const changed = sampleTime && sampleTime !== this.getStoreValue('last_hr_time');
-          await this._setNumber('measure_heart_rate', bpm);
-          if (changed) {
-            await this.setStoreValue('last_hr_time', sampleTime).catch(this.error);
-            this.driver.heartRateUpdatedTrigger
-              .trigger(this, { heart_rate: bpm })
-              .catch(this.error);
-          }
-        }
+      if (!points.length) return;
+      const bpm = GoogleHealthApi.numberField(points[0], 'beatsPerMinute');
+      const values = GoogleHealthApi.valueObject(points[0]);
+      const sampleTime = values && values.sampleTime ? values.sampleTime.physicalTime : null;
+      if (bpm === null) return;
+      const changed = sampleTime && sampleTime !== this.getStoreValue('last_hr_time');
+      await this._setNumber('measure_heart_rate', bpm);
+      if (changed) {
+        await this.setStoreValue('last_hr_time', sampleTime).catch(this.error);
+        this.driver.heartRateUpdatedTrigger
+          .trigger(this, { heart_rate: bpm })
+          .catch(this.error);
       }
-    } catch (err) {
-      this._rethrowIfAuth(err);
-      this.error('heart-rate sync failed:', err.message);
-    }
+    });
 
-    try {
+    await this._guarded('daily-resting-heart-rate', async () => {
       const points = await this.api.list('daily-resting-heart-rate', { pageSize: 1 });
-      if (points.length) {
-        const bpm = GoogleHealthApi.numberField(points[0], 'beatsPerMinute');
-        if (bpm !== null) await this._setNumber('measure_resting_heart_rate', bpm);
-      }
-    } catch (err) {
-      this._rethrowIfAuth(err);
-      this.error('resting heart rate sync failed:', err.message);
-    }
+      if (!points.length) return;
+      const bpm = GoogleHealthApi.numberField(points[0], 'beatsPerMinute');
+      if (bpm !== null) await this._setNumber('measure_resting_heart_rate', bpm);
+    });
   }
 
   // ── Body: latest weight + latest SpO2 ─────────────────────────────
 
   async _syncBody() {
-    try {
+    await this._guarded('weight', async () => {
       const points = await this.api.list('weight', { pageSize: 1 });
-      if (points.length) {
-        const grams = GoogleHealthApi.numberField(points[0], 'weightGrams');
-        if (grams !== null) {
-          const kg = Math.round(grams / 100) / 10;
-          const values = GoogleHealthApi.valueObject(points[0]) || {};
-          const key = points[0].name || (values.sampleTime || {}).physicalTime;
-          const changed = key && key !== this.getStoreValue('last_weight_key');
-          await this._setNumber('measure_weight', kg);
-          if (changed) {
-            await this.setStoreValue('last_weight_key', key).catch(this.error);
-            this.driver.newWeightTrigger
-              .trigger(this, { weight: kg })
-              .catch(this.error);
-          }
-        }
+      if (!points.length) return;
+      const grams = GoogleHealthApi.numberField(points[0], 'weightGrams');
+      if (grams === null) return;
+      const kg = Math.round(grams / 100) / 10;
+      const values = GoogleHealthApi.valueObject(points[0]) || {};
+      const key = points[0].name || (values.sampleTime || {}).physicalTime;
+      const changed = key && key !== this.getStoreValue('last_weight_key');
+      await this._setNumber('measure_weight', kg);
+      if (changed) {
+        await this.setStoreValue('last_weight_key', key).catch(this.error);
+        this.driver.newWeightTrigger
+          .trigger(this, { weight: kg })
+          .catch(this.error);
       }
-    } catch (err) {
-      this._rethrowIfAuth(err);
-      this.error('weight sync failed:', err.message);
-    }
+    });
 
-    try {
+    await this._guarded('oxygen-saturation', async () => {
       const points = await this.api.list('oxygen-saturation', { pageSize: 1 });
-      if (points.length) {
-        const pct = GoogleHealthApi.numberField(points[0], 'percentage');
-        if (pct !== null) await this._setNumber('measure_spo2', Math.round(pct));
-      }
-    } catch (err) {
-      this._rethrowIfAuth(err);
-      this.error('SpO2 sync failed:', err.message);
-    }
+      if (!points.length) return;
+      const pct = GoogleHealthApi.numberField(points[0], 'percentage');
+      if (pct !== null) await this._setNumber('measure_spo2', Math.round(pct));
+    });
   }
 
   // ── Sleep: most recent session summary ────────────────────────────
 
   async _syncSleep() {
-    try {
+    await this._guarded('sleep', async () => {
       const points = await this.api.list('sleep', { pageSize: 1 });
       if (!points.length) return;
 
@@ -253,10 +260,7 @@ class GoogleHealthDevice extends Homey.Device {
           .trigger(this, { hours_asleep: hours, minutes_awake: minutesAwake })
           .catch(this.error);
       }
-    } catch (err) {
-      this._rethrowIfAuth(err);
-      this.error('sleep sync failed:', err.message);
-    }
+    });
   }
 
   // ── Flow action: log weight to Google Health ─────────────────────

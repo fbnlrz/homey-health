@@ -50,6 +50,7 @@ class GoogleHealthDriver extends Homey.Driver {
         .on('code', async code => {
           try {
             tokens = await GoogleHealthApi.exchangeCode({ clientId, clientSecret, code });
+            this.log('OAuth granted scopes:', tokens.scope || '(none reported)');
             await session.emit('authorized');
           } catch (err) {
             this.error('OAuth code exchange failed:', err);
@@ -114,6 +115,7 @@ class GoogleHealthDriver extends Homey.Driver {
         .on('code', async code => {
           try {
             const tokens = await GoogleHealthApi.exchangeCode({ clientId, clientSecret, code });
+            this.log('OAuth granted scopes (repair):', tokens.scope || '(none reported)');
             await device.onTokensRepaired(tokens);
             await session.emit('authorized');
             await session.done();
