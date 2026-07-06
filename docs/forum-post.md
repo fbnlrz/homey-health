@@ -62,6 +62,18 @@ Known limitations while testing:
 
 Feedback, bug reports and feature requests are very welcome — either here or on [GitHub](https://github.com/fbnlrz/homey-health/issues).
 
+## 🔒 Privacy & security
+
+Health data is sensitive, and this app was largely written by an AI — so here is exactly where your data goes, all of it verifiable in the [public source code](https://github.com/fbnlrz/homey-health):
+
+- **Your data never touches my servers — there are none.** The app runs 100% locally on your Homey Pro and talks to exactly one endpoint: Google's Health API (`health.googleapis.com`), plus Google's OAuth endpoints for login. No telemetry, no analytics, no third-party services.
+- **You own the API access.** The OAuth client belongs to *your own* Google Cloud project. I never see your Client ID, secret, tokens or any health data — I couldn't even if I wanted to.
+- **Tokens stay on your Homey.** Access/refresh tokens are stored in Homey's device store on your Homey Pro, nowhere else.
+- **Read-only by default.** The app only requests read scopes. Write access (for the "Log weight/body fat" Flow cards) is opt-in and off by default.
+- **Zero runtime dependencies.** No third-party npm packages in the app — just Node.js built-ins and the official Homey SDK. Nothing to hide in, small attack surface, quick to audit.
+- **No special Homey permissions.** The manifest's permission list is empty.
+- **Fully open source (MIT).** Every line is public. The AI-generated code went through a multi-agent adversarial review *and* you're welcome to review it yourself — that's the honest answer to "can I trust vibe-coded software": don't trust, verify.
+
 ## 🤖 Credits & sources
 
 This app was built end-to-end with **Claude Fable 5** (Anthropic) in Claude Code — as a real-world test of Fable 5's capabilities: multi-agent code-review workflows with adversarial verification, reverse-engineering the API semantics from CLI source code, logo design rendered via headless Chromium, and live debugging against a real Homey Pro.
