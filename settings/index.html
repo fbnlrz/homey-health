@@ -1,0 +1,103 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
+  <style>
+    .redirect-uri {
+      display: block;
+      padding: 6px 8px;
+      margin: 6px 0 12px;
+      background: #f0f0f0;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 12px;
+      word-break: break-all;
+      user-select: all;
+    }
+    ol li { margin-bottom: 8px; }
+    .hy-nostyle { margin-top: 16px; }
+  </style>
+</head>
+<body>
+  <h1 data-i18n="settings.title">Google Health</h1>
+  <p data-i18n="settings.intro"></p>
+
+  <ol>
+    <li>
+      <span data-i18n="settings.step1"></span>
+      <a href="https://console.cloud.google.com/" target="_blank" rel="noopener">console.cloud.google.com</a>
+    </li>
+    <li>
+      <span data-i18n="settings.step2"></span>
+      <a href="https://console.cloud.google.com/apis/api/health.googleapis.com" target="_blank" rel="noopener">health.googleapis.com</a>
+    </li>
+    <li>
+      <span data-i18n="settings.step3"></span>
+      <code class="redirect-uri">https://callback.athom.com/oauth2/callback</code>
+    </li>
+    <li><span data-i18n="settings.step4"></span></li>
+    <li><span data-i18n="settings.step5"></span></li>
+  </ol>
+
+  <fieldset>
+    <legend data-i18n="settings.title"></legend>
+
+    <div class="field row">
+      <label for="client_id" data-i18n="settings.client_id">Client ID</label>
+      <input id="client_id" type="text" value="" autocomplete="off" />
+    </div>
+
+    <div class="field row">
+      <label for="client_secret" data-i18n="settings.client_secret">Client Secret</label>
+      <input id="client_secret" type="password" value="" autocomplete="off" />
+    </div>
+
+    <div class="field row">
+      <label>
+        <input id="enable_write" type="checkbox" />
+        <span data-i18n="settings.enable_write"></span>
+      </label>
+      <p><small data-i18n="settings.enable_write_hint"></small></p>
+    </div>
+  </fieldset>
+
+  <button id="save" class="hy-nostyle" data-i18n="settings.save">Save</button>
+
+  <script type="text/javascript">
+    function onHomeyReady(Homey) {
+      var clientIdEl = document.getElementById('client_id');
+      var clientSecretEl = document.getElementById('client_secret');
+      var enableWriteEl = document.getElementById('enable_write');
+      var saveEl = document.getElementById('save');
+
+      Homey.get('client_id', function (err, value) {
+        if (!err && value) clientIdEl.value = value;
+      });
+      Homey.get('client_secret', function (err, value) {
+        if (!err && value) clientSecretEl.value = value;
+      });
+      Homey.get('enable_write', function (err, value) {
+        if (!err) enableWriteEl.checked = !!value;
+      });
+
+      saveEl.addEventListener('click', function () {
+        var values = [
+          ['client_id', clientIdEl.value.trim()],
+          ['client_secret', clientSecretEl.value.trim()],
+          ['enable_write', enableWriteEl.checked],
+        ];
+        var index = 0;
+        (function next(err) {
+          if (err) return Homey.alert(err.message || String(err));
+          if (index >= values.length) return Homey.alert(Homey.__('settings.saved'));
+          var pair = values[index++];
+          Homey.set(pair[0], pair[1], next);
+        })();
+      });
+
+      Homey.ready();
+    }
+  </script>
+</body>
+</html>

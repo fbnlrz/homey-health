@@ -1,0 +1,18 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Body fat",
+    "de": "Körperfett"
+  },
+  "units": {
+    "en": "%"
+  },
+  "decimals": 1,
+  "min": 0,
+  "max": 100,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": true,
+  "icon": "/assets/capabilities/weight.svg"
+}

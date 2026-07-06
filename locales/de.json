@@ -1,0 +1,28 @@
+{
+  "pair": {
+    "missing_credentials": "Bitte hinterlege zuerst die Google OAuth Client-ID und das Client-Secret in den App-Einstellungen (Mehr > Apps > Google Health > App konfigurieren).",
+    "not_authorized": "Die Google-Anmeldung wurde nicht abgeschlossen. Bitte versuche es erneut.",
+    "wrong_account": "Diese Anmeldung gehört zu einem anderen Google-Konto als dieses Gerät. Bitte melde dich mit dem ursprünglichen Konto an."
+  },
+  "device": {
+    "auth_lost": "Die Google-Anmeldung ist abgelaufen. Öffne das Gerät und nutze 'Reparieren', um dich erneut anzumelden.",
+    "missing_scopes": "Keine Google-Berechtigung für: __types__. Nutze 'Reparieren' und setze ALLE Häkchen auf dem Google-Zustimmungsbildschirm.",
+    "api_disabled": "Die Google Health API ist für dein Cloud-Projekt deaktiviert. Aktiviere sie in der Google Cloud Console.",
+    "sync_failing": "Wiederholte Sync-Fehler bei: __types__. Details stehen im App-Protokoll."
+  },
+  "settings": {
+    "title": "Google Health",
+    "intro": "Diese App benötigt einen eigenen Google-Cloud-OAuth-Client, da Google den Health-API-Zugriff pro Projekt vergibt.",
+    "step1": "Öffne die Google Cloud Console und erstelle (oder wähle) ein Projekt.",
+    "step2": "Aktiviere die Google Health API für das Projekt.",
+    "step3": "Erstelle eine OAuth-Client-ID vom Typ 'Webanwendung' und füge diese autorisierte Weiterleitungs-URI hinzu:",
+    "step4": "Solange der OAuth-Zustimmungsbildschirm im Modus 'Testen' ist, füge dein eigenes Google-Konto als Testnutzer hinzu. Hinweis: Im Testmodus laufen Anmeldungen nach 7 Tagen ab — veröffentliche den Zustimmungsbildschirm für dauerhaften Zugriff.",
+    "step5": "Füge unten Client-ID und Client-Secret ein, speichere und füge dann das Gerät hinzu. Wichtig: Setze beim Google-Login ALLE Berechtigungs-Häkchen — Google lässt sie standardmäßig leer.",
+    "client_id": "Client-ID",
+    "client_secret": "Client-Secret",
+    "enable_write": "Schreiben in Google Health erlauben (nötig für die Flow-Karte 'Gewicht protokollieren')",
+    "enable_write_hint": "Nach einer Änderung bei bestehenden Geräten 'Reparieren' ausführen (oder neu koppeln), um die neue Berechtigung zu übernehmen.",
+    "save": "Speichern",
+    "saved": "Gespeichert!"
+  }
+}

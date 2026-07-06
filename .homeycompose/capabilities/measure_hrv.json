@@ -1,0 +1,17 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Heart rate variability",
+    "de": "Herzratenvariabilität"
+  },
+  "units": {
+    "en": "ms"
+  },
+  "decimals": 0,
+  "min": 0,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": true,
+  "icon": "/assets/capabilities/heart.svg"
+}

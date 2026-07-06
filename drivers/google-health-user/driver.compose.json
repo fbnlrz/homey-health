@@ -1,0 +1,55 @@
+{
+  "name": {
+    "en": "Google Health",
+    "de": "Google Health"
+  },
+  "class": "sensor",
+  "capabilities": [
+    "measure_steps",
+    "measure_distance",
+    "measure_calories",
+    "measure_active_calories",
+    "measure_floors",
+    "measure_active_zone_minutes",
+    "measure_heart_rate",
+    "measure_resting_heart_rate",
+    "measure_hrv",
+    "measure_vo2_max",
+    "measure_weight",
+    "measure_body_fat",
+    "measure_spo2",
+    "measure_respiratory_rate",
+    "measure_sleep_hours",
+    "measure_hydration"
+  ],
+  "platforms": ["local", "cloud"],
+  "connectivity": ["cloud"],
+  "images": {
+    "small": "/drivers/google-health-user/assets/images/small.png",
+    "large": "/drivers/google-health-user/assets/images/large.png",
+    "xlarge": "/drivers/google-health-user/assets/images/xlarge.png"
+  },
+  "pair": [
+    {
+      "id": "login_oauth2",
+      "template": "login_oauth2"
+    },
+    {
+      "id": "list_devices",
+      "template": "list_devices",
+      "navigation": {
+        "next": "add_devices"
+      }
+    },
+    {
+      "id": "add_devices",
+      "template": "add_devices"
+    }
+  ],
+  "repair": [
+    {
+      "id": "login_oauth2",
+      "template": "login_oauth2"
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+[
+  {
+    "type": "group",
+    "label": {
+      "en": "Synchronization",
+      "de": "Synchronisierung"
+    },
+    "children": [
+      {
+        "id": "poll_interval",
+        "type": "number",
+        "label": {
+          "en": "Update interval",
+          "de": "Aktualisierungsintervall"
+        },
+        "hint": {
+          "en": "How often Homey fetches new data from Google Health.",
+          "de": "Wie oft Homey neue Daten von Google Health abruft."
+        },
+        "value": 15,
+        "min": 5,
+        "max": 1440,
+        "units": {
+          "en": "min"
+        }
+      },
+      {
+        "id": "step_goal",
+        "type": "number",
+        "label": {
+          "en": "Daily step goal",
+          "de": "Tägliches Schrittziel"
+        },
+        "hint": {
+          "en": "Used by the 'Daily step goal reached' Flow trigger.",
+          "de": "Wird vom Flow-Auslöser 'Tägliches Schrittziel erreicht' verwendet."
+        },
+        "value": 10000,
+        "min": 1,
+        "max": 200000,
+        "units": {
+          "en": "steps",
+          "de": "Schritte"
+        }
+      }
+    ]
+  },
+  {
+    "type": "group",
+    "label": {
+      "en": "Data to synchronize",
+      "de": "Zu synchronisierende Daten"
+    },
+    "children": [
+      {
+        "id": "sync_activity",
+        "type": "checkbox",
+        "label": {
+          "en": "Activity (steps, distance, calories, active calories, floors, active zone minutes)",
+          "de": "Aktivität (Schritte, Distanz, Kalorien, Aktivkalorien, Etagen, Aktivzonen-Minuten)"
+        },
+        "value": true
+      },
+      {
+        "id": "sync_heart",
+        "type": "checkbox",
+        "label": {
+          "en": "Heart (heart rate, resting heart rate, HRV, VO2 max)",
+          "de": "Herz (Herzfrequenz, Ruhepuls, HRV, VO2 max)"
+        },
+        "value": true
+      },
+      {
+        "id": "sync_body",
+        "type": "checkbox",
+        "label": {
+          "en": "Body (weight, body fat, blood oxygen, respiratory rate)",
+          "de": "Körper (Gewicht, Körperfett, Blutsauerstoff, Atemfrequenz)"
+        },
+        "value": true
+      },
+      {
+        "id": "sync_sleep",
+        "type": "checkbox",
+        "label": {
+          "en": "Sleep",
+          "de": "Schlaf"
+        },
+        "value": true
+      },
+      {
+        "id": "sync_nutrition",
+        "type": "checkbox",
+        "label": {
+          "en": "Nutrition (water intake)",
+          "de": "Ernährung (Wasseraufnahme)"
+        },
+        "value": true
+      }
+    ]
+  }
+]

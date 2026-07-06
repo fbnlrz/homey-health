@@ -1,0 +1,18 @@
+{
+  "type": "number",
+  "title": {
+    "en": "VO2 max",
+    "de": "VO2 max"
+  },
+  "units": {
+    "en": "ml/kg/min"
+  },
+  "decimals": 1,
+  "min": 0,
+  "max": 100,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": true,
+  "icon": "/assets/capabilities/gauge.svg"
+}

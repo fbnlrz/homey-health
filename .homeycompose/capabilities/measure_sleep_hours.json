@@ -1,0 +1,18 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Sleep last night",
+    "de": "Schlaf letzte Nacht"
+  },
+  "units": {
+    "en": "h"
+  },
+  "decimals": 1,
+  "min": 0,
+  "max": 24,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": true,
+  "icon": "/assets/capabilities/sleep.svg"
+}

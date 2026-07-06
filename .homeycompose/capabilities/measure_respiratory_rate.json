@@ -1,0 +1,19 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Respiratory rate",
+    "de": "Atemfrequenz"
+  },
+  "units": {
+    "en": "brpm",
+    "de": "AZ/min"
+  },
+  "decimals": 1,
+  "min": 0,
+  "max": 60,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": true,
+  "icon": "/assets/capabilities/breath.svg"
+}

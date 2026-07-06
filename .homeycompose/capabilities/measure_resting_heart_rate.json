@@ -1,0 +1,18 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Resting heart rate",
+    "de": "Ruhepuls"
+  },
+  "units": {
+    "en": "bpm"
+  },
+  "decimals": 0,
+  "min": 0,
+  "max": 300,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": true,
+  "icon": "/assets/capabilities/heart.svg"
+}

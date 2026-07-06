@@ -1,0 +1,18 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Blood oxygen (SpO2)",
+    "de": "Blutsauerstoff (SpO2)"
+  },
+  "units": {
+    "en": "%"
+  },
+  "decimals": 0,
+  "min": 0,
+  "max": 100,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": true,
+  "icon": "/assets/capabilities/spo2.svg"
+}

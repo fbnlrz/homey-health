@@ -1,0 +1,18 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Water intake today",
+    "de": "Wasseraufnahme heute"
+  },
+  "units": {
+    "en": "ml"
+  },
+  "decimals": 0,
+  "min": 0,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": true,
+  "chartType": "stepLine",
+  "icon": "/assets/capabilities/spo2.svg"
+}
