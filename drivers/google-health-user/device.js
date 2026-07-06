@@ -23,6 +23,8 @@ class GoogleHealthDevice extends Homey.Device {
     this._typeFailures = {};
     this._failing = new Set();
     this._apiDisabledMessage = null;
+    // Diagnostic shape-logging: once per type per app run
+    this._diagLogged = new Set();
 
     this._createApi();
     this._startPolling();
@@ -169,6 +171,23 @@ class GoogleHealthDevice extends Homey.Device {
     }
   }
 
+  /**
+   * Diagnostic logging (once per type per app run): distinguishes "the API
+   * returned no data" from "data came back but the value field is unknown",
+   * and dumps the raw first point so unknown shapes can be mapped.
+   */
+  _diag(type, points, value) {
+    if (this._diagLogged.has(type)) return;
+    if (!points || !points.length) {
+      this._diagLogged.add(type);
+      this.log(`[diag] ${type}: API returned 0 points`);
+    } else if (value === null || value === undefined) {
+      this._diagLogged.add(type);
+      this.log(`[diag] ${type}: got ${points.length} point(s) but no recognized value field. Raw:`,
+        JSON.stringify(points[0]).slice(0, 800));
+    }
+  }
+
   /** One warning slot — compose it from the current problem sets. */
   async _refreshWarning() {
     let warning = null;
@@ -229,6 +248,7 @@ class GoogleHealthDevice extends Homey.Device {
         // fire the step goal) into the new day — the next poll re-fetches
         if (this._todayLocalDate() !== today) return;
         const value = points.length ? read(points[0]) : null;
+        this._diag(type, points, value);
         if (value !== null) await apply(value);
       });
     }
@@ -242,7 +262,6 @@ class GoogleHealthDevice extends Homey.Device {
         maxPages: 3,
       });
       if (this._todayLocalDate() !== today) return;
-      if (!points.length) return;
       let sum = 0;
       let found = false;
       for (const point of points) {
@@ -252,8 +271,8 @@ class GoogleHealthDevice extends Homey.Device {
           found = true;
         }
       }
+      this._diag('basal-energy-burned', points, found ? sum : null);
       if (found) await this._setNumber('measure_basal_calories', Math.round(sum));
-      else this.log('basal-energy-burned: unrecognized fields:', JSON.stringify(points[0]).slice(0, 600));
     });
 
     await this._syncExercise();
@@ -400,15 +419,15 @@ class GoogleHealthDevice extends Homey.Device {
 
     await this._guarded('daily-heart-rate-variability', async () => {
       const points = await this.api.list('daily-heart-rate-variability', { pageSize: 1 });
-      if (!points.length) return;
-      const ms = GoogleHealthApi.firstNumber(points[0], ['rmssd', 'rmssdMilliseconds', 'dailyRmssd']);
+      const ms = points.length ? GoogleHealthApi.firstNumber(points[0], ['rmssd', 'rmssdMilliseconds', 'dailyRmssd']) : null;
+      this._diag('daily-heart-rate-variability', points, ms);
       if (ms !== null) await this._setNumber('measure_hrv', Math.round(ms));
     });
 
     await this._guarded('daily-vo2-max', async () => {
       const points = await this.api.list('daily-vo2-max', { pageSize: 1 });
-      if (!points.length) return;
-      const vo2 = GoogleHealthApi.firstNumber(points[0], ['vo2Max', 'value']);
+      const vo2 = points.length ? GoogleHealthApi.firstNumber(points[0], ['vo2Max', 'value']) : null;
+      this._diag('daily-vo2-max', points, vo2);
       if (vo2 !== null) await this._setNumber('measure_vo2_max', Math.round(vo2 * 10) / 10);
     });
   }
@@ -487,8 +506,8 @@ class GoogleHealthDevice extends Homey.Device {
 
     await this._guarded('daily-respiratory-rate', async () => {
       const points = await this.api.list('daily-respiratory-rate', { pageSize: 1 });
-      if (!points.length) return;
-      const rate = GoogleHealthApi.firstNumber(points[0], ['breathsPerMinute', 'respiratoryRate', 'value']);
+      const rate = points.length ? GoogleHealthApi.firstNumber(points[0], ['breathsPerMinute', 'respiratoryRate', 'value']) : null;
+      this._diag('daily-respiratory-rate', points, rate);
       if (rate !== null) await this._setNumber('measure_respiratory_rate', Math.round(rate * 10) / 10);
     });
 
@@ -517,16 +536,15 @@ class GoogleHealthDevice extends Homey.Device {
 
     await this._guarded('core-body-temperature', async () => {
       const points = await this.api.list('core-body-temperature', { pageSize: 1 });
-      if (!points.length) return;
-      const celsius = GoogleHealthApi.deepNumber(points[0], ['temperatureCelsius', 'celsius', 'bodyTemperatureCelsius', 'value']);
-      if (celsius === null) this.log('core-body-temperature: unrecognized fields:', JSON.stringify(points[0]).slice(0, 300));
-      else await this._setNumber('measure_body_temperature', Math.round(celsius * 10) / 10);
+      const celsius = points.length ? GoogleHealthApi.deepNumber(points[0], ['temperatureCelsius', 'celsius', 'bodyTemperatureCelsius', 'value']) : null;
+      this._diag('core-body-temperature', points, celsius);
+      if (celsius !== null) await this._setNumber('measure_body_temperature', Math.round(celsius * 10) / 10);
     });
 
     await this._guarded('altitude', async () => {
       const points = await this.api.list('altitude', { pageSize: 1 });
-      if (!points.length) return;
-      const meters = GoogleHealthApi.deepNumber(points[0], ['altitudeMeters', 'meters', 'altitude', 'value']);
+      const meters = points.length ? GoogleHealthApi.deepNumber(points[0], ['altitudeMeters', 'meters', 'altitude', 'value']) : null;
+      this._diag('altitude', points, meters);
       if (meters !== null) await this._setNumber('measure_altitude', Math.round(meters));
     });
   }
@@ -580,36 +598,50 @@ class GoogleHealthDevice extends Homey.Device {
     await this._guarded('hydration-log', async () => {
       const points = await this.api.dailyRollup('hydration-log', today, today);
       if (this._todayLocalDate() !== today) return;
-      if (!points.length) return;
-      const ml = GoogleHealthApi.firstNumber(points[0], ['millilitersSum', 'milliliters']);
+      // The rollup may nest the volume (cf. nutrition-log's energy.kcalSum),
+      // so search known names through nested objects, then any primitive
+      let ml = points.length
+        ? GoogleHealthApi.deepNumber(points[0], ['millilitersSum', 'milliliters', 'volumeMilliliters', 'mlSum'])
+        : null;
+      if (ml === null && points.length) {
+        const liters = GoogleHealthApi.deepNumber(points[0], ['litersSum', 'liters']);
+        if (liters !== null) ml = liters * 1000;
+      }
+      if (ml === null && points.length) ml = GoogleHealthApi.firstNumber(points[0]);
+      this._diag('hydration-log', points, ml);
       if (ml !== null) await this._setNumber('measure_hydration', Math.round(ml));
     });
 
     await this._guarded('nutrition-log', async () => {
       const points = await this.api.dailyRollup('nutrition-log', today, today);
       if (this._todayLocalDate() !== today) return;
+
+      // Verified rollup shape: { energy: {kcalSum}, totalCarbohydrate: {gramsSum},
+      // totalFat: {gramsSum}, nutrients: [{nutrient: "PROTEIN", quantity: {gramsSum}}] }
+      const values = points.length ? (GoogleHealthApi.valueObject(points[0]) || {}) : {};
+      const grams = obj => {
+        const num = obj ? Number(obj.gramsSum !== undefined ? obj.gramsSum : obj.grams) : NaN;
+        return Number.isFinite(num) ? num : null;
+      };
+      const fromNutrients = name => {
+        if (!Array.isArray(values.nutrients)) return null;
+        const entry = values.nutrients.find(e => e && e.nutrient === name);
+        return entry ? grams(entry.quantity) : null;
+      };
+
+      const kcal = values.energy ? Number(values.energy.kcalSum) : NaN;
+      this._diag('nutrition-log', points, Number.isFinite(kcal) ? kcal : null);
       if (!points.length) return;
-      const point = points[0];
-      const nutrients = [
-        ['measure_calorie_intake', ['energyKcalSum', 'energyKcal', 'kcalSum', 'caloriesKcal', 'energy'], 1],
-        ['measure_carbs', ['carbohydratesGramsSum', 'carbohydratesGrams', 'carbsGramsSum', 'carbohydrates', 'carbs'], 1],
-        ['measure_protein', ['proteinGramsSum', 'proteinGrams', 'protein'], 1],
-        ['measure_fat', ['totalFatGramsSum', 'fatGramsSum', 'totalFatGrams', 'fatGrams', 'fat'], 1],
-      ];
-      let anyMissing = false;
-      for (const [capability, candidates, round] of nutrients) {
-        const value = GoogleHealthApi.deepNumber(point, candidates, 3);
-        if (value !== null) {
-          await this._setNumber(capability, Math.round(value / round) * round);
-        } else {
-          anyMissing = true;
-        }
-      }
-      if (anyMissing && !this._nutritionShapeLogged) {
-        // Log the raw rollup once per run so unknown macro field names can be mapped
-        this._nutritionShapeLogged = true;
-        this.log('nutrition-log rollup shape:', JSON.stringify(point).slice(0, 700));
-      }
+      if (Number.isFinite(kcal)) await this._setNumber('measure_calorie_intake', Math.round(kcal));
+
+      const carbs = grams(values.totalCarbohydrate);
+      if (carbs !== null) await this._setNumber('measure_carbs', Math.round(carbs));
+
+      const fat = grams(values.totalFat);
+      if (fat !== null) await this._setNumber('measure_fat', Math.round(fat));
+
+      const protein = fromNutrients('PROTEIN');
+      if (protein !== null) await this._setNumber('measure_protein', Math.round(protein));
     });
   }
 
@@ -747,7 +779,12 @@ class GoogleHealthDevice extends Homey.Device {
         return mm === null ? null : Math.round(mm / 10000) / 100;
       }],
       ['active_zone_minutes', 'active-zone-minutes', p => GoogleHealthApi.firstNumber(p, ['activeZoneMinutesSum', 'activeZoneMinutes', 'minutesSum'])],
-      ['calorie_intake', 'nutrition-log', p => GoogleHealthApi.deepNumber(p, ['energyKcalSum', 'energyKcal', 'kcalSum', 'caloriesKcal', 'energy'], 3)],
+      ['calorie_intake', 'nutrition-log', p => {
+        // Verified rollup shape: nutritionLog.energy.kcalSum
+        const values = GoogleHealthApi.valueObject(p) || {};
+        const kcal = values.energy ? Number(values.energy.kcalSum) : NaN;
+        return Number.isFinite(kcal) ? kcal : null;
+      }],
     ];
     for (const [key, type, read] of rollups) {
       await attempt(key, async () => {
