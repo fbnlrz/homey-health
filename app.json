@@ -1226,7 +1226,7 @@
         "de": "Health-Kachel",
         "nl": "Health-tegel"
       },
-      "height": 104,
+      "height": 128,
       "settings": [
         {
           "id": "device",
