@@ -18,6 +18,11 @@ class GoogleHealthDevice extends Homey.Device {
     // Data types the user's Google consent does not cover — detected via 403s,
     // skipped until the next repair/restart so every poll isn't error spam
     this._scopeDenied = new Set();
+    // Persistent (non-scope) failure tracking: after 3 consecutive failures a
+    // type is surfaced as a device warning instead of freezing silently
+    this._typeFailures = {};
+    this._failing = new Set();
+    this._apiDisabledMessage = null;
 
     this._createApi();
     this._startPolling();
@@ -59,7 +64,10 @@ class GoogleHealthDevice extends Homey.Device {
     if (this.api) this.api.onTokensUpdated = async () => {};
     await this.setStoreValue('tokens', tokens);
     this._scopeDenied.clear();
-    await this.unsetWarning().catch(this.error);
+    this._failing.clear();
+    this._typeFailures = {};
+    this._apiDisabledMessage = null;
+    await this._refreshWarning();
     this._createApi();
     await this.setAvailable().catch(this.error);
     this.sync().catch(this.error);
@@ -120,24 +128,56 @@ class GoogleHealthDevice extends Homey.Device {
 
   /**
    * Wrap one data-type call: skip types whose scope the user did not grant,
-   * and remember new scope denials instead of retrying them every poll.
+   * remember new scope denials instead of retrying them every poll, and
+   * surface types that keep failing as a device warning rather than letting
+   * their values freeze silently.
    */
   async _guarded(type, fn) {
     if (this._scopeDenied.has(type)) return;
     try {
       await fn();
+      this._typeFailures[type] = 0;
+      let recovered = this._failing.delete(type);
+      if (this._apiDisabledMessage) {
+        this._apiDisabledMessage = null;
+        recovered = true;
+      }
+      if (recovered) await this._refreshWarning();
     } catch (err) {
       if (err.code === 'missing_scope') {
         this._scopeDenied.add(type);
         this.error(`No OAuth scope for '${type}' — skipping until repair. Re-authorize and tick all permission checkboxes on the Google consent screen.`);
-        this.setWarning(this.homey.__('device.missing_scopes', {
-          types: [...this._scopeDenied].join(', '),
-        })).catch(this.error);
+        await this._refreshWarning();
+        return;
+      }
+      if (err.code === 'api_disabled') {
+        this._apiDisabledMessage = err.message;
+        this.error(`Google Health API disabled for this project: ${err.message}`);
+        await this._refreshWarning();
         return;
       }
       this._rethrowIfAuth(err);
+      this._typeFailures[type] = (this._typeFailures[type] || 0) + 1;
+      if (this._typeFailures[type] >= 3 && !this._failing.has(type)) {
+        this._failing.add(type);
+        await this._refreshWarning();
+      }
       this.error(`${type} sync failed:`, err.message);
     }
+  }
+
+  /** One warning slot — compose it from the current problem sets. */
+  async _refreshWarning() {
+    let warning = null;
+    if (this._scopeDenied.size) {
+      warning = this.homey.__('device.missing_scopes', { types: [...this._scopeDenied].join(', ') });
+    } else if (this._apiDisabledMessage) {
+      warning = this.homey.__('device.api_disabled');
+    } else if (this._failing.size) {
+      warning = this.homey.__('device.sync_failing', { types: [...this._failing].join(', ') });
+    }
+    if (warning) await this.setWarning(warning).catch(this.error);
+    else await this.unsetWarning().catch(this.error);
   }
 
   // ── Daily counters: restart at 0 when the local day changes ──────
@@ -179,15 +219,81 @@ class GoogleHealthDevice extends Homey.Device {
     for (const { type, read, apply } of rollups) {
       await this._guarded(type, async () => {
         const points = await this.api.dailyRollup(type, today, today);
+        // A sync straddling midnight must not write yesterday's totals (or
+        // fire the step goal) into the new day — the next poll re-fetches
+        if (this._todayLocalDate() !== today) return;
         const value = points.length ? read(points[0]) : null;
         if (value !== null) await apply(value);
       });
     }
+
+    await this._syncExercise();
+  }
+
+  // ── Exercise: workout_ended trigger + exercised_today bookkeeping ─
+
+  async _syncExercise() {
+    await this._guarded('exercise', async () => {
+      const sessions = await this.api.list('exercise', { pageSize: 3 });
+      if (!sessions.length) return;
+
+      const newestData = sessions[0].exercise || GoogleHealthApi.valueObject(sessions[0]) || {};
+      const newestEnd = newestData.interval ? newestData.interval.endTime : null;
+      if (newestEnd) {
+        await this.setStoreValue('last_exercise_end_date', this._localDateOf(newestEnd)).catch(this.error);
+      }
+
+      const seen = this.getStoreValue('seen_exercise_keys');
+      const keys = sessions.map(s => s.name).filter(Boolean);
+      if (!Array.isArray(seen)) {
+        // First run: record without triggering, so historic workouts don't
+        // flood the flows on install
+        await this.setStoreValue('seen_exercise_keys', keys.slice(0, 10)).catch(this.error);
+        return;
+      }
+
+      const fresh = sessions.filter(s => s.name && !seen.includes(s.name)).reverse();
+      for (const session of fresh) {
+        const data = session.exercise || GoogleHealthApi.valueObject(session) || {};
+        const interval = data.interval || {};
+        const metrics = data.metricsSummary || {};
+        let duration = 0;
+        if (interval.startTime && interval.endTime) {
+          duration = Math.round((new Date(interval.endTime) - new Date(interval.startTime)) / 60000);
+        }
+        this.driver.workoutEndedTrigger
+          .trigger(this, {
+            activity_type: GoogleHealthDevice.prettyActivityType(data.type),
+            duration_minutes: Number.isFinite(duration) ? duration : 0,
+            calories: Math.round(Number(metrics.caloriesKcal) || 0),
+            avg_heart_rate: Math.round(Number(metrics.averageHeartRateBeatsPerMinute) || 0),
+          })
+          .catch(this.error);
+      }
+      if (fresh.length) {
+        const merged = [...keys, ...seen].filter((k, i, a) => a.indexOf(k) === i).slice(0, 10);
+        await this.setStoreValue('seen_exercise_keys', merged).catch(this.error);
+      }
+    });
+  }
+
+  /** "STRENGTH_TRAINING" → "Strength Training" */
+  static prettyActivityType(raw) {
+    if (!raw || typeof raw !== 'string') return 'Workout';
+    return raw.toLowerCase().split(/[_\s]+/)
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
   }
 
   async _setSteps(today, steps) {
     const previous = this.getCapabilityValue('measure_steps');
     await this._setNumber('measure_steps', steps);
+
+    // Bookkeeping for the "steps increased recently" condition: only a real
+    // increase counts — the midnight N→0 reset must not refresh it
+    if (typeof previous === 'number' && steps > previous) {
+      await this.setStoreValue('last_steps_increase_at', Date.now()).catch(this.error);
+    }
 
     if (previous !== steps) {
       this.driver.stepsUpdatedTrigger
@@ -216,20 +322,51 @@ class GoogleHealthDevice extends Homey.Device {
       const sampleTime = values && values.sampleTime ? values.sampleTime.physicalTime : null;
       if (bpm === null) return;
       const changed = sampleTime && sampleTime !== this.getStoreValue('last_hr_time');
+      const previous = this.getCapabilityValue('measure_heart_rate');
       await this._setNumber('measure_heart_rate', bpm);
       if (changed) {
         await this.setStoreValue('last_hr_time', sampleTime).catch(this.error);
         this.driver.heartRateUpdatedTrigger
           .trigger(this, { heart_rate: bpm })
           .catch(this.error);
+        if (typeof previous === 'number' && previous !== bpm) {
+          this.driver.heartRateCrossedTrigger
+            .trigger(this, { heart_rate: bpm }, { previous, current: bpm })
+            .catch(this.error);
+        }
       }
     });
 
     await this._guarded('daily-resting-heart-rate', async () => {
-      const points = await this.api.list('daily-resting-heart-rate', { pageSize: 1 });
+      // pageSize 8 = today + up to 7 prior days from the same request,
+      // enough for the 7-day-average trigger without an extra call
+      const points = await this.api.list('daily-resting-heart-rate', { pageSize: 8 });
       if (!points.length) return;
       const bpm = GoogleHealthApi.numberField(points[0], 'beatsPerMinute');
-      if (bpm !== null) await this._setNumber('measure_resting_heart_rate', bpm);
+      if (bpm === null) return;
+      await this._setNumber('measure_resting_heart_rate', bpm);
+
+      const values = GoogleHealthApi.valueObject(points[0]) || {};
+      const date = values.date
+        ? `${values.date.year}-${String(values.date.month).padStart(2, '0')}-${String(values.date.day).padStart(2, '0')}`
+        : null;
+      if (!date || date === this.getStoreValue('last_rhr_date')) return;
+
+      const history = points.slice(1)
+        .map(p => GoogleHealthApi.numberField(p, 'beatsPerMinute'))
+        .filter(v => v !== null);
+      if (history.length >= 3) {
+        const baseline = history.reduce((sum, v) => sum + v, 0) / history.length;
+        const difference = Math.round((bpm - baseline) * 10) / 10;
+        this.driver.restingHrElevatedTrigger
+          .trigger(this, {
+            resting_hr: bpm,
+            baseline: Math.round(baseline * 10) / 10,
+            difference,
+          }, { difference })
+          .catch(this.error);
+      }
+      await this.setStoreValue('last_rhr_date', date).catch(this.error);
     });
 
     await this._guarded('daily-heart-rate-variability', async () => {
@@ -259,7 +396,12 @@ class GoogleHealthDevice extends Homey.Device {
       const values = GoogleHealthApi.valueObject(points[0]) || {};
       const key = points[0].name || (values.sampleTime || {}).physicalTime;
       const changed = key && key !== this.getStoreValue('last_weight_key');
-      await this._setNumber('measure_weight', kg);
+      // Only write on a new data point: Google materializes logWeight() writes
+      // asynchronously, so an unconditional write would revert a just-logged
+      // value back to the previous reading until the API catches up
+      if (changed || this.getCapabilityValue('measure_weight') === null) {
+        await this._setNumber('measure_weight', kg);
+      }
       if (changed) {
         await this.setStoreValue('last_weight_key', key).catch(this.error);
         this.driver.newWeightTrigger
@@ -295,6 +437,7 @@ class GoogleHealthDevice extends Homey.Device {
   async _syncNutrition(today) {
     await this._guarded('hydration-log', async () => {
       const points = await this.api.dailyRollup('hydration-log', today, today);
+      if (this._todayLocalDate() !== today) return;
       if (!points.length) return;
       const ml = GoogleHealthApi.firstNumber(points[0], ['millilitersSum', 'milliliters']);
       if (ml !== null) await this._setNumber('measure_hydration', Math.round(ml));
@@ -327,11 +470,38 @@ class GoogleHealthDevice extends Homey.Device {
       const changed = key && key !== this.getStoreValue('last_sleep_key');
 
       await this._setNumber('measure_sleep_hours', hours);
+
+      // Deep-sleep minutes for the deep_sleep_below condition (best effort —
+      // some sources report totals only, without stages)
+      const stages = sleep.summary.stagesSummary;
+      if (Array.isArray(stages)) {
+        const deep = stages.find(s => s && typeof s.type === 'string' && /deep/i.test(s.type));
+        if (deep) {
+          const deepMinutes = Number(deep.minutes);
+          if (Number.isFinite(deepMinutes)) {
+            await this.setStoreValue('last_deep_sleep_min', deepMinutes).catch(this.error);
+          }
+        }
+      }
+
       if (changed) {
         await this.setStoreValue('last_sleep_key', key).catch(this.error);
+        const tokens = { hours_asleep: hours, minutes_awake: minutesAwake };
         this.driver.sleepUpdatedTrigger
-          .trigger(this, { hours_asleep: hours, minutes_awake: minutesAwake })
+          .trigger(this, tokens)
           .catch(this.error);
+
+        // "You woke up": only for sessions that ended within the last 4 hours,
+        // so a backfilled historic sync doesn't fire morning routines at night
+        const endTime = sleep.interval ? sleep.interval.endTime : null;
+        if (endTime) {
+          const ageMs = Date.now() - new Date(endTime).getTime();
+          if (Number.isFinite(ageMs) && ageMs >= 0 && ageMs <= 4 * 60 * 60 * 1000) {
+            this.driver.wokeUpTrigger
+              .trigger(this, { ...tokens, wake_time: this._localTimeOf(endTime) })
+              .catch(this.error);
+          }
+        }
       }
     });
   }
@@ -353,6 +523,20 @@ class GoogleHealthDevice extends Homey.Device {
     await this._setNumber('measure_weight', Math.round(kg * 10) / 10);
   }
 
+  async logBodyFat(percentage) {
+    const offsetSeconds = this._utcOffsetSeconds();
+    await this.api.createDataPoint('body-fat', {
+      bodyFat: {
+        percentage,
+        sampleTime: {
+          physicalTime: new Date().toISOString().replace(/\.\d{3}Z$/, 'Z'),
+          utcOffset: `${offsetSeconds}s`,
+        },
+      },
+    });
+    await this._setNumber('measure_body_fat', Math.round(percentage * 10) / 10);
+  }
+
   // ── Helpers ───────────────────────────────────────────────────────
 
   async _setNumber(capability, value) {
@@ -368,11 +552,24 @@ class GoogleHealthDevice extends Homey.Device {
 
   /** Today's date (YYYY-MM-DD) in Homey's local timezone. */
   _todayLocalDate() {
+    return this._localDateOf(new Date());
+  }
+
+  /** Date (YYYY-MM-DD) of an instant in Homey's local timezone. */
+  _localDateOf(instant) {
     const timezone = this.homey.clock.getTimezone();
     const formatter = new Intl.DateTimeFormat('en-CA', {
       timeZone: timezone, year: 'numeric', month: '2-digit', day: '2-digit',
     });
-    return formatter.format(new Date());
+    return formatter.format(instant instanceof Date ? instant : new Date(instant));
+  }
+
+  /** Time (HH:mm) of an instant in Homey's local timezone. */
+  _localTimeOf(instant) {
+    const timezone = this.homey.clock.getTimezone();
+    return new Intl.DateTimeFormat('en-GB', {
+      timeZone: timezone, hour: '2-digit', minute: '2-digit', hour12: false,
+    }).format(instant instanceof Date ? instant : new Date(instant));
   }
 
   _utcOffsetSeconds() {

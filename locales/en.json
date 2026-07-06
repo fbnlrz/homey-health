@@ -6,7 +6,9 @@
   },
   "device": {
     "auth_lost": "Google login expired. Open the device and use 'Repair' to log in again.",
-    "missing_scopes": "No Google permission for: __types__. Use 'Repair' and tick ALL checkboxes on the Google consent screen."
+    "missing_scopes": "No Google permission for: __types__. Use 'Repair' and tick ALL checkboxes on the Google consent screen.",
+    "api_disabled": "The Google Health API is disabled for your Cloud project. Enable it in the Google Cloud Console.",
+    "sync_failing": "Repeated sync errors for: __types__. Check the app log for details."
   },
   "settings": {
     "title": "Google Health",

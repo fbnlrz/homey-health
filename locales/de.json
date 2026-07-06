@@ -6,7 +6,9 @@
   },
   "device": {
     "auth_lost": "Die Google-Anmeldung ist abgelaufen. Öffne das Gerät und nutze 'Reparieren', um dich erneut anzumelden.",
-    "missing_scopes": "Keine Google-Berechtigung für: __types__. Nutze 'Reparieren' und setze ALLE Häkchen auf dem Google-Zustimmungsbildschirm."
+    "missing_scopes": "Keine Google-Berechtigung für: __types__. Nutze 'Reparieren' und setze ALLE Häkchen auf dem Google-Zustimmungsbildschirm.",
+    "api_disabled": "Die Google Health API ist für dein Cloud-Projekt deaktiviert. Aktiviere sie in der Google Cloud Console.",
+    "sync_failing": "Wiederholte Sync-Fehler bei: __types__. Details stehen im App-Protokoll."
   },
   "settings": {
     "title": "Google Health",

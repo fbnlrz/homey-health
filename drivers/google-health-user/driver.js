@@ -15,6 +15,23 @@ class GoogleHealthDriver extends Homey.Driver {
     this.heartRateUpdatedTrigger = this.homey.flow.getDeviceTriggerCard('heart_rate_updated');
     this.newWeightTrigger = this.homey.flow.getDeviceTriggerCard('new_weight_measurement');
     this.sleepUpdatedTrigger = this.homey.flow.getDeviceTriggerCard('sleep_updated');
+    this.wokeUpTrigger = this.homey.flow.getDeviceTriggerCard('woke_up');
+    this.workoutEndedTrigger = this.homey.flow.getDeviceTriggerCard('workout_ended');
+
+    // Threshold-crossing trigger: state carries {previous, current}
+    this.heartRateCrossedTrigger = this.homey.flow.getDeviceTriggerCard('heart_rate_crossed')
+      .registerRunListener(async (args, state) => {
+        if (typeof state.previous !== 'number' || typeof state.current !== 'number') return false;
+        return args.direction === 'above'
+          ? state.previous <= args.bpm && state.current > args.bpm
+          : state.previous >= args.bpm && state.current < args.bpm;
+      });
+
+    // Fires once per new daily value; each flow filters by its own delta
+    this.restingHrElevatedTrigger = this.homey.flow.getDeviceTriggerCard('resting_hr_elevated')
+      .registerRunListener(async (args, state) => {
+        return typeof state.difference === 'number' && state.difference > args.delta;
+      });
 
     // Pick up rotated OAuth credentials without an app restart
     this._onAppSettingsChanged = key => {
@@ -48,7 +65,7 @@ class GoogleHealthDriver extends Homey.Driver {
    * credentials saved in the app settings mid-session are picked up.
    * onCode receives the freshly exchanged token set.
    */
-  _setupOAuthLogin(session, onCode) {
+  _setupOAuthLogin(session, onCode, { closeSessionOnSuccess = false } = {}) {
     let started = false;
 
     session.setHandler('showView', async viewId => {
@@ -78,7 +95,10 @@ class GoogleHealthDriver extends Homey.Driver {
             const tokens = await GoogleHealthApi.exchangeCode({ clientId, clientSecret, code });
             this.log('OAuth granted scopes:', tokens.scope || '(none reported)');
             await onCode({ tokens, clientId, clientSecret });
+            // 'authorized' must be emitted BEFORE closing the session, or the
+            // emit hits an already-destroyed PairSession (404)
             await session.emit('authorized');
+            if (closeSessionOnSuccess) await session.done().catch(this.error);
           } catch (err) {
             this.error('OAuth flow failed:', err);
             session.emit('error', err.message).catch(this.error);
@@ -166,8 +186,7 @@ class GoogleHealthDriver extends Homey.Driver {
       }
 
       await device.onTokensRepaired(tokens);
-      await session.done().catch(this.error);
-    });
+    }, { closeSessionOnSuccess: true });
   }
 
 }
