@@ -22,6 +22,8 @@
     "client_secret": "Client-secret",
     "enable_write": "Schrijven naar Google Health toestaan (nodig voor de Flow-kaart 'Gewicht registreren')",
     "enable_write_hint": "Voer na een wijziging 'Repareren' uit op bestaande apparaten (of koppel een nieuw apparaat) om de nieuwe toestemming toe te passen.",
+    "enable_cardiac": "Ecg- en onregelmatig-hartritme-gegevens inschakelen (extra Google-toestemmingen)",
+    "enable_cardiac_hint": "Voegt de ecg- en ritme-scopes toe voor de bijbehorende flow-kaarten. Voer na een wijziging 'Repareren' uit op het apparaat en vink de nieuwe toestemmingen aan op het Google-scherm.",
     "save": "Opslaan",
     "saved": "Opgeslagen!",
     "report": {
@@ -64,6 +66,9 @@
       "col_sleep": "Slaap u",
       "col_deep": "Diep min",
       "col_weight": "Gewicht kg",
+      "col_kcal_in": "Inname kcal",
+      "col_glucose": "Glucose",
+      "col_temp": "Temp °C",
       "avg_steps": "Ø Stappen/dag",
       "avg_sleep": "Ø Slaap",
       "avg_rhr": "Ø Rusthartslag",

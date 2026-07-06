@@ -17,6 +17,9 @@ class GoogleHealthDriver extends Homey.Driver {
     this.sleepUpdatedTrigger = this.homey.flow.getDeviceTriggerCard('sleep_updated');
     this.wokeUpTrigger = this.homey.flow.getDeviceTriggerCard('woke_up');
     this.workoutEndedTrigger = this.homey.flow.getDeviceTriggerCard('workout_ended');
+    this.newGlucoseTrigger = this.homey.flow.getDeviceTriggerCard('new_glucose_measurement');
+    this.ecgRecordedTrigger = this.homey.flow.getDeviceTriggerCard('ecg_recorded');
+    this.irregularRhythmTrigger = this.homey.flow.getDeviceTriggerCard('irregular_rhythm_detected');
 
     // Threshold-crossing trigger: state carries {previous, current}
     this.heartRateCrossedTrigger = this.homey.flow.getDeviceTriggerCard('heart_rate_crossed')
@@ -57,6 +60,7 @@ class GoogleHealthDriver extends Homey.Driver {
       clientId: this.homey.settings.get('client_id'),
       clientSecret: this.homey.settings.get('client_secret'),
       allowWrite: !!this.homey.settings.get('enable_write'),
+      allowCardiac: !!this.homey.settings.get('enable_cardiac'),
     };
   }
 
@@ -71,7 +75,7 @@ class GoogleHealthDriver extends Homey.Driver {
     session.setHandler('showView', async viewId => {
       if (viewId !== 'login_oauth2') return;
 
-      const { clientId, clientSecret, allowWrite } = this.getOAuthConfig();
+      const { clientId, clientSecret, allowWrite, allowCardiac } = this.getOAuthConfig();
       if (!clientId || !clientSecret) {
         await session.emit('error', this.homey.__('pair.missing_credentials'))
           .catch(this.error);
@@ -82,7 +86,7 @@ class GoogleHealthDriver extends Homey.Driver {
 
       const authUrl = GoogleHealthApi.buildAuthUrl({
         clientId,
-        scopes: GoogleHealthApi.scopes({ allowWrite }),
+        scopes: GoogleHealthApi.scopes({ allowWrite, allowCardiac }),
       });
 
       const oauth2Callback = await this.homey.cloud.createOAuth2Callback(authUrl);

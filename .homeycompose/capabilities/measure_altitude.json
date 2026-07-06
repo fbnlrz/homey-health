@@ -1,0 +1,11 @@
+{
+  "type": "number",
+  "title": { "en": "Altitude", "de": "Höhe", "nl": "Hoogte" },
+  "units": { "en": "m" },
+  "decimals": 0,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": true,
+  "icon": "/assets/capabilities/distance.svg"
+}

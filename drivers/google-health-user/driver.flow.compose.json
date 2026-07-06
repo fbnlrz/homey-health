@@ -345,6 +345,64 @@
           "example": 141
         }
       ]
+    },
+    {
+      "id": "new_glucose_measurement",
+      "title": {
+        "en": "A new blood glucose reading arrived",
+        "de": "Ein neuer Blutzuckerwert ist eingetroffen",
+        "nl": "Er is een nieuwe bloedglucosemeting binnengekomen"
+      },
+      "tokens": [
+        {
+          "name": "glucose",
+          "type": "number",
+          "title": {
+            "en": "Blood glucose (mg/dL)",
+            "de": "Blutzucker (mg/dL)",
+            "nl": "Bloedglucose (mg/dL)"
+          },
+          "example": 98
+        }
+      ]
+    },
+    {
+      "id": "ecg_recorded",
+      "title": {
+        "en": "A new ECG was recorded",
+        "de": "Ein neues EKG wurde aufgezeichnet",
+        "nl": "Er is een nieuw ecg opgenomen"
+      },
+      "hint": {
+        "en": "Requires ECG access — enable it in the app settings, then run 'Repair' on the device.",
+        "de": "Erfordert EKG-Zugriff — in den App-Einstellungen aktivieren und danach das Gerät 'Reparieren'.",
+        "nl": "Vereist ecg-toegang — schakel dit in bij de app-instellingen en voer daarna 'Repareren' uit op het apparaat."
+      },
+      "tokens": [
+        {
+          "name": "classification",
+          "type": "string",
+          "title": {
+            "en": "Result",
+            "de": "Ergebnis",
+            "nl": "Resultaat"
+          },
+          "example": "SINUS_RHYTHM"
+        }
+      ]
+    },
+    {
+      "id": "irregular_rhythm_detected",
+      "title": {
+        "en": "An irregular heart rhythm was detected",
+        "de": "Ein unregelmäßiger Herzrhythmus wurde erkannt",
+        "nl": "Er is een onregelmatig hartritme gedetecteerd"
+      },
+      "hint": {
+        "en": "Requires irregular-rhythm access — enable it in the app settings, then run 'Repair' on the device.",
+        "de": "Erfordert Zugriff auf Rhythmus-Warnungen — in den App-Einstellungen aktivieren und danach das Gerät 'Reparieren'.",
+        "nl": "Vereist toegang tot ritmemeldingen — schakel dit in bij de app-instellingen en voer daarna 'Repareren' uit op het apparaat."
+      }
     }
   ],
   "conditions": [

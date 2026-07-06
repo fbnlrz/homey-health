@@ -70,6 +70,14 @@
       </label>
       <p><small data-i18n="settings.enable_write_hint"></small></p>
     </div>
+
+    <div class="field row">
+      <label>
+        <input id="enable_cardiac" type="checkbox" />
+        <span data-i18n="settings.enable_cardiac"></span>
+      </label>
+      <p><small data-i18n="settings.enable_cardiac_hint"></small></p>
+    </div>
   </fieldset>
 
   <button id="save" class="hy-nostyle" data-i18n="settings.save">Save</button>
@@ -133,6 +141,7 @@
       var clientIdEl = document.getElementById('client_id');
       var clientSecretEl = document.getElementById('client_secret');
       var enableWriteEl = document.getElementById('enable_write');
+      var enableCardiacEl = document.getElementById('enable_cardiac');
       var saveEl = document.getElementById('save');
 
       Homey.get('client_id', function (err, value) {
@@ -144,12 +153,16 @@
       Homey.get('enable_write', function (err, value) {
         if (!err) enableWriteEl.checked = !!value;
       });
+      Homey.get('enable_cardiac', function (err, value) {
+        if (!err) enableCardiacEl.checked = !!value;
+      });
 
       saveEl.addEventListener('click', function () {
         var values = [
           ['client_id', clientIdEl.value.trim()],
           ['client_secret', clientSecretEl.value.trim()],
           ['enable_write', enableWriteEl.checked],
+          ['enable_cardiac', enableCardiacEl.checked],
         ];
         var index = 0;
         (function next(err) {
@@ -249,7 +262,11 @@
         + '@media print{.rpt{--surface:#fcfcfb;--page:#fff;--ink:#0b0b0b;--ink2:#52514e;'
         + '--grid:#e1e0d9;--border:rgba(11,11,11,.10);'
         + '--c-steps:#2a78d6;--c-rhr:#e34948;--c-sleep:#4a3aa7;--c-weight:#1baf7a;'
-        + 'max-width:none;padding:0}.rpt .noprint{display:none}.rpt .tablewrap{overflow:visible}}'
+        + 'max-width:none;padding:0}.rpt .noprint{display:none}.rpt .tablewrap{overflow:visible}'
+        + '.rpt table{font-size:8.5px;table-layout:fixed;width:100%}'
+        + '.rpt th{white-space:normal;word-break:break-word;vertical-align:bottom}'
+        + '.rpt td{white-space:nowrap;overflow:hidden}'
+        + '.rpt th,.rpt td{padding:2px 3px}@page{margin:10mm}}'
         + '.rpt h1{font-size:22px;font-weight:650;margin:0;display:flex;align-items:center;gap:10px}'
         + '.rpt h1 svg{flex:none}'
         + '.rpt .meta{font-size:12px;color:var(--ink2);margin-top:4px}'
@@ -354,15 +371,25 @@
         put(s.spo2_pct, 'spo2'); put(s.respiratory_rate, 'resp');
         put(s.sleep, 'sleep', 'hours'); put(s.sleep, 'deep', 'deepMinutes');
         put(s.weight_kg, 'weight');
+        put(s.calorie_intake, 'kcal_in');
+        put(s.glucose_mgdl, 'glucose');
+        put(s.body_temperature, 'temp');
 
         var dates = Object.keys(byDate).sort();
-        var cols = [
+        var allCols = [
           ['steps', T('col_steps'), 0], ['km', 'km', 2],
           ['azm', T('col_azm'), 0],
-          ['rhr', T('col_rhr'), 0], ['hrv', 'HRV ms', 0], ['spo2', 'SpO2 %', 0],
+          ['rhr', T('col_rhr'), 0], ['hrv', 'HRV', 0], ['spo2', 'SpO2', 0],
           ['resp', T('col_resp'), 1], ['sleep', T('col_sleep'), 1],
           ['deep', T('col_deep'), 0], ['weight', T('col_weight'), 1],
+          ['kcal_in', T('col_kcal_in'), 0], ['glucose', T('col_glucose'), 0],
+          ['temp', T('col_temp'), 1],
         ];
+        // Only keep columns that actually have data, so the table never gets
+        // wider than the metrics the user really has (keeps it printable)
+        var cols = allCols.filter(function (c) {
+          return dates.some(function (d) { return typeof byDate[d][c[0]] === 'number'; });
+        });
 
         var rows = dates.map(function (d) {
           return '<tr><td>' + d + '</td>' + cols.map(function (c) {

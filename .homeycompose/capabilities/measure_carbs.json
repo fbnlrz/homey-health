@@ -1,0 +1,13 @@
+{
+  "type": "number",
+  "title": { "en": "Carbohydrates today", "de": "Kohlenhydrate heute", "nl": "Koolhydraten vandaag" },
+  "units": { "en": "g" },
+  "decimals": 0,
+  "min": 0,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": true,
+  "chartType": "stepLine",
+  "icon": "/assets/capabilities/calories.svg"
+}

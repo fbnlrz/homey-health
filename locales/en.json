@@ -22,6 +22,8 @@
     "client_secret": "Client Secret",
     "enable_write": "Allow writing to Google Health (needed for the 'Log weight' Flow card)",
     "enable_write_hint": "After changing this, run 'Repair' on existing devices (or pair a new one) to apply the new permission.",
+    "enable_cardiac": "Enable ECG and irregular heart rhythm data (extra Google permissions)",
+    "enable_cardiac_hint": "Adds the ECG and irregular-rhythm scopes for the matching flow cards. After changing this, run 'Repair' on the device and tick the new permissions on Google's screen.",
     "save": "Save",
     "saved": "Saved!",
     "report": {
@@ -64,6 +66,9 @@
       "col_sleep": "Sleep h",
       "col_deep": "Deep min",
       "col_weight": "Weight kg",
+      "col_kcal_in": "Intake kcal",
+      "col_glucose": "Glucose",
+      "col_temp": "Temp °C",
       "avg_steps": "Ø Steps/day",
       "avg_sleep": "Ø Sleep",
       "avg_rhr": "Ø Resting HR",

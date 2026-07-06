@@ -1,0 +1,13 @@
+{
+  "type": "number",
+  "title": { "en": "Protein today", "de": "Eiweiß heute", "nl": "Eiwit vandaag" },
+  "units": { "en": "g" },
+  "decimals": 0,
+  "min": 0,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": true,
+  "chartType": "stepLine",
+  "icon": "/assets/capabilities/calories.svg"
+}

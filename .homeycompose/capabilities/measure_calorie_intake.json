@@ -1,0 +1,13 @@
+{
+  "type": "number",
+  "title": { "en": "Calorie intake today", "de": "Kalorienaufnahme heute", "nl": "Calorie-inname vandaag" },
+  "units": { "en": "kcal" },
+  "decimals": 0,
+  "min": 0,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": true,
+  "chartType": "stepLine",
+  "icon": "/assets/capabilities/calories.svg"
+}

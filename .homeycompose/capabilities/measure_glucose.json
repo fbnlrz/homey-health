@@ -1,0 +1,13 @@
+{
+  "type": "number",
+  "title": { "en": "Blood glucose", "de": "Blutzucker", "nl": "Bloedglucose" },
+  "units": { "en": "mg/dL" },
+  "decimals": 0,
+  "min": 0,
+  "max": 1000,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": true,
+  "icon": "/assets/capabilities/spo2.svg"
+}
