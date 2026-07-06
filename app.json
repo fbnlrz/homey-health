@@ -5,8 +5,7 @@
   "compatibility": ">=12.9.0",
   "sdk": 3,
   "platforms": [
-    "local",
-    "cloud"
+    "local"
   ],
   "name": {
     "en": "Health Sync for Google Health",
@@ -729,8 +728,7 @@
         "measure_hydration"
       ],
       "platforms": [
-        "local",
-        "cloud"
+        "local"
       ],
       "connectivity": [
         "cloud"
