@@ -1222,11 +1222,11 @@
     },
     "health-tile": {
       "name": {
-        "en": "Health tile",
-        "de": "Health-Kachel",
-        "nl": "Health-tegel"
+        "en": "Health tiles",
+        "de": "Health-Kacheln",
+        "nl": "Health-tegels"
       },
-      "height": "100%",
+      "height": 220,
       "settings": [
         {
           "id": "device",
@@ -1238,282 +1238,270 @@
           }
         },
         {
-          "id": "metric",
-          "type": "dropdown",
+          "id": "show_steps",
+          "type": "checkbox",
           "title": {
-            "en": "Value",
-            "de": "Wert",
-            "nl": "Waarde"
+            "en": "Steps today",
+            "de": "Schritte heute",
+            "nl": "Stappen vandaag"
           },
-          "value": "measure_steps",
-          "values": [
-            {
-              "id": "measure_steps",
-              "title": {
-                "en": "Steps today",
-                "de": "Schritte heute",
-                "nl": "Stappen vandaag"
-              }
-            },
-            {
-              "id": "measure_distance",
-              "title": {
-                "en": "Distance today",
-                "de": "Distanz heute",
-                "nl": "Afstand vandaag"
-              }
-            },
-            {
-              "id": "measure_calories",
-              "title": {
-                "en": "Calories today",
-                "de": "Kalorien heute",
-                "nl": "Calorieën vandaag"
-              }
-            },
-            {
-              "id": "measure_active_calories",
-              "title": {
-                "en": "Active calories today",
-                "de": "Aktivkalorien heute",
-                "nl": "Actieve calorieën vandaag"
-              }
-            },
-            {
-              "id": "measure_basal_calories",
-              "title": {
-                "en": "Basal calories today",
-                "de": "Grundumsatz heute",
-                "nl": "Basaal calorieën vandaag"
-              }
-            },
-            {
-              "id": "measure_floors",
-              "title": {
-                "en": "Floors today",
-                "de": "Etagen heute",
-                "nl": "Verdiepingen vandaag"
-              }
-            },
-            {
-              "id": "measure_active_zone_minutes",
-              "title": {
-                "en": "Active zone minutes today",
-                "de": "Aktivzonen-Minuten heute",
-                "nl": "Actieve zone-minuten vandaag"
-              }
-            },
-            {
-              "id": "measure_sedentary_minutes",
-              "title": {
-                "en": "Sedentary minutes today",
-                "de": "Sitzende Minuten heute",
-                "nl": "Zittende minuten vandaag"
-              }
-            },
-            {
-              "id": "measure_heart_rate",
-              "title": {
-                "en": "Heart rate",
-                "de": "Herzfrequenz",
-                "nl": "Hartslag"
-              }
-            },
-            {
-              "id": "measure_resting_heart_rate",
-              "title": {
-                "en": "Resting heart rate",
-                "de": "Ruhepuls",
-                "nl": "Rusthartslag"
-              }
-            },
-            {
-              "id": "measure_hrv",
-              "title": {
-                "en": "Heart rate variability",
-                "de": "Herzratenvariabilität",
-                "nl": "Hartslagvariabiliteit"
-              }
-            },
-            {
-              "id": "measure_vo2_max",
-              "title": {
-                "en": "VO2 max",
-                "de": "VO2 max",
-                "nl": "VO2 max"
-              }
-            },
-            {
-              "id": "measure_weight",
-              "title": {
-                "en": "Weight",
-                "de": "Gewicht",
-                "nl": "Gewicht"
-              }
-            },
-            {
-              "id": "measure_body_fat",
-              "title": {
-                "en": "Body fat",
-                "de": "Körperfett",
-                "nl": "Lichaamsvet"
-              }
-            },
-            {
-              "id": "measure_spo2",
-              "title": {
-                "en": "Blood oxygen (SpO2)",
-                "de": "Blutsauerstoff (SpO2)",
-                "nl": "Zuurstofsaturatie (SpO2)"
-              }
-            },
-            {
-              "id": "measure_respiratory_rate",
-              "title": {
-                "en": "Respiratory rate",
-                "de": "Atemfrequenz",
-                "nl": "Ademhalingsfrequentie"
-              }
-            },
-            {
-              "id": "measure_body_temperature",
-              "title": {
-                "en": "Body temperature",
-                "de": "Körpertemperatur",
-                "nl": "Lichaamstemperatuur"
-              }
-            },
-            {
-              "id": "measure_skin_temp_variation",
-              "title": {
-                "en": "Skin temp. variation",
-                "de": "Hauttemp.-Abweichung",
-                "nl": "Huidtemp.-afwijking"
-              }
-            },
-            {
-              "id": "measure_altitude",
-              "title": {
-                "en": "Altitude",
-                "de": "Höhe",
-                "nl": "Hoogte"
-              }
-            },
-            {
-              "id": "measure_sleep_hours",
-              "title": {
-                "en": "Sleep last night",
-                "de": "Schlaf letzte Nacht",
-                "nl": "Slaap afgelopen nacht"
-              }
-            },
-            {
-              "id": "measure_hydration",
-              "title": {
-                "en": "Water intake today",
-                "de": "Wasseraufnahme heute",
-                "nl": "Waterinname vandaag"
-              }
-            },
-            {
-              "id": "measure_calorie_intake",
-              "title": {
-                "en": "Calorie intake today",
-                "de": "Kalorienaufnahme heute",
-                "nl": "Calorie-inname vandaag"
-              }
-            },
-            {
-              "id": "measure_carbs",
-              "title": {
-                "en": "Carbohydrates today",
-                "de": "Kohlenhydrate heute",
-                "nl": "Koolhydraten vandaag"
-              }
-            },
-            {
-              "id": "measure_protein",
-              "title": {
-                "en": "Protein today",
-                "de": "Eiweiß heute",
-                "nl": "Eiwit vandaag"
-              }
-            },
-            {
-              "id": "measure_fat",
-              "title": {
-                "en": "Fat today",
-                "de": "Fett heute",
-                "nl": "Vet vandaag"
-              }
-            },
-            {
-              "id": "measure_glucose",
-              "title": {
-                "en": "Blood glucose",
-                "de": "Blutzucker",
-                "nl": "Bloedglucose"
-              }
-            }
-          ]
+          "value": true
         },
         {
-          "id": "accent",
-          "type": "dropdown",
+          "id": "show_distance",
+          "type": "checkbox",
           "title": {
-            "en": "Accent",
-            "de": "Akzentfarbe",
-            "nl": "Accentkleur"
+            "en": "Distance today",
+            "de": "Distanz heute",
+            "nl": "Afstand vandaag"
           },
-          "value": "brand",
-          "values": [
-            {
-              "id": "brand",
-              "title": {
-                "en": "Health red",
-                "de": "Health-Rot",
-                "nl": "Health-rood"
-              }
-            },
-            {
-              "id": "blue",
-              "title": {
-                "en": "Blue",
-                "de": "Blau",
-                "nl": "Blauw"
-              }
-            },
-            {
-              "id": "green",
-              "title": {
-                "en": "Green",
-                "de": "Grün",
-                "nl": "Groen"
-              }
-            },
-            {
-              "id": "orange",
-              "title": {
-                "en": "Orange",
-                "de": "Orange",
-                "nl": "Oranje"
-              }
-            },
-            {
-              "id": "mono",
-              "title": {
-                "en": "Neutral",
-                "de": "Neutral",
-                "nl": "Neutraal"
-              }
-            }
-          ]
+          "value": false
+        },
+        {
+          "id": "show_calories",
+          "type": "checkbox",
+          "title": {
+            "en": "Calories today",
+            "de": "Kalorien heute",
+            "nl": "Calorieën vandaag"
+          },
+          "value": false
+        },
+        {
+          "id": "show_active_calories",
+          "type": "checkbox",
+          "title": {
+            "en": "Active calories today",
+            "de": "Aktivkalorien heute",
+            "nl": "Actieve calorieën vandaag"
+          },
+          "value": true
+        },
+        {
+          "id": "show_basal_calories",
+          "type": "checkbox",
+          "title": {
+            "en": "Basal calories today",
+            "de": "Grundumsatz heute",
+            "nl": "Basaal calorieën vandaag"
+          },
+          "value": false
+        },
+        {
+          "id": "show_floors",
+          "type": "checkbox",
+          "title": {
+            "en": "Floors today",
+            "de": "Etagen heute",
+            "nl": "Verdiepingen vandaag"
+          },
+          "value": false
+        },
+        {
+          "id": "show_active_zone_minutes",
+          "type": "checkbox",
+          "title": {
+            "en": "Active zone minutes today",
+            "de": "Aktivzonen-Minuten heute",
+            "nl": "Actieve zone-minuten vandaag"
+          },
+          "value": false
+        },
+        {
+          "id": "show_sedentary_minutes",
+          "type": "checkbox",
+          "title": {
+            "en": "Sedentary minutes today",
+            "de": "Sitzende Minuten heute",
+            "nl": "Zittende minuten vandaag"
+          },
+          "value": false
+        },
+        {
+          "id": "show_heart_rate",
+          "type": "checkbox",
+          "title": {
+            "en": "Heart rate",
+            "de": "Herzfrequenz",
+            "nl": "Hartslag"
+          },
+          "value": false
+        },
+        {
+          "id": "show_resting_heart_rate",
+          "type": "checkbox",
+          "title": {
+            "en": "Resting heart rate",
+            "de": "Ruhepuls",
+            "nl": "Rusthartslag"
+          },
+          "value": true
+        },
+        {
+          "id": "show_hrv",
+          "type": "checkbox",
+          "title": {
+            "en": "Heart rate variability",
+            "de": "Herzratenvariabilität",
+            "nl": "Hartslagvariabiliteit"
+          },
+          "value": false
+        },
+        {
+          "id": "show_vo2_max",
+          "type": "checkbox",
+          "title": {
+            "en": "VO2 max",
+            "de": "VO2 max",
+            "nl": "VO2 max"
+          },
+          "value": false
+        },
+        {
+          "id": "show_weight",
+          "type": "checkbox",
+          "title": {
+            "en": "Weight",
+            "de": "Gewicht",
+            "nl": "Gewicht"
+          },
+          "value": true
+        },
+        {
+          "id": "show_body_fat",
+          "type": "checkbox",
+          "title": {
+            "en": "Body fat",
+            "de": "Körperfett",
+            "nl": "Lichaamsvet"
+          },
+          "value": false
+        },
+        {
+          "id": "show_spo2",
+          "type": "checkbox",
+          "title": {
+            "en": "Blood oxygen (SpO2)",
+            "de": "Blutsauerstoff (SpO2)",
+            "nl": "Zuurstofsaturatie (SpO2)"
+          },
+          "value": false
+        },
+        {
+          "id": "show_respiratory_rate",
+          "type": "checkbox",
+          "title": {
+            "en": "Respiratory rate",
+            "de": "Atemfrequenz",
+            "nl": "Ademhalingsfrequentie"
+          },
+          "value": false
+        },
+        {
+          "id": "show_body_temperature",
+          "type": "checkbox",
+          "title": {
+            "en": "Body temperature",
+            "de": "Körpertemperatur",
+            "nl": "Lichaamstemperatuur"
+          },
+          "value": false
+        },
+        {
+          "id": "show_skin_temp_variation",
+          "type": "checkbox",
+          "title": {
+            "en": "Skin temp. variation",
+            "de": "Hauttemp.-Abweichung",
+            "nl": "Huidtemp.-afwijking"
+          },
+          "value": false
+        },
+        {
+          "id": "show_altitude",
+          "type": "checkbox",
+          "title": {
+            "en": "Altitude",
+            "de": "Höhe",
+            "nl": "Hoogte"
+          },
+          "value": false
+        },
+        {
+          "id": "show_sleep_hours",
+          "type": "checkbox",
+          "title": {
+            "en": "Sleep last night",
+            "de": "Schlaf letzte Nacht",
+            "nl": "Slaap afgelopen nacht"
+          },
+          "value": true
+        },
+        {
+          "id": "show_hydration",
+          "type": "checkbox",
+          "title": {
+            "en": "Water intake today",
+            "de": "Wasseraufnahme heute",
+            "nl": "Waterinname vandaag"
+          },
+          "value": true
+        },
+        {
+          "id": "show_calorie_intake",
+          "type": "checkbox",
+          "title": {
+            "en": "Calorie intake today",
+            "de": "Kalorienaufnahme heute",
+            "nl": "Calorie-inname vandaag"
+          },
+          "value": false
+        },
+        {
+          "id": "show_carbs",
+          "type": "checkbox",
+          "title": {
+            "en": "Carbohydrates today",
+            "de": "Kohlenhydrate heute",
+            "nl": "Koolhydraten vandaag"
+          },
+          "value": false
+        },
+        {
+          "id": "show_protein",
+          "type": "checkbox",
+          "title": {
+            "en": "Protein today",
+            "de": "Eiweiß heute",
+            "nl": "Eiwit vandaag"
+          },
+          "value": false
+        },
+        {
+          "id": "show_fat",
+          "type": "checkbox",
+          "title": {
+            "en": "Fat today",
+            "de": "Fett heute",
+            "nl": "Vet vandaag"
+          },
+          "value": false
+        },
+        {
+          "id": "show_glucose",
+          "type": "checkbox",
+          "title": {
+            "en": "Blood glucose",
+            "de": "Blutzucker",
+            "nl": "Bloedglucose"
+          },
+          "value": false
         }
       ],
       "api": {
-        "getMetric": {
+        "getTiles": {
           "method": "GET",
-          "path": "/metric"
+          "path": "/tiles"
         }
       },
       "id": "health-tile"

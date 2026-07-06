@@ -4,75 +4,63 @@
   <meta charset="utf-8" />
   <style>
     html, body { margin: 0; padding: 0; height: 100%; }
-    body {
-      font-family: var(--homey-font);
-      color: var(--homey-text-color);
+    body { font-family: var(--homey-font); color: var(--homey-text-color); }
+    .wrap {
+      height: 100%;
+      box-sizing: border-box;
+      padding: var(--homey-su-3);
+      overflow-y: auto;
     }
-    /* Square widget (aspect ratio from compose "height":"100%"). Sizes scale
-       with the tile (vmin) but are clamped, so it looks right whether the user
-       keeps it large or drags it down to a small square. */
-    .tile {
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
+      gap: var(--homey-su-2);
+    }
+    .cell {
+      aspect-ratio: 1;
+      border-radius: var(--homey-border-radius-default);
+      background: color-mix(in srgb, var(--homey-text-color) 6%, transparent);
+      border: 1px solid var(--homey-line-color);
+      padding: 8px;
+      box-sizing: border-box;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      height: 100%;
-      box-sizing: border-box;
-      padding: clamp(10px, 7vmin, 22px);
-      gap: var(--homey-su-2);
-    }
-    .icon {
-      flex: none;
-      width: clamp(30px, 22vmin, 60px);
-      height: clamp(30px, 22vmin, 60px);
-      border-radius: var(--homey-border-radius-default);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--accent, var(--homey-text-color));
-      background: color-mix(in srgb, var(--accent, var(--homey-text-color)) 15%, transparent);
-    }
-    .icon svg { width: 58%; height: 58%; display: block; }
-    .foot { min-width: 0; }
-    .value {
-      display: flex;
-      align-items: baseline;
-      gap: 3px;
-    }
-    .value .v {
-      font-size: clamp(20px, 15vmin, 44px);
-      line-height: 1.05;
-      font-weight: var(--homey-font-weight-bold);
-      white-space: nowrap;
-    }
-    .value .u {
-      font-size: clamp(11px, 6vmin, 18px);
-      color: var(--homey-text-color-light);
-      white-space: nowrap;
-    }
-    .label {
-      margin-top: 3px;
-      font-size: clamp(11px, 5.5vmin, 15px);
-      line-height: 1.2;
-      color: var(--homey-text-color-light);
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
       overflow: hidden;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      cursor: grab;
+    }
+    .cell.drag { opacity: 0.45; cursor: grabbing; }
+    .cell .ic {
+      width: 24px; height: 24px; flex: none;
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--c, var(--homey-text-color));
+      background: color-mix(in srgb, var(--c, var(--homey-text-color)) 16%, transparent);
+    }
+    .cell .ic svg { width: 15px; height: 15px; display: block; }
+    .cell .v {
+      font-size: var(--homey-font-size-default);
+      font-weight: var(--homey-font-weight-bold);
+      line-height: 1.05;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .cell .v .u { font-size: 11px; font-weight: var(--homey-font-weight-regular); color: var(--homey-text-color-light); }
+    .cell .lab {
+      font-size: 10px; line-height: 1.1; color: var(--homey-text-color-light);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     .muted {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      padding: var(--homey-su-3);
-      color: var(--homey-text-color-light);
-      font-size: var(--homey-font-size-small);
-      text-align: center;
+      display: flex; align-items: center; justify-content: center;
+      height: 100%; padding: var(--homey-su-3); text-align: center;
+      color: var(--homey-text-color-light); font-size: var(--homey-font-size-small);
     }
   </style>
 </head>
 <body>
-  <div id="root"></div>
+  <div id="root"><div class="wrap"><div id="grid" class="grid"></div></div></div>
   <script type="text/javascript">
     var PATHS = {
       ecg: '<polyline points="1,12 7,12 9,7 11,17 12.5,9 14,12 23,12"/>',
@@ -108,58 +96,135 @@
       measure_altitude: 'mountain', measure_sleep_hours: 'moon', measure_hydration: 'waves',
       measure_carbs: 'wheat', measure_protein: 'molecule', measure_fat: 'droplet',
     };
-    var ACCENTS = {
-      brand: '#DE3226',
-      blue: 'var(--homey-color-blue)',
-      green: 'var(--homey-color-green)',
-      orange: 'var(--homey-color-orange)',
-      mono: 'var(--homey-text-color)',
+    var RED = 'var(--homey-color-red)', BLUE = 'var(--homey-color-blue)',
+      GREEN = 'var(--homey-color-green)', ORANGE = 'var(--homey-color-orange)', MONO = 'var(--homey-text-color)';
+    var COLOR_FOR = {
+      measure_heart_rate: RED, measure_resting_heart_rate: RED, measure_hrv: RED,
+      measure_calories: ORANGE, measure_active_calories: ORANGE, measure_basal_calories: ORANGE, measure_calorie_intake: ORANGE,
+      measure_carbs: ORANGE, measure_protein: ORANGE, measure_fat: ORANGE,
+      measure_steps: GREEN, measure_distance: GREEN, measure_floors: GREEN, measure_active_zone_minutes: GREEN,
+      measure_hydration: BLUE, measure_spo2: BLUE, measure_glucose: BLUE, measure_respiratory_rate: BLUE,
+      measure_sleep_hours: MONO, measure_weight: MONO, measure_body_fat: MONO, measure_vo2_max: MONO,
+      measure_body_temperature: MONO, measure_skin_temp_variation: MONO, measure_altitude: MONO, measure_sedentary_minutes: MONO,
     };
+    // Stable default order (matches the settings checkbox order)
+    var ALL = [
+      'measure_steps', 'measure_distance', 'measure_calories', 'measure_active_calories', 'measure_basal_calories',
+      'measure_floors', 'measure_active_zone_minutes', 'measure_sedentary_minutes', 'measure_heart_rate',
+      'measure_resting_heart_rate', 'measure_hrv', 'measure_vo2_max', 'measure_weight', 'measure_body_fat',
+      'measure_spo2', 'measure_respiratory_rate', 'measure_body_temperature', 'measure_skin_temp_variation',
+      'measure_altitude', 'measure_sleep_hours', 'measure_hydration', 'measure_calorie_intake', 'measure_carbs',
+      'measure_protein', 'measure_fat', 'measure_glucose',
+    ];
+    var DEFAULT_ON = {
+      measure_steps: 1, measure_active_calories: 1, measure_resting_heart_rate: 1,
+      measure_sleep_hours: 1, measure_hydration: 1, measure_weight: 1,
+    };
+    var ORDER_KEY = 'ghhealthtiles.order.v1';
 
-    function svgFor(metric) {
-      var inner = PATHS[ICON_FOR[metric] || 'dot'] || PATHS.dot;
-      return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" '
-        + 'stroke-linecap="round" stroke-linejoin="round">' + inner + '</svg>';
+    function svgFor(m) {
+      var inner = PATHS[ICON_FOR[m] || 'dot'] || PATHS.dot;
+      return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + inner + '</svg>';
     }
     function fmt(v, d) {
       if (v === null || v === undefined) return '–';
       try { return Number(v).toLocaleString(undefined, { minimumFractionDigits: d, maximumFractionDigits: d }); }
       catch (e) { return String(v); }
     }
-    // Keep short symbol units (bpm, kcal, ml, kg, h, %, °C); drop wordy ones
-    // (steps, Schritte) that just repeat the label.
     function unit(u) { return (u && u.length <= 4) ? u : ''; }
 
     function onHomeyReady(Homey) {
       var root = document.getElementById('root');
+      var gridEl = document.getElementById('grid');
       var s = Homey.getSettings() || {};
       var dev = s.device;
       var deviceId = dev && typeof dev === 'object' ? dev.id : (typeof dev === 'string' ? dev : '');
-      var metric = s.metric || 'measure_steps';
-      var accent = ACCENTS[s.accent] || ACCENTS.brand;
 
-      function renderMuted(text) { root.innerHTML = '<div class="muted">' + text + '</div>'; }
+      function on(id) {
+        var k = 'show_' + id.replace('measure_', '');
+        return s.hasOwnProperty(k) ? s[k] !== false : !!DEFAULT_ON[id];
+      }
+      var active = ALL.filter(on);
 
-      function render(data) {
-        if (!data || !data.paired) {
-          renderMuted('—');
-          return;
-        }
-        root.innerHTML = '<div class="tile" style="--accent:' + accent + '">'
-          + '<div class="icon">' + svgFor(data.id) + '</div>'
-          + '<div class="foot">'
-          + '<div class="value"><span class="v">' + fmt(data.value, data.decimals) + '</span>'
-          + (unit(data.units) ? '<span class="u">' + unit(data.units) + '</span>' : '') + '</div>'
-          + '<div class="label">' + (data.title || '') + '</div>'
-          + '</div></div>';
+      function loadOrder() {
+        try { var a = JSON.parse(localStorage.getItem(ORDER_KEY)); return Array.isArray(a) ? a : []; }
+        catch (e) { return []; }
+      }
+      function saveOrder() { try { localStorage.setItem(ORDER_KEY, JSON.stringify(order)); } catch (e) {} }
+      var saved = loadOrder();
+      // saved order first (only still-active ids), then any newly enabled metric
+      var order = saved.filter(function (id) { return active.indexOf(id) > -1; })
+        .concat(active.filter(function (id) { return saved.indexOf(id) < 0; }));
+
+      var dataMap = {};
+      function renderGrid() {
+        if (!order.length) { gridEl.innerHTML = ''; return; }
+        gridEl.innerHTML = order.map(function (id) {
+          var m = dataMap[id] || {};
+          return '<div class="cell" data-id="' + id + '">'
+            + '<div class="ic" style="--c:' + (COLOR_FOR[id] || MONO) + '">' + svgFor(id) + '</div>'
+            + '<div><div class="v">' + fmt(m.value, m.decimals || 0)
+            + (unit(m.units) ? ' <span class="u">' + unit(m.units) + '</span>' : '') + '</div>'
+            + '<div class="lab">' + (m.title || '') + '</div></div></div>';
+        }).join('');
       }
 
+      // ── touch/mouse drag reorder (pointer events) ──────────────────
+      var dragId = null, moved = false, sx = 0, sy = 0;
+      function markDrag() {
+        var cells = gridEl.querySelectorAll('.cell');
+        for (var i = 0; i < cells.length; i++) {
+          cells[i].classList.toggle('drag', cells[i].getAttribute('data-id') === dragId);
+        }
+      }
+      function onMove(e) {
+        if (!dragId) return;
+        if (!moved) {
+          if (Math.abs(e.clientX - sx) + Math.abs(e.clientY - sy) < 6) return;
+          moved = true; markDrag();
+        }
+        e.preventDefault();
+        var el = document.elementFromPoint(e.clientX, e.clientY);
+        var cell = el && el.closest ? el.closest('.cell') : null;
+        var overId = cell && cell.getAttribute('data-id');
+        if (overId && overId !== dragId) {
+          var from = order.indexOf(dragId), to = order.indexOf(overId);
+          if (from > -1 && to > -1) { order.splice(from, 1); order.splice(to, 0, dragId); renderGrid(); markDrag(); }
+        }
+      }
+      function onUp() {
+        window.removeEventListener('pointermove', onMove);
+        window.removeEventListener('pointerup', onUp);
+        if (moved) saveOrder();
+        dragId = null; moved = false;
+        var cells = gridEl.querySelectorAll('.cell');
+        for (var i = 0; i < cells.length; i++) cells[i].classList.remove('drag');
+      }
+      gridEl.addEventListener('pointerdown', function (e) {
+        var cell = e.target.closest ? e.target.closest('.cell') : null;
+        if (!cell) return;
+        dragId = cell.getAttribute('data-id'); moved = false; sx = e.clientX; sy = e.clientY;
+        window.addEventListener('pointermove', onMove);
+        window.addEventListener('pointerup', onUp);
+      });
+
       function refresh() {
-        Homey.api('GET', '/metric?device=' + encodeURIComponent(deviceId) + '&metric=' + encodeURIComponent(metric))
-          .then(render)
+        if (!active.length) {
+          root.innerHTML = '<div class="muted">' + (Homey.__ ? Homey.__('settings.report.no_device') : '') + '</div>';
+          return;
+        }
+        Homey.api('GET', '/tiles?device=' + encodeURIComponent(deviceId) + '&metrics=' + encodeURIComponent(order.join(',')))
+          .then(function (data) {
+            if (!data || !data.paired) { root.innerHTML = '<div class="muted">—</div>'; return; }
+            dataMap = {};
+            (data.metrics || []).forEach(function (m) { dataMap[m.id] = m; });
+            if (dragId) return; // don't clobber the DOM mid-drag
+            renderGrid();
+          })
           .catch(function () { /* keep last render */ });
       }
 
+      renderGrid();
       refresh();
       setInterval(refresh, 60000);
       Homey.ready();

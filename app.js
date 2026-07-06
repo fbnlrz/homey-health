@@ -154,6 +154,23 @@ class GoogleHealthApp extends Homey.App {
     };
   }
 
+  /**
+   * Tile-grid payload: returns every requested metric, keeping ones without a
+   * value (rendered as "–") so a tile the user added never silently vanishes.
+   */
+  getWidgetTiles(deviceRef, capabilityIds) {
+    const device = this._resolveWidgetDevice(deviceRef);
+    if (!device) return { paired: false, metrics: [] };
+    const ids = Array.isArray(capabilityIds) ? capabilityIds : [];
+    const metrics = ids
+      .filter(id => device.hasCapability(id))
+      .map(id => {
+        const value = device.getCapabilityValue(id);
+        return { ...this._metricMeta(id), value: typeof value === 'number' ? value : null };
+      });
+    return { paired: true, deviceName: device.getName(), metrics };
+  }
+
   /** Multi-metric payload for the Health overview widget. */
   getWidgetOverview(deviceRef, capabilityIds) {
     const device = this._resolveWidgetDevice(deviceRef);
