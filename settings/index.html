@@ -205,7 +205,7 @@
         + '@media print{.rpt{--surface:#fcfcfb;--page:#fff;--ink:#0b0b0b;--ink2:#52514e;'
         + '--grid:#e1e0d9;--border:rgba(11,11,11,.10);'
         + '--c-steps:#2a78d6;--c-rhr:#e34948;--c-sleep:#4a3aa7;--c-weight:#1baf7a;'
-        + 'max-width:none;padding:0}.rpt .noprint{display:none}}'
+        + 'max-width:none;padding:0}.rpt .noprint{display:none}.rpt .tablewrap{overflow:visible}}'
         + '.rpt h1{font-size:22px;font-weight:650;margin:0;display:flex;align-items:center;gap:10px}'
         + '.rpt h1 svg{flex:none}'
         + '.rpt .meta{font-size:12px;color:var(--ink2);margin-top:4px}'
@@ -300,8 +300,8 @@
             byDate[e.date][col] = key ? e[key] : e.value;
           });
         }
-        put(s.steps, 'steps'); put(s.distance_km, 'km'); put(s.floors, 'floors');
-        put(s.active_zone_minutes, 'azm'); put(s.hydration_ml, 'water');
+        put(s.steps, 'steps'); put(s.distance_km, 'km');
+        put(s.active_zone_minutes, 'azm');
         put(s.resting_heart_rate, 'rhr'); put(s.hrv_ms, 'hrv');
         put(s.spo2_pct, 'spo2'); put(s.respiratory_rate, 'resp');
         put(s.sleep, 'sleep', 'hours'); put(s.sleep, 'deep', 'deepMinutes');
@@ -309,8 +309,8 @@
 
         var dates = Object.keys(byDate).sort();
         var cols = [
-          ['steps', T('col_steps'), 0], ['km', 'km', 2], ['floors', T('col_floors'), 0],
-          ['azm', T('col_azm'), 0], ['water', T('col_water'), 0],
+          ['steps', T('col_steps'), 0], ['km', 'km', 2],
+          ['azm', T('col_azm'), 0],
           ['rhr', T('col_rhr'), 0], ['hrv', 'HRV ms', 0], ['spo2', 'SpO2 %', 0],
           ['resp', T('col_resp'), 1], ['sleep', T('col_sleep'), 1],
           ['deep', T('col_deep'), 0], ['weight', T('col_weight'), 1],

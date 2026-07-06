@@ -609,9 +609,7 @@ class GoogleHealthDevice extends Homey.Device {
         const mm = GoogleHealthApi.numberField(p, 'millimetersSum');
         return mm === null ? null : Math.round(mm / 10000) / 100;
       }],
-      ['floors', 'floors', p => GoogleHealthApi.numberField(p, 'countSum')],
       ['active_zone_minutes', 'active-zone-minutes', p => GoogleHealthApi.firstNumber(p, ['activeZoneMinutesSum', 'activeZoneMinutes', 'minutesSum'])],
-      ['hydration_ml', 'hydration-log', p => GoogleHealthApi.firstNumber(p, ['millilitersSum', 'milliliters'])],
     ];
     for (const [key, type, read] of rollups) {
       await attempt(key, async () => {
