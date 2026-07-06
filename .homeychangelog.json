@@ -40,5 +40,8 @@
   },
   "0.5.0": {
     "en": "New: dashboard widgets — a compact square Health tile (pick any metric; add one per data point) and a Health overview, both in native Homey style with data-type-matched icons (ECG for heart rate, waves for water, and so on). Health report: customize it right on the page (choose sections and table columns), one-tap copyable password, and it now works in the mobile app too — not just on a PC."
+  },
+  "0.5.1": {
+    "en": "Widgets: the Health tile is now a grid of small square metric tiles you choose via checkboxes, alongside a separate single-metric tile and the overview. Tiles now show a live sparkline of recent values — a full trend line on the single tile and a subtle background trend in the grid tiles — building up as the app collects data. Also refined the widget icons."
   }
 }
