@@ -219,7 +219,6 @@ class GoogleHealthDevice extends Homey.Device {
       { type: 'active-energy-burned', read: p => GoogleHealthApi.numberField(p, 'kcalSum'), apply: v => this._setNumber('measure_active_calories', Math.round(v)) },
       { type: 'floors', read: p => GoogleHealthApi.numberField(p, 'countSum'), apply: v => this._setNumber('measure_floors', v) },
       { type: 'active-zone-minutes', read: p => GoogleHealthApi.firstNumber(p, ['activeZoneMinutesSum', 'activeZoneMinutes', 'minutesSum']), apply: v => this._setNumber('measure_active_zone_minutes', Math.round(v)) },
-      { type: 'basal-energy-burned', read: p => GoogleHealthApi.deepNumber(p, ['kcalSum', 'kcal', 'basalEnergyBurnedKcalSum']), apply: v => this._setNumber('measure_basal_calories', Math.round(v)) },
       { type: 'sedentary-period', read: p => GoogleHealthApi.deepNumber(p, ['minutesSum', 'sedentaryMinutesSum', 'minutes', 'durationMinutes']), apply: v => this._setNumber('measure_sedentary_minutes', Math.round(v)) },
     ];
 
@@ -233,6 +232,29 @@ class GoogleHealthDevice extends Homey.Device {
         if (value !== null) await apply(value);
       });
     }
+
+    // basal-energy-burned supports only list/reconcile (no dailyRollUp):
+    // sum today's per-interval kcal values from the list instead
+    await this._guarded('basal-energy-burned', async () => {
+      const points = await this.api.listAll('basal-energy-burned', {
+        filter: `basal_energy_burned.interval.civil_start_time >= "${today}"`,
+        pageSize: 300,
+        maxPages: 3,
+      });
+      if (this._todayLocalDate() !== today) return;
+      if (!points.length) return;
+      let sum = 0;
+      let found = false;
+      for (const point of points) {
+        const kcal = GoogleHealthApi.firstNumber(point, ['kcal', 'kcalPerInterval', 'caloriesKcal', 'energyKcal']);
+        if (kcal !== null) {
+          sum += kcal;
+          found = true;
+        }
+      }
+      if (found) await this._setNumber('measure_basal_calories', Math.round(sum));
+      else this.log('basal-energy-burned: unrecognized fields:', JSON.stringify(points[0]).slice(0, 600));
+    });
 
     await this._syncExercise();
   }
@@ -473,9 +495,12 @@ class GoogleHealthDevice extends Homey.Device {
     await this._guarded('blood-glucose', async () => {
       const points = await this.api.list('blood-glucose', { pageSize: 1 });
       if (!points.length) return;
-      const mgdl = GoogleHealthApi.deepNumber(points[0], ['bloodGlucoseMgPerDl', 'mgPerDl', 'milligramsPerDeciliter', 'bloodGlucoseLevel', 'level', 'value']);
+      // Try known names first, then fall back to any numeric primitive on the
+      // bloodGlucose object (skips sampleTime & other nested objects)
+      let mgdl = GoogleHealthApi.deepNumber(points[0], ['bloodGlucoseMgPerDl', 'mgPerDl', 'milligramsPerDeciliter', 'bloodGlucoseLevel', 'level', 'value']);
+      if (mgdl === null) mgdl = GoogleHealthApi.firstNumber(points[0]);
       if (mgdl === null) {
-        this.log('blood-glucose: unrecognized fields:', JSON.stringify(points[0]).slice(0, 300));
+        this.log('blood-glucose: unrecognized fields:', JSON.stringify(points[0]).slice(0, 600));
         return;
       }
       const values = GoogleHealthApi.valueObject(points[0]) || {};
@@ -571,15 +596,20 @@ class GoogleHealthDevice extends Homey.Device {
         ['measure_protein', ['proteinGramsSum', 'proteinGrams', 'protein'], 1],
         ['measure_fat', ['totalFatGramsSum', 'fatGramsSum', 'totalFatGrams', 'fatGrams', 'fat'], 1],
       ];
-      let anyFound = false;
+      let anyMissing = false;
       for (const [capability, candidates, round] of nutrients) {
         const value = GoogleHealthApi.deepNumber(point, candidates, 3);
         if (value !== null) {
-          anyFound = true;
           await this._setNumber(capability, Math.round(value / round) * round);
+        } else {
+          anyMissing = true;
         }
       }
-      if (!anyFound) this.log('nutrition-log: unrecognized fields:', JSON.stringify(point).slice(0, 400));
+      if (anyMissing && !this._nutritionShapeLogged) {
+        // Log the raw rollup once per run so unknown macro field names can be mapped
+        this._nutritionShapeLogged = true;
+        this.log('nutrition-log rollup shape:', JSON.stringify(point).slice(0, 700));
+      }
     });
   }
 
