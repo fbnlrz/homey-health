@@ -31,5 +31,8 @@
   },
   "0.2.0": {
     "en": "Health report: add patient details (name, date of birth, gender, height) with age and a BMI tile incl. WHO category — height is taken from Google Health automatically, gender is optional and informational only."
+  },
+  "0.3.0": {
+    "en": "New: printable health report (up to 90 days — stats, charts and daily values; dark on screen, light when printed to PDF; served briefly on your LAN with a one-time password). New: 'Asleep' sensor with automatic wake detection, 'Mark as asleep/awake' flow actions and an asleep condition. Fixed: SpO2 now uses Google's daily summary instead of raw spot readings (no more 50% outliers). Health report: add patient details (name, date of birth, gender, height) with age and a BMI tile incl. WHO category — height is taken from Google Health automatically, gender is optional and informational only."
   }
 }
