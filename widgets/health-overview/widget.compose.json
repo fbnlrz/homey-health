@@ -1,0 +1,18 @@
+{
+  "name": { "en": "Health overview", "de": "Health-Übersicht", "nl": "Health-overzicht" },
+  "height": 220,
+  "settings": [
+    { "id": "device", "type": "autocomplete", "title": { "en": "Device", "de": "Gerät", "nl": "Apparaat" } },
+    { "id": "show_steps", "type": "checkbox", "title": { "en": "Steps", "de": "Schritte", "nl": "Stappen" }, "value": true },
+    { "id": "show_active_calories", "type": "checkbox", "title": { "en": "Active calories", "de": "Aktivkalorien", "nl": "Actieve calorieën" }, "value": true },
+    { "id": "show_resting_heart_rate", "type": "checkbox", "title": { "en": "Resting heart rate", "de": "Ruhepuls", "nl": "Rusthartslag" }, "value": true },
+    { "id": "show_sleep_hours", "type": "checkbox", "title": { "en": "Sleep", "de": "Schlaf", "nl": "Slaap" }, "value": true },
+    { "id": "show_hydration", "type": "checkbox", "title": { "en": "Water", "de": "Wasser", "nl": "Water" }, "value": true },
+    { "id": "show_weight", "type": "checkbox", "title": { "en": "Weight", "de": "Gewicht", "nl": "Gewicht" }, "value": true },
+    { "id": "show_calorie_intake", "type": "checkbox", "title": { "en": "Calorie intake", "de": "Kalorienaufnahme", "nl": "Calorie-inname" }, "value": false },
+    { "id": "show_spo2", "type": "checkbox", "title": { "en": "Blood oxygen", "de": "Blutsauerstoff", "nl": "Zuurstofsaturatie" }, "value": false }
+  ],
+  "api": {
+    "getOverview": { "method": "GET", "path": "/overview" }
+  }
+}
