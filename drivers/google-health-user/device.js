@@ -532,10 +532,25 @@ class GoogleHealthDevice extends Homey.Device {
             this.driver.wokeUpTrigger
               .trigger(this, { ...tokens, wake_time: this._localTimeOf(endTime) })
               .catch(this.error);
+            // Real data proves the user is up — flip the 'Asleep' sensor
+            await this.markAwake();
           }
         }
       }
     });
+  }
+
+  // ── Asleep sensor: set via flow, cleared by real wake-up data ────
+
+  async markAsleep() {
+    if (!this.hasCapability('alarm_asleep')) return;
+    await this.setCapabilityValue('alarm_asleep', true).catch(this.error);
+  }
+
+  async markAwake() {
+    if (!this.hasCapability('alarm_asleep')) return;
+    if (this.getCapabilityValue('alarm_asleep') === false) return;
+    await this.setCapabilityValue('alarm_asleep', false).catch(this.error);
   }
 
   // ── Flow action: log weight to Google Health ─────────────────────

@@ -1,0 +1,23 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Asleep",
+    "de": "Schläft",
+    "nl": "Slaapt"
+  },
+  "titleTrue": {
+    "en": "Asleep",
+    "de": "Schläft",
+    "nl": "Slaapt"
+  },
+  "titleFalse": {
+    "en": "Awake",
+    "de": "Wach",
+    "nl": "Wakker"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": true,
+  "icon": "/assets/capabilities/sleep.svg"
+}

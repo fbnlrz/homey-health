@@ -349,6 +349,19 @@
   ],
   "conditions": [
     {
+      "id": "is_asleep",
+      "title": {
+        "en": "!{{Asleep|Awake}}",
+        "de": "!{{Schläft|Ist wach}}",
+        "nl": "!{{Slaapt|Is wakker}}"
+      },
+      "hint": {
+        "en": "Reflects the 'Asleep' sensor: set it via the 'Mark as asleep' flow action (e.g. in your bedtime routine); it switches to awake automatically when a freshly ended night's sleep syncs from Google Health.",
+        "de": "Spiegelt den Sensor 'Schläft': Setze ihn über die Flow-Aktion 'Als schlafend markieren' (z. B. in deiner Gute-Nacht-Routine); auf 'wach' springt er automatisch, sobald eine frisch beendete Nachtruhe aus Google Health synchronisiert wird.",
+        "nl": "Volgt de sensor 'Slaapt': zet deze via de flow-actie 'Markeren als slapend' (bijv. in je bedtijdroutine); hij springt automatisch op wakker zodra een net beëindigde nachtrust uit Google Health synchroniseert."
+      }
+    },
+    {
       "id": "steps_above",
       "title": {
         "en": "Steps today !{{are|aren't}} above...",
@@ -551,6 +564,27 @@
     }
   ],
   "actions": [
+    {
+      "id": "mark_asleep",
+      "title": {
+        "en": "Mark as asleep",
+        "de": "Als schlafend markieren",
+        "nl": "Markeren als slapend"
+      },
+      "hint": {
+        "en": "Sets the 'Asleep' sensor to asleep — use it in your bedtime routine (e.g. phone starts charging after 10 pm). Waking up is detected automatically from Google Health sleep data.",
+        "de": "Setzt den Sensor 'Schläft' auf schlafend — nutze es in deiner Gute-Nacht-Routine (z. B. Handy lädt nach 22 Uhr). Das Aufwachen wird automatisch aus den Google-Health-Schlafdaten erkannt.",
+        "nl": "Zet de sensor 'Slaapt' op slapend — gebruik dit in je bedtijdroutine (bijv. telefoon laadt op na 22 uur). Wakker worden wordt automatisch herkend uit de Google Health-slaapgegevens."
+      }
+    },
+    {
+      "id": "mark_awake",
+      "title": {
+        "en": "Mark as awake",
+        "de": "Als wach markieren",
+        "nl": "Markeren als wakker"
+      }
+    },
     {
       "id": "sync_now",
       "title": {

@@ -49,10 +49,25 @@ class GoogleHealthApp extends Homey.App {
           && (Date.now() - timestamp) < args.minutes * 60 * 1000;
       });
 
+    this.homey.flow.getConditionCard('is_asleep')
+      .registerRunListener(async args => {
+        return args.device.getCapabilityValue('alarm_asleep') === true;
+      });
+
     this.homey.flow.getConditionCard('exercised_today')
       .registerRunListener(async args => {
         const lastDate = args.device.getStoreValue('last_exercise_end_date');
         return !!lastDate && lastDate === args.device._todayLocalDate();
+      });
+
+    this.homey.flow.getActionCard('mark_asleep')
+      .registerRunListener(async args => {
+        await args.device.markAsleep();
+      });
+
+    this.homey.flow.getActionCard('mark_awake')
+      .registerRunListener(async args => {
+        await args.device.markAwake();
       });
 
     this.homey.flow.getActionCard('sync_now')
