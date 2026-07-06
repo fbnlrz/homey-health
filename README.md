@@ -67,6 +67,22 @@ npx homey app run    # live auf deinem Homey testen
 
 Projektstruktur nach Homey Compose — `app.json` wird aus `.homeycompose/` und den `*.compose.json`-Dateien der Driver generiert, nie direkt editieren.
 
+## Quellen & Credits
+
+Diese App wurde vollständig mit **Claude Fable 5** (Anthropic) in Claude Code gebaut — als Praxistest der Fable-5-Fähigkeiten: Multi-Agent-Review-Workflows (4 Reviewer + adversariale Verifikation), API-Reverse-Engineering aus CLI-Quellcode, Logo-Design mit Chromium-Rendering und iteratives Debugging gegen einen echten Homey Pro.
+
+Genutzte Quellen:
+
+| Quelle | Verwendung |
+|---|---|
+| [google-health-cli](https://github.com/Google-Health-API/google-health-cli) (Apache 2.0) | Google Health API v4: Endpunkte, OAuth-Scopes, Datentypen und Roh-Response-Formate — extrahiert aus `README.md`, den Agent-Skills (`skills/ghealth*/SKILL.md`) und dem Go-Quellcode (`pkg/types/registry.go`, `pkg/client/client.go`, `cmd/data.go`, `pkg/auth/auth.go`, `pkg/output/simplify.go`) |
+| [homey-app-skill](https://github.com/dvflw/homey-app-skill) (MIT) | Homey-SDK-v3-Konventionen: Compose-Struktur, Lifecycle-Regeln, OAuth2-Pairing-Muster, Flow-Card-Definitionen |
+| [Homey Apps SDK Doku](https://apps.developer.homey.app/) & [SDK-v3-Referenz](https://apps-sdk-v3.developer.homey.app/) | Offizielle API-Referenz für App/Driver/Device, Pairing-Templates, Einstellungen |
+| [Google Identity / OAuth 2.0](https://developers.google.com/identity/protocols/oauth2) | Authorization-Code-Flow, Token-Refresh, granulare Consent-Berechtigungen |
+| [Homey Developer Tools](https://tools.developer.homey.app/) | Publishing- und Test-Release-Workflow |
+
+Diese App ist nicht mit Google verbunden. Google Health ist eine Marke von Google LLC.
+
 ## Lizenz
 
 MIT
