@@ -206,8 +206,10 @@
           + '&device=' + encodeURIComponent(reportDeviceEl.value);
         Homey.api('GET', url, function (err, report) {
           reportBtn.disabled = false;
-          if (err) {
-            reportStatus.textContent = String(err.message || err);
+          if (err || !report || !report.series) {
+            reportStatus.textContent = err
+              ? String(err.message || err)
+              : Homey.__('settings.report.failed');
             return;
           }
           reportStatus.textContent = '';

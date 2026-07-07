@@ -51,6 +51,7 @@
       "bmi_obese": "Obesitas",
       "generate": "Rapport genereren",
       "generating": "Gegevens worden opgehaald uit Google Health…",
+      "failed": "Kan het rapport niet genereren. Probeer een kortere periode.",
       "no_device": "Nog geen apparaat gekoppeld.",
       "inline_ready": "Rapport hieronder gegenereerd. Gebruik 'Openen in browser' om het af te drukken of als PDF op te slaan (je apparaat moet op hetzelfde netwerk zitten als je Homey).",
       "open_browser": "Openen in browser (afdrukken / PDF)",

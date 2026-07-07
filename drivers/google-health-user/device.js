@@ -806,6 +806,22 @@ class GoogleHealthDevice extends Homey.Device {
       }
     };
 
+    // Collapse a newest-first sample list to one value per local day (latest
+    // wins). Essential for high-frequency sensors (a CGM emits ~288 points/day)
+    // so a 90-day report stays small enough to return over the app API.
+    const dailyLatest = (points, extract) => {
+      const byDate = new Map();
+      for (const p of points) {
+        const { date, value } = extract(p);
+        if (date && value !== null && value !== undefined && !byDate.has(date)) {
+          byDate.set(date, value);
+        }
+      }
+      return [...byDate.entries()]
+        .map(([date, value]) => ({ date, value }))
+        .sort((a, b) => a.date.localeCompare(b.date));
+    };
+
     // Daily rollups → [{date, value}]
     const rollups = [
       ['steps', 'steps', p => GoogleHealthApi.numberField(p, 'countSum')],
@@ -860,27 +876,27 @@ class GoogleHealthDevice extends Homey.Device {
       });
     }
 
-    // Weight samples → [{date, value: kg}]
+    // Weight samples → one (latest) value per day
     await attempt('weight_kg', async () => {
       const points = await this.api.listAll('weight', {
         filter: `weight.sample_time.physical_time >= "${from}T00:00:00Z"`,
         pageSize: 100,
+        maxPages: 5,
       });
-      return points
-        .map(p => {
-          const grams = GoogleHealthApi.numberField(p, 'weightGrams');
-          const values = GoogleHealthApi.valueObject(p) || {};
-          const time = values.sampleTime ? values.sampleTime.physicalTime : null;
-          return {
-            date: time ? this._localDateOf(time) : null,
-            value: grams === null ? null : Math.round(grams / 100) / 10,
-          };
-        })
-        .filter(e => e.date && e.value !== null)
-        .sort((a, b) => a.date.localeCompare(b.date));
+      return dailyLatest(points, p => {
+        const grams = GoogleHealthApi.numberField(p, 'weightGrams');
+        const values = GoogleHealthApi.valueObject(p) || {};
+        const time = values.sampleTime ? values.sampleTime.physicalTime : null;
+        return {
+          date: time ? this._localDateOf(time) : null,
+          value: grams === null ? null : Math.round(grams / 100) / 10,
+        };
+      });
     });
 
-    // Blood glucose + core body temperature samples → daily latest value
+    // Blood glucose + core body temperature samples → one (latest) value per
+    // day. maxPages bounds the work for high-frequency sources so the fetch
+    // can't fan out into hundreds of pages (and time out) on a long report.
     const sampleSeries = [
       ['glucose_mgdl', 'blood-glucose', 'blood_glucose',
         p => GoogleHealthApi.deepNumber(p, ['bloodGlucoseMgPerDl', 'mgPerDl', 'milligramsPerDeciliter', 'bloodGlucoseLevel', 'level', 'value']), 0],
@@ -892,19 +908,17 @@ class GoogleHealthDevice extends Homey.Device {
         const points = await this.api.listAll(type, {
           filter: `${filterName}.sample_time.physical_time >= "${from}T00:00:00Z"`,
           pageSize: 100,
+          maxPages: 5,
         });
-        return points
-          .map(p => {
-            const values = GoogleHealthApi.valueObject(p) || {};
-            const time = values.sampleTime ? values.sampleTime.physicalTime : null;
-            const raw = read(p);
-            return {
-              date: time ? this._localDateOf(time) : null,
-              value: raw === null ? null : Math.round(raw * (10 ** decimals)) / (10 ** decimals),
-            };
-          })
-          .filter(e => e.date && e.value !== null)
-          .sort((a, b) => a.date.localeCompare(b.date));
+        return dailyLatest(points, p => {
+          const values = GoogleHealthApi.valueObject(p) || {};
+          const time = values.sampleTime ? values.sampleTime.physicalTime : null;
+          const raw = read(p);
+          return {
+            date: time ? this._localDateOf(time) : null,
+            value: raw === null ? null : Math.round(raw * (10 ** decimals)) / (10 ** decimals),
+          };
+        });
       });
     }
 

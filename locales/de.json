@@ -51,6 +51,7 @@
       "bmi_obese": "Adipositas",
       "generate": "Bericht erstellen",
       "generating": "Daten werden aus Google Health geladen…",
+      "failed": "Bericht konnte nicht erstellt werden. Versuche einen kürzeren Zeitraum.",
       "no_device": "Noch kein Gerät gekoppelt.",
       "inline_ready": "Bericht unten erstellt. Mit 'Im Browser öffnen' druckst du ihn oder speicherst ihn als PDF (dein Gerät muss im selben Netzwerk wie dein Homey sein).",
       "open_browser": "Im Browser öffnen (Drucken / PDF)",

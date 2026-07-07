@@ -51,6 +51,7 @@
       "bmi_obese": "Obesity",
       "generate": "Generate report",
       "generating": "Collecting data from Google Health…",
+      "failed": "Could not generate the report. Try a shorter period.",
       "no_device": "No device paired yet.",
       "inline_ready": "Report generated below. Use 'Open in browser' to print or save it as a PDF (your device must be on the same network as your Homey).",
       "open_browser": "Open in browser (print / PDF)",
