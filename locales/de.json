@@ -1,8 +1,13 @@
 {
   "pair": {
-    "missing_credentials": "Bitte hinterlege zuerst die Google OAuth Client-ID und das Client-Secret in den App-Einstellungen (Mehr > Apps > Google Health > App konfigurieren).",
+    "missing_credentials": "Bitte hinterlege zuerst die Google OAuth Client-ID und das Client-Secret in den App-Einstellungen (Mehr > Apps > Health Sync für Google Health > App konfigurieren).",
     "not_authorized": "Die Google-Anmeldung wurde nicht abgeschlossen. Bitte versuche es erneut.",
-    "wrong_account": "Diese Anmeldung gehört zu einem anderen Google-Konto als dieses Gerät. Bitte melde dich mit dem ursprünglichen Konto an."
+    "wrong_account": "Diese Anmeldung gehört zu einem anderen Google-Konto als dieses Gerät. Bitte melde dich mit dem ursprünglichen Konto an.",
+    "verify_failed": "Das Google-Konto für dieses Gerät konnte nicht überprüft werden (Googles Identitätsdienst antwortete nicht). Bitte versuche 'Reparieren' gleich noch einmal."
+  },
+  "widget": {
+    "no_metrics": "Keine Werte ausgewählt — wähle welche in den Widget-Einstellungen.",
+    "loading": "Wird geladen…"
   },
   "device": {
     "auth_lost": "Die Google-Anmeldung ist abgelaufen. Öffne das Gerät und nutze 'Reparieren', um dich erneut anzumelden.",
@@ -11,7 +16,7 @@
     "sync_failing": "Wiederholte Sync-Fehler bei: __types__. Details stehen im App-Protokoll."
   },
   "settings": {
-    "title": "Google Health",
+    "title": "Health Sync für Google Health",
     "intro": "Diese App benötigt einen eigenen Google-Cloud-OAuth-Client, da Google den Health-API-Zugriff pro Projekt vergibt.",
     "step1": "Öffne die Google Cloud Console und erstelle (oder wähle) ein Projekt.",
     "step2": "Aktiviere die Google Health API für das Projekt.",
@@ -69,9 +74,7 @@
       "daily_values": "Tageswerte",
       "col_date": "Datum",
       "col_steps": "Schritte",
-      "col_floors": "Etagen",
       "col_azm": "AZM",
-      "col_water": "Wasser ml",
       "col_rhr": "Ruhepuls",
       "col_resp": "AZ/min",
       "col_sleep": "Schlaf h",

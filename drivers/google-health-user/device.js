@@ -270,7 +270,7 @@ class GoogleHealthDevice extends Homey.Device {
       { type: 'steps', read: p => GoogleHealthApi.numberField(p, 'countSum'), apply: v => this._setSteps(today, v) },
       { type: 'distance', read: p => GoogleHealthApi.numberField(p, 'millimetersSum'), apply: v => this._setNumber('measure_distance', Math.round(v / 10000) / 100) },
       { type: 'total-calories', read: p => GoogleHealthApi.numberField(p, 'kcalSum'), apply: v => this._setNumber('measure_calories', Math.round(v)) },
-      { type: 'active-energy-burned', read: p => GoogleHealthApi.numberField(p, 'kcalSum'), apply: v => this._setNumber('measure_active_calories', Math.round(v)) },
+      { type: 'active-energy-burned', read: p => GoogleHealthApi.firstNumber(p, ['kcalSum', 'kcal', 'energyKcalSum', 'caloriesKcalSum']), apply: v => this._setNumber('measure_active_calories', Math.round(v)) },
       { type: 'floors', read: p => GoogleHealthApi.numberField(p, 'countSum'), apply: v => this._setNumber('measure_floors', v) },
       { type: 'active-zone-minutes', read: p => GoogleHealthApi.firstNumber(p, ['activeZoneMinutesSum', 'activeZoneMinutes', 'minutesSum']), apply: v => this._setNumber('measure_active_zone_minutes', Math.round(v)) },
       { type: 'sedentary-period', read: p => {
@@ -485,7 +485,8 @@ class GoogleHealthDevice extends Homey.Device {
       const kg = Math.round(grams / 100) / 10;
       const values = GoogleHealthApi.valueObject(points[0]) || {};
       const key = points[0].name || (values.sampleTime || {}).physicalTime;
-      const changed = key && key !== this.getStoreValue('last_weight_key');
+      const known = this.getStoreValue('last_weight_key');
+      const changed = key && key !== known;
       // Only write on a new data point: Google materializes logWeight() writes
       // asynchronously, so an unconditional write would revert a just-logged
       // value back to the previous reading until the API catches up
@@ -494,9 +495,13 @@ class GoogleHealthDevice extends Homey.Device {
       }
       if (changed) {
         await this.setStoreValue('last_weight_key', key).catch(this.error);
-        this.driver.newWeightTrigger
-          .trigger(this, { weight: kg })
-          .catch(this.error);
+        // The first sync after pairing only establishes the baseline — don't
+        // fire the trigger for a pre-existing (historic) reading on install
+        if (known !== undefined && known !== null) {
+          this.driver.newWeightTrigger
+            .trigger(this, { weight: kg })
+            .catch(this.error);
+        }
       }
     });
 
@@ -531,8 +536,10 @@ class GoogleHealthDevice extends Homey.Device {
         if (!points.length) return;
         pct = GoogleHealthApi.numberField(points[0], 'percentage');
         if (pct !== null && pct < 70) {
-          // physiologically implausible spot reading — log the raw point for diagnosis
-          this.log('Suspicious SpO2 sample:', JSON.stringify(points[0]).slice(0, 300));
+          // physiologically implausible spot reading (e.g. sensor lost skin
+          // contact) — drop it rather than write flagged garbage to the capability
+          this.log('Suspicious SpO2 sample ignored:', JSON.stringify(points[0]).slice(0, 300));
+          pct = null;
         }
       }
 
@@ -566,13 +573,17 @@ class GoogleHealthDevice extends Homey.Device {
       }
       const values = GoogleHealthApi.valueObject(points[0]) || {};
       const key = points[0].name || (values.sampleTime || {}).physicalTime;
-      const changed = key && key !== this.getStoreValue('last_glucose_key');
+      const known = this.getStoreValue('last_glucose_key');
+      const changed = key && key !== known;
       await this._setNumber('measure_glucose', Math.round(mgdl));
       if (changed) {
         await this.setStoreValue('last_glucose_key', key).catch(this.error);
-        this.driver.newGlucoseTrigger
-          .trigger(this, { glucose: Math.round(mgdl) })
-          .catch(this.error);
+        // Skip the trigger on the first sync after pairing (historic reading)
+        if (known !== undefined && known !== null) {
+          this.driver.newGlucoseTrigger
+            .trigger(this, { glucose: Math.round(mgdl) })
+            .catch(this.error);
+        }
       }
     });
 
@@ -731,16 +742,16 @@ class GoogleHealthDevice extends Homey.Device {
 
       // Deep-sleep minutes for the deep_sleep_below condition (best effort —
       // some sources report totals only, without stages)
+      // Always overwrite for the selected session (null when this night has no
+      // stage data), so the deep_sleep_below condition never evaluates a new
+      // stageless night against a previous night's retained value
       const stages = sleep.summary.stagesSummary;
+      let deepMinutes = null;
       if (Array.isArray(stages)) {
         const deep = stages.find(s => s && typeof s.type === 'string' && /deep/i.test(s.type));
-        if (deep) {
-          const deepMinutes = Number(deep.minutes);
-          if (Number.isFinite(deepMinutes)) {
-            await this.setStoreValue('last_deep_sleep_min', deepMinutes).catch(this.error);
-          }
-        }
+        if (deep && Number.isFinite(Number(deep.minutes))) deepMinutes = Number(deep.minutes);
       }
+      await this.setStoreValue('last_deep_sleep_min', deepMinutes).catch(this.error);
 
       if (changed) {
         await this.setStoreValue('last_sleep_key', key).catch(this.error);
@@ -873,7 +884,9 @@ class GoogleHealthDevice extends Homey.Device {
             const date = civil
               ? `${civil.year}-${String(civil.month).padStart(2, '0')}-${String(civil.day).padStart(2, '0')}`
               : null;
-            return { date, value: GoogleHealthApi.firstNumber(p, candidates) };
+            // deepNumber (not firstNumber) so a nested daily-SpO2 summary such
+            // as { average: { percentage: 96 } } is unwrapped, matching _syncBody
+            return { date, value: GoogleHealthApi.deepNumber(p, candidates) };
           })
           .filter(e => e.date && e.value !== null)
           .sort((a, b) => a.date.localeCompare(b.date));

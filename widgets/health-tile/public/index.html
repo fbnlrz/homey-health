@@ -178,13 +178,19 @@
             + '<div class="ic" style="--c:' + color + '">' + svgFor(id) + '</div>'
             + '<div class="txt"><div class="v">' + fmt(m.value, m.decimals || 0)
             + (unit(m.units) ? ' <span class="u">' + unit(m.units) + '</span>' : '') + '</div>'
-            + '<div class="lab">' + (m.title || '') + '</div></div></div>';
+            + '<div class="lab">' + esc(m.title || '') + '</div></div></div>';
         }).join('');
       }
 
+      function esc(x) {
+        return String(x == null ? '' : x).replace(/[<>&"]/g, function (ch) {
+          return { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[ch];
+        });
+      }
+      function t(key, fallback) { try { return Homey.__(key) || fallback; } catch (e) { return fallback; } }
       function refresh() {
         if (!order.length) {
-          root.innerHTML = '<div class="muted">' + (Homey.__ ? Homey.__('settings.report.no_device') : '') + '</div>';
+          root.innerHTML = '<div class="muted">' + t('widget.no_metrics', '') + '</div>';
           return;
         }
         Homey.api('GET', '/tiles?device=' + encodeURIComponent(deviceId) + '&metrics=' + encodeURIComponent(order.join(',')))

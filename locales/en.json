@@ -1,8 +1,13 @@
 {
   "pair": {
-    "missing_credentials": "Please enter your Google OAuth Client ID and Client Secret in the app settings first (More > Apps > Google Health > Configure app).",
+    "missing_credentials": "Please enter your Google OAuth Client ID and Client Secret in the app settings first (More > Apps > Health Sync for Google Health > Configure app).",
     "not_authorized": "Google login was not completed. Please try again.",
-    "wrong_account": "This login belongs to a different Google account than this device. Please sign in with the original account."
+    "wrong_account": "This login belongs to a different Google account than this device. Please sign in with the original account.",
+    "verify_failed": "Could not verify the Google account for this device (Google's identity service did not respond). Please try 'Repair' again in a moment."
+  },
+  "widget": {
+    "no_metrics": "No values selected — pick some in the widget settings.",
+    "loading": "Loading…"
   },
   "device": {
     "auth_lost": "Google login expired. Open the device and use 'Repair' to log in again.",
@@ -11,7 +16,7 @@
     "sync_failing": "Repeated sync errors for: __types__. Check the app log for details."
   },
   "settings": {
-    "title": "Google Health",
+    "title": "Health Sync for Google Health",
     "intro": "This app needs its own Google Cloud OAuth client, because Google grants Health API access per project.",
     "step1": "Open the Google Cloud Console and create (or select) a project.",
     "step2": "Enable the Google Health API for the project.",
@@ -69,9 +74,7 @@
       "daily_values": "Daily values",
       "col_date": "Date",
       "col_steps": "Steps",
-      "col_floors": "Floors",
       "col_azm": "AZM",
-      "col_water": "Water ml",
       "col_rhr": "Resting HR",
       "col_resp": "Resp/min",
       "col_sleep": "Sleep h",

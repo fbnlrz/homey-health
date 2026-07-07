@@ -105,6 +105,10 @@ class GoogleHealthDriver extends Homey.Driver {
             if (closeSessionOnSuccess) await session.done().catch(this.error);
           } catch (err) {
             this.error('OAuth flow failed:', err);
+            // Reset the latch so re-opening the login view builds a fresh
+            // callback and auth URL — otherwise a single failed exchange (e.g.
+            // invalid_grant) leaves the login screen stuck for the whole session
+            started = false;
             session.emit('error', err.message).catch(this.error);
           }
         });
@@ -178,10 +182,16 @@ class GoogleHealthDriver extends Homey.Driver {
       const api = new GoogleHealthApi({ clientId, clientSecret, tokens });
       const identity = await this._fetchIdentityId(api);
       const newId = identity && identity.id ? String(identity.id) : null;
+      const knownId = device.getStoreValue('identity_id')
+        || (UUID_RE.test(device.getData().id) ? null : device.getData().id);
 
+      // Fail closed: if this device is tied to a known account but we could not
+      // confirm the new login's identity (identity endpoint unreachable), refuse
+      // rather than risk cross-wiring a different person's account onto it
+      if (knownId && !newId) {
+        throw new Error(this.homey.__('pair.verify_failed'));
+      }
       if (newId) {
-        const knownId = device.getStoreValue('identity_id')
-          || (UUID_RE.test(device.getData().id) ? null : device.getData().id);
         if (knownId && String(knownId) !== newId) {
           throw new Error(this.homey.__('pair.wrong_account'));
         }

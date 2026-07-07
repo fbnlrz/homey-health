@@ -143,6 +143,7 @@ class GoogleHealthApp extends Homey.App {
   /** Downsample a numeric series to at most `max` evenly-spaced points. */
   static _downsample(values, max) {
     if (!Array.isArray(values) || values.length <= max) return values || [];
+    if (max <= 1) return values.length ? [values[values.length - 1]] : [];
     const out = [];
     for (let i = 0; i < max; i++) {
       out.push(values[Math.round((i / (max - 1)) * (values.length - 1))]);
@@ -299,10 +300,18 @@ class GoogleHealthApp extends Homey.App {
   }
 
   static _generatePassword(length) {
-    const bytes = crypto.randomBytes(length);
+    // Rejection sampling to avoid modulo bias: only accept bytes from the
+    // largest multiple of the alphabet size that fits in a byte.
+    const n = PASSWORD_ALPHABET.length;
+    const limit = Math.floor(256 / n) * n;
     let password = '';
-    for (let i = 0; i < length; i++) {
-      password += PASSWORD_ALPHABET[bytes[i] % PASSWORD_ALPHABET.length];
+    while (password.length < length) {
+      for (const byte of crypto.randomBytes(length * 2)) {
+        if (byte < limit) {
+          password += PASSWORD_ALPHABET[byte % n];
+          if (password.length === length) break;
+        }
+      }
     }
     return password;
   }

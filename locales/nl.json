@@ -2,7 +2,12 @@
   "pair": {
     "missing_credentials": "Vul eerst je Google OAuth Client-ID en Client-secret in bij de app-instellingen (Meer > Apps > Health Sync voor Google Health > App configureren).",
     "not_authorized": "De Google-aanmelding is niet voltooid. Probeer het opnieuw.",
-    "wrong_account": "Deze aanmelding hoort bij een ander Google-account dan dit apparaat. Meld je aan met het oorspronkelijke account."
+    "wrong_account": "Deze aanmelding hoort bij een ander Google-account dan dit apparaat. Meld je aan met het oorspronkelijke account.",
+    "verify_failed": "Kon het Google-account voor dit apparaat niet verifiëren (de identiteitsdienst van Google reageerde niet). Probeer 'Repareren' zo meteen opnieuw."
+  },
+  "widget": {
+    "no_metrics": "Geen waarden geselecteerd — kies er enkele in de widgetinstellingen.",
+    "loading": "Laden…"
   },
   "device": {
     "auth_lost": "De Google-aanmelding is verlopen. Open het apparaat en gebruik 'Repareren' om opnieuw in te loggen.",
@@ -69,9 +74,7 @@
       "daily_values": "Dagwaarden",
       "col_date": "Datum",
       "col_steps": "Stappen",
-      "col_floors": "Verdiepingen",
       "col_azm": "AZM",
-      "col_water": "Water ml",
       "col_rhr": "Rusthartslag",
       "col_resp": "AH/min",
       "col_sleep": "Slaap u",

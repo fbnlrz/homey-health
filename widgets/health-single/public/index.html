@@ -129,7 +129,14 @@
       var metric = s.metric || 'measure_steps';
       var accent = ACCENTS[s.accent] || ACCENTS.brand;
 
+      function esc(x) {
+        return String(x == null ? '' : x).replace(/[<>&"]/g, function (ch) {
+          return { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[ch];
+        });
+      }
+      var rendered = false;
       function render(data) {
+        rendered = true;
         if (!data || !data.paired) { root.innerHTML = '<div class="muted">—</div>'; return; }
         var spark = sparkline(data.history, accent);
         root.innerHTML = '<div class="tile" style="--accent:' + accent + '">'
@@ -137,7 +144,7 @@
           + '<div class="body">'
           + '<div class="value"><span class="v">' + fmt(data.value, data.decimals) + '</span>'
           + (unit(data.units) ? '<span class="u">' + unit(data.units) + '</span>' : '') + '</div>'
-          + '<div class="label">' + (data.title || '') + '</div>'
+          + '<div class="label">' + esc(data.title || '') + '</div>'
           + '</div>'
           + (spark ? '<div class="spark">' + spark + '</div>' : '')
           + '</div>';
@@ -146,7 +153,7 @@
       function refresh() {
         Homey.api('GET', '/metric?device=' + encodeURIComponent(deviceId) + '&metric=' + encodeURIComponent(metric))
           .then(render)
-          .catch(function () { /* keep last render */ });
+          .catch(function () { if (!rendered) root.innerHTML = '<div class="muted">—</div>'; });
       }
 
       refresh();

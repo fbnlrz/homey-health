@@ -136,26 +136,35 @@
         return s.hasOwnProperty(key) ? s[key] !== false : !!DEFAULT_ON[id];
       });
 
-      function renderMuted(text) { root.innerHTML = '<div class="muted">' + text + '</div>'; }
+      function esc(x) {
+        return String(x == null ? '' : x).replace(/[<>&"]/g, function (ch) {
+          return { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[ch];
+        });
+      }
+      function t(key, fallback) { try { return Homey.__(key) || fallback; } catch (e) { return fallback; } }
+      var rendered = false;
+      function renderMuted(text) { root.innerHTML = '<div class="muted">' + esc(text) + '</div>'; rendered = true; }
 
       function render(data) {
         if (!data || !data.paired) { renderMuted('—'); return; }
         var metrics = (data.metrics || []).slice(0, 8);
-        if (!metrics.length) { renderMuted(data.deviceName || ''); return; }
+        if (!metrics.length) { renderMuted(data.deviceName || '—'); return; }
         var cells = metrics.map(function (m) {
           return '<div class="cell"><div class="ic" style="--c:' + (COLOR_FOR[m.id] || MONO) + '">' + svgFor(m.id) + '</div>'
             + '<div class="txt"><div class="val">' + fmt(m.value, m.decimals)
             + (unit(m.units) ? ' <span class="u">' + unit(m.units) + '</span>' : '') + '</div>'
-            + '<div class="lab">' + (m.title || '') + '</div></div></div>';
+            + '<div class="lab">' + esc(m.title || '') + '</div></div></div>';
         }).join('');
-        root.innerHTML = '<div class="wrap"><div class="head">' + (data.deviceName || '') + '</div>'
+        root.innerHTML = '<div class="wrap"><div class="head">' + esc(data.deviceName || '') + '</div>'
           + '<div class="grid">' + cells + '</div></div>';
+        rendered = true;
       }
 
       function refresh() {
+        if (!wanted.length) { renderMuted(t('widget.no_metrics', '')); return; }
         Homey.api('GET', '/overview?device=' + encodeURIComponent(deviceId) + '&metrics=' + encodeURIComponent(wanted.join(',')))
           .then(render)
-          .catch(function () { /* keep last render */ });
+          .catch(function () { if (!rendered) renderMuted('—'); });
       }
 
       refresh();

@@ -556,9 +556,9 @@
           + '</div>';
 
         var inner = '<h1>' + RPT_MARK + T('title') + '</h1>'
-          + '<div class="meta">' + report.meta.deviceName + ' · '
-          + report.meta.from + ' – ' + report.meta.to + ' (' + report.meta.days + ' ' + T('days') + ') · '
-          + T('generated') + ' ' + new Date(report.meta.generatedAt).toLocaleString() + '</div>'
+          + '<div class="meta">' + esc(report.meta.deviceName) + ' · '
+          + esc(report.meta.from) + ' – ' + esc(report.meta.to) + ' (' + esc(report.meta.days) + ' ' + T('days') + ') · '
+          + T('generated') + ' ' + esc(new Date(report.meta.generatedAt).toLocaleString()) + '</div>'
           + customizer
           + patientBlock
           + '<div class="tiles" data-sec="summary">' + tiles + '</div>'

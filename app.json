@@ -1023,6 +1023,7 @@
               "max": 1440,
               "units": {
                 "en": "min",
+                "de": "Min",
                 "nl": "min"
               }
             },
@@ -1062,9 +1063,9 @@
               "id": "sync_activity",
               "type": "checkbox",
               "label": {
-                "en": "Activity (steps, distance, calories, active calories, floors, active zone minutes)",
-                "de": "Aktivität (Schritte, Distanz, Kalorien, Aktivkalorien, Etagen, Aktivzonen-Minuten)",
-                "nl": "Activiteit (stappen, afstand, calorieën, actieve calorieën, verdiepingen, actieve zone-minuten)"
+                "en": "Activity (steps, distance, calories, active & basal calories, floors, active-zone & sedentary minutes)",
+                "de": "Aktivität (Schritte, Distanz, Kalorien, Aktiv- & Grundumsatz-Kalorien, Etagen, Aktivzonen- & Sitzminuten)",
+                "nl": "Activiteit (stappen, afstand, calorieën, actieve & basaalcalorieën, verdiepingen, actieve-zone- & zittende minuten)"
               },
               "value": true
             },
@@ -1082,9 +1083,9 @@
               "id": "sync_body",
               "type": "checkbox",
               "label": {
-                "en": "Body (weight, body fat, blood oxygen, respiratory rate)",
-                "de": "Körper (Gewicht, Körperfett, Blutsauerstoff, Atemfrequenz)",
-                "nl": "Lichaam (gewicht, lichaamsvet, zuurstofsaturatie, ademhalingsfrequentie)"
+                "en": "Body (weight, body fat, blood oxygen, respiratory rate, glucose, temperature, altitude)",
+                "de": "Körper (Gewicht, Körperfett, Blutsauerstoff, Atemfrequenz, Glukose, Temperatur, Höhe)",
+                "nl": "Lichaam (gewicht, lichaamsvet, zuurstofsaturatie, ademhalingsfrequentie, glucose, temperatuur, hoogte)"
               },
               "value": true
             },
@@ -1102,9 +1103,9 @@
               "id": "sync_nutrition",
               "type": "checkbox",
               "label": {
-                "en": "Nutrition (water intake)",
-                "de": "Ernährung (Wasseraufnahme)",
-                "nl": "Voeding (waterinname)"
+                "en": "Nutrition (water, calorie intake, carbs, protein, fat)",
+                "de": "Ernährung (Wasser, Kalorienaufnahme, Kohlenhydrate, Protein, Fett)",
+                "nl": "Voeding (water, calorie-inname, koolhydraten, eiwit, vet)"
               },
               "value": true
             }
