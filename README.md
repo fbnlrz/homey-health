@@ -10,32 +10,33 @@ Built on the API insights from [google-health-cli](https://github.com/Google-Hea
 
 ## Features
 
-**"Google Health" device** (one device per Google account) with these sensor capabilities, all with Insights history:
+**"Google Health" device** (one device per Google account) with these capabilities, all with Insights history:
 
-| Capability | Source (Health API) |
+| Group | Capabilities (Health API type) |
 |---|---|
-| Steps today | `steps` daily-rollup (`countSum`) |
-| Distance today (km) | `distance` daily-rollup (`millimetersSum`) |
-| Calories today (kcal) | `total-calories` daily-rollup (`kcalSum`) |
-| Active calories today (kcal) | `active-energy-burned` daily-rollup (`kcalSum`) |
-| Floors today | `floors` daily-rollup (`countSum`) |
-| Active zone minutes today | `active-zone-minutes` daily-rollup |
-| Heart rate (latest reading) | `heart-rate` list |
-| Resting heart rate | `daily-resting-heart-rate` list |
-| Heart rate variability (ms) | `daily-heart-rate-variability` list |
-| VO2 max | `daily-vo2-max` list |
-| Weight (kg) | `weight` list |
-| Body fat (%) | `body-fat` list |
-| Blood oxygen SpO2 (%) | `oxygen-saturation` list |
-| Respiratory rate | `daily-respiratory-rate` list |
-| Sleep last night (h) | `sleep` list (`minutesAsleep`, naps excluded) |
-| Water intake today (ml) | `hydration-log` daily-rollup |
+| Activity | Steps (`steps`) · Distance (`distance`) · Calories (`total-calories`) · Active calories (`active-energy-burned`) · Basal calories (`basal-energy-burned`, summed from list) · Floors (`floors`) · Active-zone minutes (`active-zone-minutes`) · Sedentary minutes (`sedentary-period`) |
+| Heart | Heart rate (`heart-rate`) · Resting heart rate (`daily-resting-heart-rate`) · HRV (`daily-heart-rate-variability`) · VO2 max (`daily-vo2-max`) |
+| Body | Weight (`weight`) · Body fat (`body-fat`) · Blood oxygen SpO2 (`daily-oxygen-saturation`, sample fallback) · Respiratory rate (`daily-respiratory-rate`) · Blood glucose (`blood-glucose`) · Body temperature (`core-body-temperature`) · Skin-temperature variation (`daily-sleep-temperature-derivations`) · Altitude (`altitude`) |
+| Sleep | Sleep last night (`sleep`, naps excluded) · Asleep sensor (with automatic wake detection) |
+| Nutrition | Water (`hydration-log`) · Calorie intake · Carbs · Protein · Fat (`nutrition-log`) |
+
+Some capabilities only populate if your wearable actually records that data; empty tiles usually mean Google Health has no data of that type for your account.
+
+**Cardiac data (opt-in):** enable "ECG and irregular heart rhythm" in the app settings to add the `electrocardiogram` and `irregular-rhythm-notification` reads (extra Google permissions); this powers the ECG-recorded and irregular-rhythm Flow triggers.
+
+**Dashboard widgets** (native Homey styling, light/dark aware, each metric with a data-type-matched icon and a live sparkline built from a rolling history buffer):
+
+- **Health tiles** — a grid of small square metric tiles; choose which data points appear via checkboxes.
+- **Health tile** — a single metric shown large, with a sparkline of recent values.
+- **Health overview** — several key values in one compact card.
+
+**Health report:** generate a printable overview of your data (up to 90 days — stats, charts, daily values, optional patient details + BMI). It renders dark on screen and light when printed to PDF, and is served briefly over your LAN with a one-time password (any username, link valid ~5 minutes). Choose which sections and table columns to include right on the page.
 
 **Flow cards**
 
-- Triggers: step count changed · daily step goal reached · new heart rate reading · heart rate crossed a threshold · resting heart rate above its 7-day average · new weight measurement · new sleep data · you woke up (with wake time) · a workout ended (with activity, duration, calories, avg. heart rate)
-- Conditions: steps today above X · resting heart rate above X bpm · sleep shorter than X h · deep sleep below X min · water intake below X ml · active zone minutes above X · steps increased in the last X min · worked out today
-- Actions: synchronize now · log weight · log body fat (both require write access)
+- Triggers: step count changed · daily step goal reached · new heart rate reading · heart rate crossed a threshold · resting heart rate above its 7-day average · new weight measurement · new glucose measurement · new sleep data · you woke up (with wake time) · a workout ended (activity, duration, calories, avg. heart rate) · ECG recorded (opt-in) · irregular heart rhythm detected (opt-in)
+- Conditions: steps today above X · resting heart rate above X bpm · sleep shorter than X h · deep sleep below X min · water intake below X ml · active zone minutes above X · steps increased in the last X min · worked out today · is asleep
+- Actions: synchronize now · mark as asleep · mark as awake · log weight · log body fat (the last two require write access)
 
 ## Setup
 
@@ -64,7 +65,8 @@ Google grants Health API access per Google Cloud project, so you bring your own 
 
 - Runs 100% locally on your Homey Pro; talks only to `health.googleapis.com` and Google's OAuth endpoints. No developer servers, no telemetry.
 - The OAuth client belongs to *your* Google Cloud project; tokens are stored in Homey's device store only.
-- Read-only by default; write access is opt-in.
+- Read-only by default; write access and cardiac (ECG/irregular-rhythm) data are separate opt-ins that request additional Google scopes.
+- The health **report** is served from your Homey over the local network as plain HTTP for at most ~5 minutes, protected by a freshly generated one-time password and a random URL token, then the server is torn down. It never leaves your LAN.
 - Zero runtime npm dependencies; empty Homey permission list; MIT-licensed and fully auditable.
 
 ## Development

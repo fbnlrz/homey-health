@@ -6,32 +6,33 @@ Basiert auf den API-Erkenntnissen aus der [google-health-cli](https://github.com
 
 ## Funktionen
 
-**Gerät „Google Health"** (ein Gerät pro Google-Konto) mit diesen Sensor-Capabilities, alle mit Insights-Verlauf:
+**Gerät „Google Health"** (ein Gerät pro Google-Konto) mit diesen Capabilities, alle mit Insights-Verlauf:
 
-| Capability | Quelle (Health API) |
+| Gruppe | Capabilities (Health-API-Typ) |
 |---|---|
-| Schritte heute | `steps` daily-rollup (`countSum`) |
-| Distanz heute (km) | `distance` daily-rollup (`millimetersSum`) |
-| Kalorien heute (kcal) | `total-calories` daily-rollup (`kcalSum`) |
-| Aktivkalorien heute (kcal) | `active-energy-burned` daily-rollup (`kcalSum`) |
-| Etagen heute | `floors` daily-rollup (`countSum`) |
-| Aktivzonen-Minuten heute | `active-zone-minutes` daily-rollup |
-| Herzfrequenz (letzte Messung) | `heart-rate` list |
-| Ruhepuls | `daily-resting-heart-rate` list |
-| Herzratenvariabilität (ms) | `daily-heart-rate-variability` list |
-| VO2 max | `daily-vo2-max` list |
-| Gewicht (kg) | `weight` list |
-| Körperfett (%) | `body-fat` list |
-| Blutsauerstoff SpO2 (%) | `oxygen-saturation` list |
-| Atemfrequenz | `daily-respiratory-rate` list |
-| Schlaf letzte Nacht (h) | `sleep` list (`minutesAsleep`, Naps ausgenommen) |
-| Wasseraufnahme heute (ml) | `hydration-log` daily-rollup |
+| Aktivität | Schritte (`steps`) · Distanz (`distance`) · Kalorien (`total-calories`) · Aktivkalorien (`active-energy-burned`) · Grundumsatz-Kalorien (`basal-energy-burned`, aus Liste summiert) · Etagen (`floors`) · Aktivzonen-Minuten (`active-zone-minutes`) · Sitzminuten (`sedentary-period`) |
+| Herz | Herzfrequenz (`heart-rate`) · Ruhepuls (`daily-resting-heart-rate`) · HRV (`daily-heart-rate-variability`) · VO2 max (`daily-vo2-max`) |
+| Körper | Gewicht (`weight`) · Körperfett (`body-fat`) · Blutsauerstoff SpO2 (`daily-oxygen-saturation`) · Atemfrequenz (`daily-respiratory-rate`) · Blutzucker (`blood-glucose`) · Körpertemperatur (`core-body-temperature`) · Hauttemperatur-Abweichung (`daily-sleep-temperature-derivations`) · Höhe (`altitude`) |
+| Schlaf | Schlaf letzte Nacht (`sleep`, Naps ausgenommen) · Schläft-Sensor (mit automatischer Aufwach-Erkennung) |
+| Ernährung | Wasser (`hydration-log`) · Kalorienaufnahme · Kohlenhydrate · Protein · Fett (`nutrition-log`) |
+
+Manche Capabilities füllen sich nur, wenn dein Wearable diese Daten wirklich aufzeichnet; leere Kacheln bedeuten meist, dass Google Health für dein Konto keine Daten dieses Typs hat.
+
+**Herzdaten (optional):** Aktiviere „EKG und Herzrhythmus" in den App-Einstellungen für die Typen `electrocardiogram` und `irregular-rhythm-notification` (zusätzliche Google-Berechtigungen) — dies versorgt die EKG- und Herzrhythmus-Flow-Auslöser.
+
+**Dashboard-Widgets** (native Homey-Optik, Light/Dark automatisch, jede Metrik mit datentyp-passendem Icon und Live-Sparkline aus einem rollierenden Verlaufspuffer):
+
+- **Health-Kacheln** — Raster kleiner quadratischer Metrik-Kacheln; Auswahl per Häkchen.
+- **Health-Kachel** — eine Metrik groß, mit Sparkline der letzten Werte.
+- **Health-Übersicht** — mehrere Kernwerte in einer kompakten Karte.
+
+**Gesundheitsbericht:** Erstelle eine druckfertige Übersicht (bis 90 Tage — Statistik, Charts, Tageswerte, optional Patientendaten + BMI). Dunkel am Bildschirm, hell beim PDF-Druck; wird kurzzeitig über dein Heimnetz mit Einmal-Passwort bereitgestellt (Benutzername beliebig, Link ~5 Minuten gültig). Abschnitte und Tabellenspalten wählst du direkt auf der Seite.
 
 **Flow-Karten**
 
-- Auslöser: Schrittzahl geändert · Tägliches Schrittziel erreicht · Neue Herzfrequenz-Messung · Herzfrequenz über/unter Schwellenwert · Ruhepuls über 7-Tage-Durchschnitt · Neue Gewichtsmessung · Neue Schlafdaten · Du bist aufgewacht (mit Aufwachzeit) · Training beendet (mit Aktivität, Dauer, Kalorien, Ø Puls)
-- Bedingungen: Schritte heute über X · Ruhepuls über X bpm · Schlaf kürzer als X h · Tiefschlaf unter X min · Wasseraufnahme unter X ml · Aktivzonen-Minuten über X · Schritte in den letzten X min gestiegen · Heute trainiert
-- Aktionen: Jetzt synchronisieren · Gewicht protokollieren · Körperfett protokollieren (beide erfordern Schreibzugriff)
+- Auslöser: Schrittzahl geändert · Tägliches Schrittziel erreicht · Neue Herzfrequenz-Messung · Herzfrequenz über/unter Schwellenwert · Ruhepuls über 7-Tage-Durchschnitt · Neue Gewichtsmessung · Neue Glukose-Messung · Neue Schlafdaten · Du bist aufgewacht (mit Aufwachzeit) · Training beendet (Aktivität, Dauer, Kalorien, Ø Puls) · EKG aufgezeichnet (optional) · Unregelmäßiger Herzrhythmus erkannt (optional)
+- Bedingungen: Schritte heute über X · Ruhepuls über X bpm · Schlaf kürzer als X h · Tiefschlaf unter X min · Wasseraufnahme unter X ml · Aktivzonen-Minuten über X · Schritte in den letzten X min gestiegen · Heute trainiert · Schläft
+- Aktionen: Jetzt synchronisieren · Als schlafend markieren · Als wach markieren · Gewicht protokollieren · Körperfett protokollieren (die letzten beiden erfordern Schreibzugriff)
 
 ## Einrichtung
 
