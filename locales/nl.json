@@ -25,8 +25,6 @@
     "step5": "Plak hieronder de Client-ID en het Client-secret, sla op en voeg daarna het apparaat toe. Belangrijk: vink bij het inloggen bij Google ALLE toestemmings-selectievakjes aan — Google laat ze standaard leeg.",
     "client_id": "Client-ID",
     "client_secret": "Client-secret",
-    "enable_write": "Schrijven naar Google Health toestaan (nodig voor de Flow-kaart 'Gewicht registreren')",
-    "enable_write_hint": "Voer na een wijziging 'Repareren' uit op bestaande apparaten (of koppel een nieuw apparaat) om de nieuwe toestemming toe te passen.",
     "enable_cardiac": "Ecg- en onregelmatig-hartritme-gegevens inschakelen (extra Google-toestemmingen)",
     "enable_cardiac_hint": "Voegt de ecg- en ritme-scopes toe voor de bijbehorende flow-kaarten. Voer na een wijziging 'Repareren' uit op het apparaat en vink de nieuwe toestemmingen aan op het Google-scherm.",
     "save": "Opslaan",

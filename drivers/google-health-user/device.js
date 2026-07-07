@@ -487,9 +487,7 @@ class GoogleHealthDevice extends Homey.Device {
       const key = points[0].name || (values.sampleTime || {}).physicalTime;
       const known = this.getStoreValue('last_weight_key');
       const changed = key && key !== known;
-      // Only write on a new data point: Google materializes logWeight() writes
-      // asynchronously, so an unconditional write would revert a just-logged
-      // value back to the previous reading until the API catches up
+      // Write on a new data point (or to seed the capability the first time)
       if (changed || this.getCapabilityValue('measure_weight') === null) {
         await this._setNumber('measure_weight', kg);
       }
@@ -790,37 +788,6 @@ class GoogleHealthDevice extends Homey.Device {
     await this.setCapabilityValue('alarm_asleep', false).catch(this.error);
   }
 
-  // ── Flow action: log weight to Google Health ─────────────────────
-
-  async logWeight(kg) {
-    const offsetSeconds = this._utcOffsetSeconds();
-    await this.api.createDataPoint('weight', {
-      weight: {
-        weightGrams: Math.round(kg * 1000),
-        sampleTime: {
-          physicalTime: new Date().toISOString().replace(/\.\d{3}Z$/, 'Z'),
-          utcOffset: `${offsetSeconds}s`,
-        },
-      },
-    });
-    // Writes are async on Google's side; reflect the value locally right away
-    await this._setNumber('measure_weight', Math.round(kg * 10) / 10);
-  }
-
-  async logBodyFat(percentage) {
-    const offsetSeconds = this._utcOffsetSeconds();
-    await this.api.createDataPoint('body-fat', {
-      bodyFat: {
-        percentage,
-        sampleTime: {
-          physicalTime: new Date().toISOString().replace(/\.\d{3}Z$/, 'Z'),
-          utcOffset: `${offsetSeconds}s`,
-        },
-      },
-    });
-    await this._setNumber('measure_body_fat', Math.round(percentage * 10) / 10);
-  }
-
   // ── Health report: up to 90 days of history for the printable report ─
 
   async collectReport(days = 30) {
@@ -1034,25 +1001,6 @@ class GoogleHealthDevice extends Homey.Device {
     return new Intl.DateTimeFormat('en-GB', {
       timeZone: timezone, hour: '2-digit', minute: '2-digit', hour12: false,
     }).format(instant instanceof Date ? instant : new Date(instant));
-  }
-
-  _utcOffsetSeconds() {
-    // Derive the offset from Intl's longOffset ("GMT+02:00") — deterministic,
-    // unlike round-tripping toLocaleString output through Date parsing
-    const timezone = this.homey.clock.getTimezone();
-    try {
-      const parts = new Intl.DateTimeFormat('en-US', {
-        timeZone: timezone, timeZoneName: 'longOffset',
-      }).formatToParts(new Date());
-      const name = (parts.find(p => p.type === 'timeZoneName') || {}).value || 'GMT';
-      const match = name.match(/GMT([+-])(\d{2}):(\d{2})/);
-      if (!match) return 0; // plain "GMT" = UTC
-      const sign = match[1] === '-' ? -1 : 1;
-      return sign * ((Number(match[2]) * 3600) + (Number(match[3]) * 60));
-    } catch (err) {
-      this.error('Could not determine UTC offset:', err.message);
-      return 0;
-    }
   }
 
   async onSettings({ newSettings, changedKeys }) {

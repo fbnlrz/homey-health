@@ -650,68 +650,6 @@
         "de": "Jetzt synchronisieren",
         "nl": "Nu synchroniseren"
       }
-    },
-    {
-      "id": "log_weight",
-      "title": {
-        "en": "Log weight...",
-        "de": "Gewicht protokollieren...",
-        "nl": "Gewicht registreren..."
-      },
-      "titleFormatted": {
-        "en": "Log weight [[weight]] kg to Google Health",
-        "de": "Gewicht [[weight]] kg in Google Health protokollieren",
-        "nl": "Gewicht [[weight]] kg registreren in Google Health"
-      },
-      "hint": {
-        "en": "Requires write access — enable it in the app settings, then run 'Repair' on the device.",
-        "de": "Erfordert Schreibzugriff — in den App-Einstellungen aktivieren und danach das Gerät 'Reparieren'.",
-        "nl": "Vereist schrijftoegang — schakel dit in bij de app-instellingen en voer daarna 'Repareren' uit op het apparaat."
-      },
-      "args": [
-        {
-          "name": "weight",
-          "type": "number",
-          "min": 1,
-          "max": 500,
-          "step": 0.1,
-          "placeholder": {
-            "en": "75.5",
-            "nl": "75.5"
-          }
-        }
-      ]
-    },
-    {
-      "id": "log_body_fat",
-      "title": {
-        "en": "Log body fat...",
-        "de": "Körperfett protokollieren...",
-        "nl": "Lichaamsvet registreren..."
-      },
-      "titleFormatted": {
-        "en": "Log body fat [[percentage]] % to Google Health",
-        "de": "Körperfett [[percentage]] % in Google Health protokollieren",
-        "nl": "Lichaamsvet [[percentage]] % registreren in Google Health"
-      },
-      "hint": {
-        "en": "Requires write access — enable it in the app settings, then run 'Repair' on the device.",
-        "de": "Erfordert Schreibzugriff — in den App-Einstellungen aktivieren und danach das Gerät 'Reparieren'.",
-        "nl": "Vereist schrijftoegang — schakel dit in bij de app-instellingen en voer daarna 'Repareren' uit op het apparaat."
-      },
-      "args": [
-        {
-          "name": "percentage",
-          "type": "number",
-          "min": 1,
-          "max": 75,
-          "step": 0.1,
-          "placeholder": {
-            "en": "22.5",
-            "nl": "22.5"
-          }
-        }
-      ]
     }
   ]
 }

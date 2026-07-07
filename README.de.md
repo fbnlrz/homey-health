@@ -32,7 +32,7 @@ Manche Capabilities füllen sich nur, wenn dein Wearable diese Daten wirklich au
 
 - Auslöser: Schrittzahl geändert · Tägliches Schrittziel erreicht · Neue Herzfrequenz-Messung · Herzfrequenz über/unter Schwellenwert · Ruhepuls über 7-Tage-Durchschnitt · Neue Gewichtsmessung · Neue Glukose-Messung · Neue Schlafdaten · Du bist aufgewacht (mit Aufwachzeit) · Training beendet (Aktivität, Dauer, Kalorien, Ø Puls) · EKG aufgezeichnet (optional) · Unregelmäßiger Herzrhythmus erkannt (optional)
 - Bedingungen: Schritte heute über X · Ruhepuls über X bpm · Schlaf kürzer als X h · Tiefschlaf unter X min · Wasseraufnahme unter X ml · Aktivzonen-Minuten über X · Schritte in den letzten X min gestiegen · Heute trainiert · Schläft
-- Aktionen: Jetzt synchronisieren · Als schlafend markieren · Als wach markieren · Gewicht protokollieren · Körperfett protokollieren (die letzten beiden erfordern Schreibzugriff)
+- Aktionen: Jetzt synchronisieren · Als schlafend markieren · Als wach markieren
 
 ## Einrichtung
 
@@ -47,15 +47,15 @@ Die Google Health API wird pro Google-Cloud-Projekt freigeschaltet, deshalb brau
    ```
 
 4. Solange der OAuth-Zustimmungsbildschirm im Modus **Testen** ist: dein Google-Konto als **Testnutzer** hinzufügen. (Achtung: Im Testmodus laufen Refresh-Tokens nach 7 Tagen ab — dann in Homey einfach „Reparieren" ausführen oder den Zustimmungsbildschirm veröffentlichen.)
-5. In Homey: *Mehr → Apps → Google Health → App konfigurieren* — Client-ID und Client-Secret eintragen. Optional „Schreiben erlauben" aktivieren, wenn du die Flow-Karte „Gewicht protokollieren" nutzen willst.
-6. Gerät hinzufügen (*Geräte → + → Google Health*) und mit Google anmelden.
+5. In Homey: *Mehr → Apps → Health Sync für Google Health → App konfigurieren* — Client-ID und Client-Secret eintragen.
+6. Gerät hinzufügen (*Geräte → + → Health Sync für Google Health*) und mit Google anmelden.
 
 ## Hinweise zum Verhalten
 
 - **Abrufintervall**: Standard 15 Minuten, einstellbar ab 5 Minuten (Geräteeinstellungen). Datengruppen (Aktivität/Herz/Körper/Schlaf/Ernährung) lassen sich einzeln abschalten.
 - **Fehlende Tage ≠ 0**: Liefert die API für heute (noch) keine Aktivitätsdaten, behält die App den letzten Wert; nur beim Tageswechsel wird der Schrittzähler auf 0 gesetzt. Ein `countSum: "0"` der API ist dagegen eine echte Null.
 - **Zahlenformate**: `int64`-Felder kommen als Strings (protobuf-JSON) und werden defensiv nach `Number` konvertiert.
-- **Schreiben** (Gewicht) nutzt zusätzlich den Scope `googlehealth.health_metrics_and_measurements` (read/write) und wird nur angefragt, wenn in den App-Einstellungen aktiviert. Nach einer Scope-Änderung genügt „Reparieren" am Gerät.
+- **Nur lesend**: Die App liest ausschließlich aus Google Health und schreibt nie Daten zurück. Die optionalen Herzdaten fügen die Scopes `ecg.readonly` / `irn.readonly` hinzu — nach dem Aktivieren am Gerät „Reparieren" ausführen.
 - **Google-Login**: Beim Zustimmungsbildschirm **alle Häkchen setzen** — Google lässt die granularen Berechtigungen standardmäßig leer; fehlende Berechtigungen zeigt das Gerät als Warnung an.
 
 ## Entwicklung

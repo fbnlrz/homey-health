@@ -88,16 +88,6 @@ class GoogleHealthApp extends Homey.App {
         await args.device.syncNow();
       });
 
-    this.homey.flow.getActionCard('log_weight')
-      .registerRunListener(async args => {
-        await args.device.logWeight(args.weight);
-      });
-
-    this.homey.flow.getActionCard('log_body_fat')
-      .registerRunListener(async args => {
-        await args.device.logBodyFat(args.percentage);
-      });
-
     this._registerWidgets();
 
     this.log('Google Health app has been initialized');

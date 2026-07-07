@@ -65,14 +65,6 @@
 
     <div class="field row">
       <label>
-        <input id="enable_write" type="checkbox" />
-        <span data-i18n="settings.enable_write"></span>
-      </label>
-      <p><small data-i18n="settings.enable_write_hint"></small></p>
-    </div>
-
-    <div class="field row">
-      <label>
         <input id="enable_cardiac" type="checkbox" />
         <span data-i18n="settings.enable_cardiac"></span>
       </label>
@@ -140,7 +132,6 @@
     function onHomeyReady(Homey) {
       var clientIdEl = document.getElementById('client_id');
       var clientSecretEl = document.getElementById('client_secret');
-      var enableWriteEl = document.getElementById('enable_write');
       var enableCardiacEl = document.getElementById('enable_cardiac');
       var saveEl = document.getElementById('save');
 
@@ -150,9 +141,6 @@
       Homey.get('client_secret', function (err, value) {
         if (!err && value) clientSecretEl.value = value;
       });
-      Homey.get('enable_write', function (err, value) {
-        if (!err) enableWriteEl.checked = !!value;
-      });
       Homey.get('enable_cardiac', function (err, value) {
         if (!err) enableCardiacEl.checked = !!value;
       });
@@ -161,7 +149,6 @@
         var values = [
           ['client_id', clientIdEl.value.trim()],
           ['client_secret', clientSecretEl.value.trim()],
-          ['enable_write', enableWriteEl.checked],
           ['enable_cardiac', enableCardiacEl.checked],
         ];
         var index = 0;

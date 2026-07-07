@@ -51,7 +51,7 @@ Google grants Health API access **per Google Cloud project**, so every user brin
 ### Step 5 — Connect Homey
 
 1. In the Homey app: **More → Apps → Health Sync for Google Health → Configure app**.
-2. Paste **Client ID** and **Client secret** → **Save**. Optionally enable *write access* if you want the "Log weight / body fat" Flow cards.
+2. Paste **Client ID** and **Client secret** → **Save**.
 3. Add the device: **Devices → + → Health Sync for Google Health** → sign in with the Google account you added as test user.
 4. ⚠️ **On Google's consent screen, tick ALL permission checkboxes** — Google leaves them unchecked by default. Unticked permissions show up later as a warning on the device.
 
@@ -114,7 +114,7 @@ Google vergibt den Health-API-Zugriff **pro Google-Cloud-Projekt** — deshalb b
 ### Schritt 5 — Homey verbinden
 
 1. In der Homey-App: **Mehr → Apps → Health Sync für Google Health → App konfigurieren**.
-2. **Client-ID** und **Client-Secret** einfügen → **Speichern**. Optional *Schreibzugriff* aktivieren, wenn du die Flow-Karten „Gewicht/Körperfett protokollieren" nutzen willst.
+2. **Client-ID** und **Client-Secret** einfügen → **Speichern**.
 3. Gerät hinzufügen: **Geräte → + → Health Sync für Google Health** → mit dem Google-Konto anmelden, das du als Testnutzer eingetragen hast.
 4. ⚠️ **Auf Googles Zustimmungsbildschirm ALLE Berechtigungs-Häkchen setzen** — Google lässt sie standardmäßig leer. Fehlende Häkchen erscheinen später als Warnung am Gerät.
 

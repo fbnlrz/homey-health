@@ -25,8 +25,6 @@
     "step5": "Füge unten Client-ID und Client-Secret ein, speichere und füge dann das Gerät hinzu. Wichtig: Setze beim Google-Login ALLE Berechtigungs-Häkchen — Google lässt sie standardmäßig leer.",
     "client_id": "Client-ID",
     "client_secret": "Client-Secret",
-    "enable_write": "Schreiben in Google Health erlauben (nötig für die Flow-Karte 'Gewicht protokollieren')",
-    "enable_write_hint": "Nach einer Änderung bei bestehenden Geräten 'Reparieren' ausführen (oder neu koppeln), um die neue Berechtigung zu übernehmen.",
     "enable_cardiac": "EKG- und Herzrhythmus-Daten aktivieren (zusätzliche Google-Berechtigungen)",
     "enable_cardiac_hint": "Fügt die EKG- und Rhythmus-Scopes für die passenden Flow-Karten hinzu. Nach einer Änderung das Gerät 'Reparieren' und die neuen Berechtigungen auf dem Google-Bildschirm anhaken.",
     "save": "Speichern",

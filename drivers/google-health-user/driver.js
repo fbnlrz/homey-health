@@ -59,7 +59,6 @@ class GoogleHealthDriver extends Homey.Driver {
     return {
       clientId: this.homey.settings.get('client_id'),
       clientSecret: this.homey.settings.get('client_secret'),
-      allowWrite: !!this.homey.settings.get('enable_write'),
       allowCardiac: !!this.homey.settings.get('enable_cardiac'),
     };
   }
@@ -75,7 +74,7 @@ class GoogleHealthDriver extends Homey.Driver {
     session.setHandler('showView', async viewId => {
       if (viewId !== 'login_oauth2') return;
 
-      const { clientId, clientSecret, allowWrite, allowCardiac } = this.getOAuthConfig();
+      const { clientId, clientSecret, allowCardiac } = this.getOAuthConfig();
       if (!clientId || !clientSecret) {
         await session.emit('error', this.homey.__('pair.missing_credentials'))
           .catch(this.error);
@@ -86,7 +85,7 @@ class GoogleHealthDriver extends Homey.Driver {
 
       const authUrl = GoogleHealthApi.buildAuthUrl({
         clientId,
-        scopes: GoogleHealthApi.scopes({ allowWrite, allowCardiac }),
+        scopes: GoogleHealthApi.scopes({ allowCardiac }),
       });
 
       const oauth2Callback = await this.homey.cloud.createOAuth2Callback(authUrl);

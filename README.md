@@ -36,7 +36,7 @@ Some capabilities only populate if your wearable actually records that data; emp
 
 - Triggers: step count changed · daily step goal reached · new heart rate reading · heart rate crossed a threshold · resting heart rate above its 7-day average · new weight measurement · new glucose measurement · new sleep data · you woke up (with wake time) · a workout ended (activity, duration, calories, avg. heart rate) · ECG recorded (opt-in) · irregular heart rhythm detected (opt-in)
 - Conditions: steps today above X · resting heart rate above X bpm · sleep shorter than X h · deep sleep below X min · water intake below X ml · active zone minutes above X · steps increased in the last X min · worked out today · is asleep
-- Actions: synchronize now · mark as asleep · mark as awake · log weight · log body fat (the last two require write access)
+- Actions: synchronize now · mark as asleep · mark as awake
 
 ## Setup
 
@@ -50,7 +50,7 @@ Google grants Health API access per Google Cloud project, so you bring your own 
    ```
 
 3. While the OAuth consent screen is in **Testing** mode, add your Google account as a **test user**. (Note: in testing mode refresh tokens expire after 7 days — run "Repair" on the device, or publish the consent screen for permanent logins.)
-4. In Homey: *More → Apps → Health Sync for Google Health → Configure app* — enter Client ID and Client Secret. Optionally enable write access for the "Log weight / body fat" Flow cards.
+4. In Homey: *More → Apps → Health Sync for Google Health → Configure app* — enter Client ID and Client Secret.
 5. Add the device (*Devices → + → Health Sync for Google Health*) and sign in with Google.
 
 ## Behavior notes
@@ -58,14 +58,14 @@ Google grants Health API access per Google Cloud project, so you bring your own 
 - **Poll interval**: 15 minutes by default, configurable from 5 minutes (device settings). Data groups (activity/heart/body/sleep/nutrition) can be toggled individually.
 - **Missing days ≠ 0**: if the API has no activity data for today (yet), the app keeps the last value; daily counters reset to 0 only at local midnight. A `countSum: "0"` from the API is a true zero.
 - **Number formats**: `int64` fields arrive as strings (protobuf JSON) and are converted defensively via `Number`.
-- **Writing** (weight/body fat) additionally uses the `googlehealth.health_metrics_and_measurements` (read/write) scope and is only requested when enabled in the app settings. After changing it, running "Repair" on the device is enough.
+- **Read-only**: the app only reads from Google Health; it never writes data back. The optional cardiac data adds the `ecg.readonly` / `irn.readonly` scopes — after enabling it, run "Repair" on the device.
 - **Google sign-in**: tick **all checkboxes** on the consent screen — Google leaves the granular permissions unchecked by default; missing permissions show up as a device warning.
 
 ## Privacy & security
 
 - Runs 100% locally on your Homey Pro; talks only to `health.googleapis.com` and Google's OAuth endpoints. No developer servers, no telemetry.
 - The OAuth client belongs to *your* Google Cloud project; tokens are stored in Homey's device store only.
-- Read-only by default; write access and cardiac (ECG/irregular-rhythm) data are separate opt-ins that request additional Google scopes.
+- Read-only: the app only ever reads from Google Health. Cardiac (ECG/irregular-rhythm) data is a separate opt-in that requests additional read-only Google scopes.
 - The health **report** is served from your Homey over the local network as plain HTTP for at most ~5 minutes, protected by a freshly generated one-time password and a random URL token, then the server is torn down. It never leaves your LAN.
 - Zero runtime npm dependencies; empty Homey permission list; MIT-licensed and fully auditable.
 
