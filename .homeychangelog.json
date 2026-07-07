@@ -43,5 +43,8 @@
   },
   "0.5.1": {
     "en": "Widgets: the Health tile is now a grid of small square metric tiles you choose via checkboxes, alongside a separate single-metric tile and the overview. Tiles now show a live sparkline of recent values — a full trend line on the single tile and a subtle background trend in the grid tiles — building up as the app collects data. Also refined the widget icons."
+  },
+  "1.0.0": {
+    "en": "New: dashboard widgets — a grid of small square metric tiles, a single-metric tile and an overview, each with a data-type-matched icon and a live sparkline. The app is now fully read-only. Fixes: safer account verification on repair, no spurious triggers on install, escaped device names, clearer widget states, and the health report no longer fails over long periods."
   }
 }
