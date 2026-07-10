@@ -47,8 +47,8 @@ Die Google Health API wird pro Google-Cloud-Projekt freigeschaltet, deshalb brau
    ```
 
 4. Solange der OAuth-Zustimmungsbildschirm im Modus **Testen** ist: dein Google-Konto als **Testnutzer** hinzufügen. (Achtung: Im Testmodus laufen Refresh-Tokens nach 7 Tagen ab — dann in Homey einfach „Reparieren" ausführen oder den Zustimmungsbildschirm veröffentlichen.)
-5. In Homey: *Mehr → Apps → Health Sync für Google Health → App konfigurieren* — Client-ID und Client-Secret eintragen.
-6. Gerät hinzufügen (*Geräte → + → Health Sync für Google Health*) und mit Google anmelden.
+5. In Homey: *Mehr → Apps → Google Health Sync → App konfigurieren* — Client-ID und Client-Secret eintragen.
+6. Gerät hinzufügen (*Geräte → + → Google Health Sync*) und mit Google anmelden.
 
 ## Hinweise zum Verhalten
 

@@ -1,6 +1,6 @@
 {
   "pair": {
-    "missing_credentials": "Vul eerst je Google OAuth Client-ID en Client-secret in bij de app-instellingen (Meer > Apps > Health Sync voor Google Health > App configureren).",
+    "missing_credentials": "Vul eerst je Google OAuth Client-ID en Client-secret in bij de app-instellingen (Meer > Apps > Google Health Sync > App configureren).",
     "not_authorized": "De Google-aanmelding is niet voltooid. Probeer het opnieuw.",
     "wrong_account": "Deze aanmelding hoort bij een ander Google-account dan dit apparaat. Meld je aan met het oorspronkelijke account.",
     "verify_failed": "Kon het Google-account voor dit apparaat niet verifiëren (de identiteitsdienst van Google reageerde niet). Probeer 'Repareren' zo meteen opnieuw."
@@ -16,7 +16,7 @@
     "sync_failing": "Herhaalde synchronisatiefouten bij: __types__. Details staan in het app-logboek."
   },
   "settings": {
-    "title": "Health Sync voor Google Health",
+    "title": "Google Health Sync",
     "intro": "Deze app heeft een eigen Google Cloud OAuth-client nodig, omdat Google de Health API-toegang per project verleent.",
     "step1": "Open de Google Cloud Console en maak (of selecteer) een project.",
     "step2": "Schakel de Google Health API in voor het project.",
@@ -87,7 +87,7 @@
       "avg_rhr": "Ø Rusthartslag",
       "avg_spo2": "Ø SpO2",
       "weight_change": "Gewichtsverandering",
-      "disclaimer": "Gegenereerd door Health Sync voor Google Health (Homey) op basis van je Google Health-gegevens. Dit is geen medisch document; de waarden komen van consumentenapparaten en kunnen onnauwkeurig zijn. Niet verbonden met Google.",
+      "disclaimer": "Gegenereerd door Google Health Sync (Homey) op basis van je Google Health-gegevens. Dit is geen medisch document; de waarden komen van consumentenapparaten en kunnen onnauwkeurig zijn. Niet verbonden met Google.",
       "hint": "Het rapport verschijnt hieronder op deze pagina. 'Openen in browser' serveert het kort via je Homey op het lokale netwerk — daar kun je afdrukken of opslaan als PDF."
     }
   }

@@ -1,6 +1,6 @@
 {
   "pair": {
-    "missing_credentials": "Bitte hinterlege zuerst die Google OAuth Client-ID und das Client-Secret in den App-Einstellungen (Mehr > Apps > Health Sync für Google Health > App konfigurieren).",
+    "missing_credentials": "Bitte hinterlege zuerst die Google OAuth Client-ID und das Client-Secret in den App-Einstellungen (Mehr > Apps > Google Health Sync > App konfigurieren).",
     "not_authorized": "Die Google-Anmeldung wurde nicht abgeschlossen. Bitte versuche es erneut.",
     "wrong_account": "Diese Anmeldung gehört zu einem anderen Google-Konto als dieses Gerät. Bitte melde dich mit dem ursprünglichen Konto an.",
     "verify_failed": "Das Google-Konto für dieses Gerät konnte nicht überprüft werden (Googles Identitätsdienst antwortete nicht). Bitte versuche 'Reparieren' gleich noch einmal."
@@ -16,7 +16,7 @@
     "sync_failing": "Wiederholte Sync-Fehler bei: __types__. Details stehen im App-Protokoll."
   },
   "settings": {
-    "title": "Health Sync für Google Health",
+    "title": "Google Health Sync",
     "intro": "Diese App benötigt einen eigenen Google-Cloud-OAuth-Client, da Google den Health-API-Zugriff pro Projekt vergibt.",
     "step1": "Öffne die Google Cloud Console und erstelle (oder wähle) ein Projekt.",
     "step2": "Aktiviere die Google Health API für das Projekt.",
@@ -87,7 +87,7 @@
       "avg_rhr": "Ø Ruhepuls",
       "avg_spo2": "Ø SpO2",
       "weight_change": "Gewichtsänderung",
-      "disclaimer": "Erstellt von Health Sync für Google Health (Homey) aus deinen Google-Health-Daten. Dies ist kein medizinisches Dokument; die Werte stammen von Consumer-Geräten und können ungenau sein. Nicht mit Google verbunden.",
+      "disclaimer": "Erstellt von Google Health Sync (Homey) aus deinen Google-Health-Daten. Dies ist kein medizinisches Dokument; die Werte stammen von Consumer-Geräten und können ungenau sein. Nicht mit Google verbunden.",
       "hint": "Der Bericht erscheint unten auf dieser Seite. 'Im Browser öffnen' stellt ihn kurzzeitig über deinen Homey im Heimnetz bereit — dort kannst du drucken oder als PDF speichern."
     }
   }

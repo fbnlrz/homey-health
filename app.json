@@ -9,9 +9,9 @@
     "local"
   ],
   "name": {
-    "en": "Health Sync for Google Health",
-    "de": "Health Sync für Google Health",
-    "nl": "Health Sync voor Google Health"
+    "en": "Google Health Sync",
+    "de": "Google Health Sync",
+    "nl": "Google Health Sync"
   },
   "description": {
     "en": "Your steps, heart rate, sleep and weight from Google Health on Homey",
