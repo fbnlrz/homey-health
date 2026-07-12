@@ -46,5 +46,8 @@
   },
   "1.0.0": {
     "en": "New: dashboard widgets — a grid of small square metric tiles, a single-metric tile and an overview, each with a data-type-matched icon and a live sparkline. The app is now fully read-only. Fixes: safer account verification on repair, no spurious triggers on install, escaped device names, clearer widget states, and the health report no longer fails over long periods."
+  },
+  "1.0.1": {
+    "en": "Certification fixes: shorter app name, distinct driver icon, redesigned widget previews, corrected read-only wording."
   }
 }
