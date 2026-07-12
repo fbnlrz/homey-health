@@ -1,4 +1,4 @@
-# Google Cloud Setup — Google Health Sync
+# Google Cloud Setup — Health Sync
 
 **English guide below · Deutsche Anleitung weiter unten**
 
@@ -50,9 +50,9 @@ Google grants Health API access **per Google Cloud project**, so every user brin
 
 ### Step 5 — Connect Homey
 
-1. In the Homey app: **More → Apps → Google Health Sync → Configure app**.
+1. In the Homey app: **More → Apps → Health Sync → Configure app**.
 2. Paste **Client ID** and **Client secret** → **Save**.
-3. Add the device: **Devices → + → Google Health Sync** → sign in with the Google account you added as test user.
+3. Add the device: **Devices → + → Health Sync** → sign in with the Google account you added as test user.
 4. ⚠️ **On Google's consent screen, tick ALL permission checkboxes** — Google leaves them unchecked by default. Unticked permissions show up later as a warning on the device.
 
 ### Troubleshooting
@@ -113,9 +113,9 @@ Google vergibt den Health-API-Zugriff **pro Google-Cloud-Projekt** — deshalb b
 
 ### Schritt 5 — Homey verbinden
 
-1. In der Homey-App: **Mehr → Apps → Google Health Sync → App konfigurieren**.
+1. In der Homey-App: **Mehr → Apps → Health Sync → App konfigurieren**.
 2. **Client-ID** und **Client-Secret** einfügen → **Speichern**.
-3. Gerät hinzufügen: **Geräte → + → Google Health Sync** → mit dem Google-Konto anmelden, das du als Testnutzer eingetragen hast.
+3. Gerät hinzufügen: **Geräte → + → Health Sync** → mit dem Google-Konto anmelden, das du als Testnutzer eingetragen hast.
 4. ⚠️ **Auf Googles Zustimmungsbildschirm ALLE Berechtigungs-Häkchen setzen** — Google lässt sie standardmäßig leer. Fehlende Häkchen erscheinen später als Warnung am Gerät.
 
 ### Fehlerbehebung

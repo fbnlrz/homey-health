@@ -1,4 +1,4 @@
-# Google Health Sync (Homey)
+# Health Sync (Homey)
 
 *Deutsche Version: [README.de.md](README.de.md)*
 
@@ -50,8 +50,8 @@ Google grants Health API access per Google Cloud project, so you bring your own 
    ```
 
 3. While the OAuth consent screen is in **Testing** mode, add your Google account as a **test user**. (Note: in testing mode refresh tokens expire after 7 days — run "Repair" on the device, or publish the consent screen for permanent logins.)
-4. In Homey: *More → Apps → Google Health Sync → Configure app* — enter Client ID and Client Secret.
-5. Add the device (*Devices → + → Google Health Sync*) and sign in with Google.
+4. In Homey: *More → Apps → Health Sync → Configure app* — enter Client ID and Client Secret.
+5. Add the device (*Devices → + → Health Sync*) and sign in with Google.
 
 ## Behavior notes
 
