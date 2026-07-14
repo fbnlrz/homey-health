@@ -49,5 +49,14 @@
   },
   "1.0.1": {
     "en": "Certification fixes: shorter app name, distinct driver icon, redesigned widget previews, corrected read-only wording."
+  },
+  "1.1.0": {
+    "en": "Renamed the app to \"Health Sync\". Refreshed the driver icon and rebuilt the widget previews for App Store certification, and corrected the store description to reflect that the app is read-only. No changes to how your data is synced."
+  },
+  "1.1.1": {
+    "en": "Renamed the app to \"Health Sync\". Refreshed the driver icon and rebuilt the widget previews for App Store certification, and corrected the store description to reflect that the app is read-only. No changes to how your data is synced."
+  },
+  "1.1.2": {
+    "en": "Updated the device image to match Homey App Store guidelines (white background)."
   }
 }
