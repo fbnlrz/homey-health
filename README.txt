@@ -6,4 +6,10 @@ Native dashboard widgets show your metrics with a live trend sparkline, and you 
 
 Setup requires your own (free) Google Cloud project with the Google Health API enabled and an OAuth client — the app settings page walks you through it step by step.
 
+Support the development
+If you find this app useful, you can support its development:
+Ko-fi: https://ko-fi.com/fbnlrz
+Buy Me a Coffee: https://buymeacoffee.com/fbnlrz
+GitHub Sponsors: https://github.com/sponsors/fbnlrz
+
 This app is not affiliated with Google. Google Health is a trademark of Google LLC.

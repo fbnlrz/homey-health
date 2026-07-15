@@ -6,4 +6,10 @@ Native dashboard-widgets tonen je waarden met een live trend-sparkline, en je ku
 
 Voor de installatie heb je een eigen (gratis) Google Cloud-project nodig met de Google Health API ingeschakeld en een OAuth-client — de instellingenpagina van de app begeleidt je stap voor stap.
 
+Steun de ontwikkeling
+Als je deze app waardeert, kun je de ontwikkeling steunen:
+Ko-fi: https://ko-fi.com/fbnlrz
+Buy Me a Coffee: https://buymeacoffee.com/fbnlrz
+GitHub Sponsors: https://github.com/sponsors/fbnlrz
+
 Deze app is niet verbonden met Google. Google Health is een handelsmerk van Google LLC.
