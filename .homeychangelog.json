@@ -58,5 +58,8 @@
   },
   "1.1.2": {
     "en": "Updated the device image to match Homey App Store guidelines (white background)."
+  },
+  "1.1.3": {
+    "en": "added contribute and workflows"
   }
 }
