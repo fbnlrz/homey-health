@@ -84,6 +84,14 @@ Genutzte Quellen:
 
 Diese App ist nicht mit Google verbunden. Google Health ist eine Marke von Google LLC.
 
+## Entwicklung unterstützen
+
+Wenn dir diese App gefällt, kannst du die Entwicklung unterstützen:
+
+- [Ko-fi](https://ko-fi.com/fbnlrz)
+- [Buy Me a Coffee](https://buymeacoffee.com/fbnlrz)
+- [GitHub Sponsors](https://github.com/sponsors/fbnlrz)
+
 ## Lizenz
 
 MIT

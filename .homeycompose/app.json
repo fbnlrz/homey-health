@@ -45,5 +45,12 @@
     "name": "fbnlrz"
   },
   "source": "https://github.com/fbnlrz/homey-health",
-  "support": "https://github.com/fbnlrz/homey-health/issues"
+  "support": "https://github.com/fbnlrz/homey-health/issues",
+  "contributing": {
+    "donate": {
+      "githubSponsors": {
+        "username": "fbnlrz"
+      }
+    }
+  }
 }
