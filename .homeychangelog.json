@@ -61,5 +61,8 @@
   },
   "1.1.3": {
     "en": "added contribute and workflows"
+  },
+  "1.1.4": {
+    "en": "implemented reviewer-feedbach and edited Readme"
   }
 }
