@@ -6,10 +6,4 @@ Native Dashboard-Widgets zeigen deine Werte mit einer Live-Trend-Sparkline, und 
 
 Für die Einrichtung brauchst du ein eigenes (kostenloses) Google-Cloud-Projekt mit aktivierter Google Health API und einem OAuth-Client — die Einstellungsseite der App führt dich Schritt für Schritt hindurch.
 
-Entwicklung unterstützen
-Wenn dir diese App gefällt, kannst du die Entwicklung unterstützen:
-Ko-fi: https://ko-fi.com/fbnlrz
-Buy Me a Coffee: https://buymeacoffee.com/fbnlrz
-GitHub Sponsors: https://github.com/sponsors/fbnlrz
-
 Diese App ist nicht mit Google verbunden. Google Health ist eine Marke von Google LLC.
